@@ -40,3 +40,12 @@ CMakeLists.txt.user*
 # Windows 
 
 desktop.ini
+
+# Visual Studio
+
+.vs/
+/*.vcxproj*
+/*.props
+/*.sln
+Build/
+x64/

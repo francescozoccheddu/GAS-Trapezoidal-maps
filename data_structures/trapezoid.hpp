@@ -7,7 +7,7 @@
 namespace GAS
 {
 
-	template<class Scalar, typename = typename std::enable_if<std::is_arithmetic<Scalar>::value, Scalar>::type>
+	template<class Scalar>
 	class Trapezoid final
 	{
 

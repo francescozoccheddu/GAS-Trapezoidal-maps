@@ -15,7 +15,7 @@ namespace GAS
 
 		std::vector<Segment<Scalar>> m_segments;
 		std::vector<Trapezoid<Scalar>> m_trapezoids;
-		TrapezoidalDAG::Node m_dag;
+		TrapezoidalDAG::Node<Scalar> m_dag;
 
 		Segment<Scalar> m_bottom {}, m_top {};
 
@@ -23,18 +23,18 @@ namespace GAS
 
 		TrapezoidalMap ();
 		TrapezoidalMap (const Point<Scalar> &bottomLeft, const Point<Scalar> &topRight);
-		virtual ~TrapezoidalMap = default;
+		virtual ~TrapezoidalMap () = default;
 
 		// Trapezoids
-		const std::vector<Trapezoid> &getTrapezoids () const;
+		const std::vector<Trapezoid<Scalar>> &getTrapezoids () const;
 
 		// Bounds
-		const Segment<Scalar> &getBottomLeft () const;
-		const Segment<Scalar> &getBottomRight () const;
-		const Segment<Scalar> &getTopLeft () const;
-		const Segment<Scalar> &getTopRight () const;
-		const Point<Scalar> &getTop () const;
-		const Point<Scalar> &getBottom () const;
+		const Point<Scalar> &getBottomLeft () const;
+		const Point<Scalar> &getBottomRight () const;
+		const Point<Scalar> &getTopLeft () const;
+		const Point<Scalar> &getTopRight () const;
+		const Segment<Scalar> &getTop () const;
+		const Segment<Scalar> &getBottom () const;
 		Scalar getLeftX () const;
 		Scalar getRightX () const;
 		Scalar getBottomY () const;
@@ -49,3 +49,5 @@ namespace GAS
 	};
 
 }
+
+#include "trapezoidal_map.tpp"

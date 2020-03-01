@@ -1,11 +1,10 @@
 #pragma once
 
-#include <type_traits>
-#include <cg3/geometry/point2.h>
-#include <cg3/geometry/segment2.h>
-#include <vector>
+#include "point.hpp"
+#include "segment.hpp"
 #include "trapezoid.hpp"
 #include "trapezoidal_dag.hpp"
+#include <vector>
 
 namespace GAS
 {
@@ -14,44 +13,38 @@ namespace GAS
 	class TrapezoidalMap
 	{
 
-	private:
-
-		using Point = cg3::Point2<Scalar>;
-		using Segment = cg3::Segment2<Scalar>;
-		using Trapezoid = Trapezoid<Scalar>;
-
-		std::vector<Segment> m_segments;
-		std::vector<Trapezoid> m_trapezoids;
+		std::vector<Segment<Scalar>> m_segments;
+		std::vector<Trapezoid<Scalar>> m_trapezoids;
 		TrapezoidalDAG::Node m_dag;
 
-		Segment m_bottom {}, m_top {};
+		Segment<Scalar> m_bottom {}, m_top {};
 
 	public:
 
 		TrapezoidalMap ();
+		TrapezoidalMap (const Point<Scalar> &bottomLeft, const Point<Scalar> &topRight);
 		virtual ~TrapezoidalMap = default;
 
 		// Trapezoids
 		const std::vector<Trapezoid> &getTrapezoids () const;
 
 		// Bounds
-		const Segment &getBottomLeft () const;
-		const Segment &getBottomRight () const;
-		const Segment &getTopLeft () const;
-		const Segment &getTopRight () const;
-		const Point &getTop () const;
-		const Point &getBottom () const;
+		const Segment<Scalar> &getBottomLeft () const;
+		const Segment<Scalar> &getBottomRight () const;
+		const Segment<Scalar> &getTopLeft () const;
+		const Segment<Scalar> &getTopRight () const;
+		const Point<Scalar> &getTop () const;
+		const Point<Scalar> &getBottom () const;
 		Scalar getLeftX () const;
 		Scalar getRightX () const;
 		Scalar getBottomY () const;
 		Scalar getTopY () const;
-		void setBounds (Scalar leftX, Scalar rightX, Scalar bottomY, Scalar topY);
-		void setBounds (const Point &bottomLeft, const Point &topRight);
+		void setBounds (const Point<Scalar> &bottomLeft, const Point<Scalar> &topRight);
 
 		// Segments
-		const std::vector<Segment> &getSegments () const;
+		const std::vector<Segment<Scalar>> &getSegments () const;
 		void clear ();
-		void addSegment (const Segment &segment);
+		void addSegment (const Segment<Scalar> &segment);
 
 	};
 

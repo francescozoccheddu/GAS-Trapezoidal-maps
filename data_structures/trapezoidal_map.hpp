@@ -17,11 +17,10 @@ namespace GAS
 		std::vector<Trapezoid<Scalar>> m_trapezoids;
 		TrapezoidalDAG::Node<Scalar> m_dag;
 
-		Segment<Scalar> m_bottom {}, m_top {};
+		Segment<Scalar> m_bottom, m_top;
 
 	public:
 
-		TrapezoidalMap ();
 		TrapezoidalMap (const Point<Scalar> &bottomLeft, const Point<Scalar> &topRight);
 		virtual ~TrapezoidalMap () = default;
 

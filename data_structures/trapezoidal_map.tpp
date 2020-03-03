@@ -12,7 +12,7 @@ namespace GAS
 	{}
 
 	template<class Scalar>
-	TrapezoidalMap<Scalar>::Iterator &TrapezoidalMap<Scalar>::Iterator::operator++ ()
+	typename TrapezoidalMap<Scalar>::Iterator &TrapezoidalMap<Scalar>::Iterator::operator++ ()
 	{
 		if (m_current->upperRightNeighbor && m_current->upperRightNeighbor->top == m_current->top)
 		{
@@ -26,9 +26,10 @@ namespace GAS
 		{
 			m_current = m_current->lowerRightNeighbor;
 		}
-		else if (m_deque!.empty ())
+		else if (!m_deque.empty ())
 		{
-			m_current = m_deque.pop_back ();
+			m_current = m_deque.back ();
+			m_deque.pop_back ();
 		}
 		else
 		{
@@ -47,6 +48,12 @@ namespace GAS
 	const Trapezoid<Scalar> *TrapezoidalMap<Scalar>::Iterator::operator-> () const
 	{
 		return m_current;
+	}
+
+	template<class Scalar>
+	bool TrapezoidalMap<Scalar>::Iterator::operator!= (const Iterator &_other) const
+	{
+		return m_current != _other.m_current || m_deque != _other.m_deque;
 	}
 
 	template<class Scalar>
@@ -83,13 +90,13 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	TrapezoidalMap<Scalar>::Iterator TrapezoidalMap<Scalar>::begin () const
+	typename TrapezoidalMap<Scalar>::Iterator TrapezoidalMap<Scalar>::begin () const
 	{
 		return Iterator (m_leftmostTrapezoid);
 	}
 
 	template<class Scalar>
-	const TrapezoidalMap<Scalar>::Iterator &TrapezoidalMap<Scalar>::end () const
+	const typename TrapezoidalMap<Scalar>::Iterator &TrapezoidalMap<Scalar>::end () const
 	{
 		return m_end;
 	}
@@ -182,7 +189,7 @@ namespace GAS
 			Iterator it { m_leftmostTrapezoid };
 			while (it != m_end)
 			{
-				Trapezoid<Scalar> *const t { it.m_current };
+				Trapezoid<Scalar> *const t { const_cast<Trapezoid<Scalar> *> (it.m_current) };
 				++it;
 				delete t;
 			}
@@ -190,29 +197,29 @@ namespace GAS
 		m_segments.clear ();
 		// Add bounding box trapezoid
 		m_leftmostTrapezoid = new Trapezoid<Scalar>;
-		t.bottom = &m_bottom;
-		t.top = &m_top;
-		t.left = &getBottomLeft ();
-		t.right = &getBottomRight ();
-		m_dag = &t;
+		m_leftmostTrapezoid->bottom = &m_bottom;
+		m_leftmostTrapezoid->top = &m_top;
+		m_leftmostTrapezoid->left = &getBottomLeft ();
+		m_leftmostTrapezoid->right = &getBottomRight ();
+		m_dag = m_leftmostTrapezoid;
 		m_trapezoidsCount = 1;
 	}
 
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::addSegment (const Segment<Scalar> &_segment)
 	{
-		m_segments.push_back (_segment.p1 ().x () < _segment.p2 ().x () ? _segment : {_segment.p2 (), _segment.p1 ()});
-		const Segment<Scalar> &s { *m_segments[m_segments.size () - 1] };
+		m_segments.push_back (_segment.p1 ().x () < _segment.p2 ().x () ? _segment : Segment<Scalar> { _segment.p2 (), _segment.p1 () });
+		const Segment<Scalar> &s { m_segments[m_segments.size () - 1] };
 		// Find leftmost intersected trapezoid
 		// TODO Use DAG!!
 		Trapezoid<Scalar> *t;
 		{
 			const Point<Scalar> &lp { _segment.p1 () };
-			for (Trapezoid<Scalar> &t : *this)
+			for (const Trapezoid<Scalar> &ti : *this)
 			{
-				if (lp.x () >= t.left->x () && lp.x () < t.right->x () && Geometry::getPointSideWithRespectToSegment (*t.bottom, lp) != Geometry::getPointSideWithRespectToSegment (*t.top, lp))
+				if (lp.x () >= ti.left->x () && lp.x () < ti.right->x () && Geometry::getPointSideWithRespectToSegment (*ti.bottom, lp) != Geometry::getPointSideWithRespectToSegment (*ti.top, lp))
 				{
-					t = &t;
+					t = const_cast<Trapezoid<Scalar> *>(&ti);
 					break;
 				}
 			}

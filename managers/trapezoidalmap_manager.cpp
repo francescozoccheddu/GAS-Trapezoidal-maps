@@ -37,7 +37,8 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
                 cg3::Point2d(BOUNDINGBOX, BOUNDINGBOX)),
     firstPointSelectedColor(220, 80, 80),
     firstPointSelectedSize(5),
-    isFirstPointSelected(false)
+    isFirstPointSelected(false),
+    m_trapezoidalMap{ { -BOUNDINGBOX, -BOUNDINGBOX }, { BOUNDINGBOX, BOUNDINGBOX } }
 {
     //NOTE 1: you probably need to initialize some objects in the constructor. You
     //can see how to initialize an attribute in the lines above. This is C++ style
@@ -82,8 +83,23 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
     //and re-drawing it again. See how we implemented the drawing of the bounding box and 
     //the dataset.
 
+    m_trapezoidalMapFillDrawer.setTrapezoidalMap(&m_trapezoidalMap);
+    m_trapezoidalMapFillDrawer.setPainter(new GAS::Drawing::TrapezoidFillPainter<double>);
+    {
+        GAS::Drawing::TrapezoidFancyColorizer<double> *const colorizer { new GAS::Drawing::TrapezoidFancyColorizer<double> };
+        colorizer->setSaturation(1.0f);
+        colorizer->setValue(0.5f);
+        colorizer->setAlpha(1.0f);
+        m_trapezoidalMapFillDrawer.setColorizer(colorizer);
+    }
+    m_trapezoidalMapDrawableContainer.pushBack(&m_trapezoidalMapFillDrawer, "Fill");
 
+    m_trapezoidalMapStrokeDrawer.setTrapezoidalMap(&m_trapezoidalMap);
+    m_trapezoidalMapStrokeDrawer.setPainter(new GAS::Drawing::TrapezoidStrokePainter<double> {2});
+    m_trapezoidalMapStrokeDrawer.setColorizer(new GAS::Drawing::TrapezoidConstantColorizer<double> {{0, 0, 0}});
+    m_trapezoidalMapDrawableContainer.pushBack(&m_trapezoidalMapStrokeDrawer, "Stroke");
 
+    mainWindow.pushDrawableObject(&m_trapezoidalMapDrawableContainer, "Trapezoidal map");
 
     //#####################################################################
 
@@ -146,8 +162,10 @@ TrapezoidalMapManager::~TrapezoidalMapManager()
 
     //#####################################################################
 
-
-
+    delete m_trapezoidalMapFillDrawer.getColorizer();
+    delete m_trapezoidalMapFillDrawer.getPainter();
+    delete m_trapezoidalMapStrokeDrawer.getColorizer();
+    delete m_trapezoidalMapStrokeDrawer.getPainter();
 
     delete ui; //Delete interface
 }
@@ -200,11 +218,7 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
 
     //#####################################################################
 
-
-
-    //You can delete this line after you implement the algorithm: it is
-    //just needed to suppress the unused-variable warning
-    CG3_SUPPRESS_WARNING(segment);
+    m_trapezoidalMap.addSegment(segment);
 }
 
 /**

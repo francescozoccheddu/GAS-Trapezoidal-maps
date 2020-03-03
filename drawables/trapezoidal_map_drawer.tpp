@@ -25,11 +25,12 @@ namespace GAS
 		void TrapezoidalMapDrawer<Scalar>::draw () const
 		{
 			ensureValid ();
-			const std::vector<Trapezoid<Scalar>> &trapezoids { m_trapezoidalMap->getTrapezoids () };
-			for (int i { 0 }; i < trapezoids.size (); i++)
+			int i {};
+			for (const Trapezoid<Scalar> &t : *m_trapezoidalMap)
 			{
-				cg3::Color color { m_colorizer->provideColor (*m_trapezoidalMap, i) };
-				m_painter->draw (*m_trapezoidalMap, i, color);
+				cg3::Color color { m_colorizer->provideColor (*m_trapezoidalMap, i, t) };
+				m_painter->draw (*m_trapezoidalMap, i, t, color);
+				i++;
 			}
 		}
 
@@ -120,7 +121,7 @@ namespace GAS
 		}
 
 		template<class Scalar>
-		const cg3::Color &TrapezoidConstantColorizer<Scalar>::provideColor (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index) const
+		const cg3::Color &TrapezoidConstantColorizer<Scalar>::provideColor (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid) const
 		{
 			return color;
 		}
@@ -130,10 +131,10 @@ namespace GAS
 		{}
 
 		template<class Scalar>
-		const cg3::Color &TrapezoidFancyColorizer<Scalar>::provideColor (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index) const
+		const cg3::Color &TrapezoidFancyColorizer<Scalar>::provideColor (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid) const
 		{
 			cg3::Color color;
-			color.setHsvF (_index / (float) _trapezoidalMap.getTrapezoids ().size (), m_saturation, m_value);
+			color.setHsvF (_index / (float) _trapezoidalMap.getTrapezoidsCount (), m_saturation, m_value);
 			color.setAlphaF (m_alpha);
 			return color;
 		}
@@ -145,7 +146,7 @@ namespace GAS
 		}
 
 		template<class Scalar>
-		void TrapezoidFancyColorizer<Scalar>::setSaturation (float _saturation) const
+		void TrapezoidFancyColorizer<Scalar>::setSaturation (float _saturation)
 		{
 			if (_saturation < 0.0f || _saturation > 1.0f)
 			{
@@ -187,11 +188,14 @@ namespace GAS
 		}
 
 		template<class Scalar>
-		void TrapezoidStrokePainter<Scalar>::draw (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const cg3::Color &_color) const
+		void TrapezoidStrokePainter<Scalar>::draw (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid, const cg3::Color &_color) const
 		{
-			const Trapezoid<Scalar> &trapezoid { _trapezoidalMap->getTrapezoids ()[_index] };
-			Internals::drawTrapezoid (trapezoid, _color, m_thickness, false);
+			Internals::drawTrapezoid (_trapezoid, _color, m_thickness, false);
 		}
+
+		template<class Scalar>
+		TrapezoidStrokePainter<Scalar>::TrapezoidStrokePainter (int _thickness) : m_thickness { _thickness }
+		{}
 
 		template<class Scalar>
 		int TrapezoidStrokePainter<Scalar>::getThickness () const
@@ -210,10 +214,9 @@ namespace GAS
 		}
 
 		template<class Scalar>
-		void TrapezoidFillPainter<Scalar>::draw (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const cg3::Color &_color) const
+		void TrapezoidFillPainter<Scalar>::draw (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid, const cg3::Color &_color) const
 		{
-			const Trapezoid<Scalar> &trapezoid { _trapezoidalMap.getTrapezoids ()[_index] };
-			Internals::drawTrapezoid (trapezoid, _color, 0, true);
+			Internals::drawTrapezoid (_trapezoid, _color, 0, true);
 		}
 
 	}

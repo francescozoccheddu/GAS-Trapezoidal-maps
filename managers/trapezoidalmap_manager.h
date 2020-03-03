@@ -12,6 +12,10 @@
 
 #include "drawables/drawable_trapezoidalmap_dataset.h"
 
+#include <data_structures/trapezoidal_map.hpp>
+#include <drawables/trapezoidal_map_drawer.hpp>
+#include <cg3/viewer/interfaces/drawable_container.h>
+
 namespace Ui {
     class TrapezoidalMapManager;
 }
@@ -25,7 +29,7 @@ class TrapezoidalMapManager : public QFrame {
 
 public:
 
-    /* ----- Constructors/destructors ----- */
+	/* ----- Constructors/destructors ----- */
 
     explicit TrapezoidalMapManager(QWidget *parent = nullptr);
     ~TrapezoidalMapManager();
@@ -33,38 +37,40 @@ public:
 
 private:
 
-    /* ----- Private fields ----- */
+	/* ----- Private fields ----- */
 
-    //UI fields
-    Ui::TrapezoidalMapManager *ui;
+	//UI fields
+	Ui::TrapezoidalMapManager *ui;
     cg3::viewer::MainWindow& mainWindow;    
 
-    //It is const because, once defined and initialized, it will never change!
-    const cg3::DrawableBoundingBox2 drawableBoundingBox;
+	//It is const because, once defined and initialized, it will never change!
+	const cg3::DrawableBoundingBox2 drawableBoundingBox;
 
-    //Drawable dataset for the trapezoidal map. Each segment is consistent:
-    //points in general position, no segment duplicates, non-intersecting segments
-    DrawableTrapezoidalMapDataset drawableTrapezoidalMapDataset;
+	//Drawable dataset for the trapezoidal map. Each segment is consistent:
+	//points in general position, no segment duplicates, non-intersecting segments
+	DrawableTrapezoidalMapDataset drawableTrapezoidalMapDataset;
 
-    //Variables to allow to select a segment clicking on the canvas
-    cg3::DrawablePoint2 firstPointSelected;
-    cg3::Color firstPointSelectedColor;
-    unsigned int firstPointSelectedSize;
-    bool isFirstPointSelected;
-	
-	
-
-    //---------------------------------------------------------------------
-    //Declare your attributes here
+	//Variables to allow to select a segment clicking on the canvas
+	cg3::DrawablePoint2 firstPointSelected;
+	cg3::Color firstPointSelectedColor;
+	unsigned int firstPointSelectedSize;
+	bool isFirstPointSelected;
 
 
 
+	//---------------------------------------------------------------------
+	//Declare your attributes here
 
-    //#####################################################################
+	GAS::TrapezoidalMap<double> m_trapezoidalMap;
+	GAS::Drawing::TrapezoidalMapDrawer<double> m_trapezoidalMapFillDrawer;
+	GAS::Drawing::TrapezoidalMapDrawer<double> m_trapezoidalMapStrokeDrawer;
+	cg3::DrawableContainer m_trapezoidalMapDrawableContainer;
+
+	//#####################################################################
 
 
 
-    /* ----- Methods (YOU WILL HAVE TO EDIT THESE METHODS) ----- */
+	/* ----- Methods (YOU WILL HAVE TO EDIT THESE METHODS) ----- */
 
     void addSegmentToTrapezoidalMap(const cg3::Segment2d& segment);
     void queryTrapezoidalMap(const cg3::Point2d& point);
@@ -72,17 +78,17 @@ private:
 
 
 
-    //---------------------------------------------------------------------
-    //Declare your private methods here if you need some
+	//---------------------------------------------------------------------
+	//Declare your private methods here if you need some
 
 
 
 
-    //#####################################################################
+	//#####################################################################
 
 
 
-    /* ----- Private utility methods (DO NOT WRITE CODE IN THESE METHODS) ----- */
+	/* ----- Private utility methods (DO NOT WRITE CODE IN THESE METHODS) ----- */
 
     void loadSegmentsTrapezoidalMapAndMeasureTime(const std::vector<cg3::Segment2d>& segments);
     void addSegmentToTrapezoidalMapAndMeasureTime(const cg3::Segment2d& segment);

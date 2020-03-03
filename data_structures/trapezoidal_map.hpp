@@ -32,6 +32,8 @@ namespace GAS
 			const Trapezoid<Scalar> &operator*() const;
 			const Trapezoid<Scalar> *operator->() const;
 
+			bool operator!=(const Iterator &other) const;
+
 		};
 
 	private:
@@ -39,7 +41,7 @@ namespace GAS
 		std::vector<Segment<Scalar>> m_segments;
 		TrapezoidalDAG::Node<Scalar> m_dag;
 		int m_trapezoidsCount;
-		Trapezoid<Scalar> *m_leftmostTrapezoid;
+		Trapezoid<Scalar> *m_leftmostTrapezoid {};
 		const Iterator m_end { nullptr };
 
 		Segment<Scalar> m_bottom, m_top;

@@ -23,6 +23,8 @@ namespace GAS
 
 			protected:
 
+				friend void TrapezoidalMapDrawer::draw () const;
+
 				// Pure virtual methods
 				virtual const cg3::Color &provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index) const = 0;
 
@@ -37,8 +39,10 @@ namespace GAS
 
 			protected:
 
+				friend void TrapezoidalMapDrawer::draw () const;
+
 				// Pure virtual methods
-				virtual void &draw (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const cg3::Color &color) const = 0;
+				virtual void draw (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const cg3::Color &color) const = 0;
 
 			public:
 
@@ -64,7 +68,7 @@ namespace GAS
 
 		public:
 
-			virtual ~TrapezoidalMapDrawerBase () = default;
+			virtual ~TrapezoidalMapDrawer () = default;
 
 			const TrapezoidalMap<Scalar> *getTrapezoidalMap () const;
 			void setTrapezoidalMap (const TrapezoidalMap<Scalar> *trapezoidalMap);
@@ -93,6 +97,9 @@ namespace GAS
 
 			cg3::Color color;
 
+			TrapezoidConstantColorizer () = default;
+			TrapezoidConstantColorizer (const cg3::Color &color);
+
 		};
 
 		template<class Scalar>
@@ -108,7 +115,7 @@ namespace GAS
 		protected:
 
 			// TrapezoidalMapDrawer::Colorizer
-			virtual const cg3::Color &provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index) const = 0;
+			virtual const cg3::Color &provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index) const override final;
 
 		public:
 

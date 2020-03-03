@@ -9,7 +9,7 @@ namespace GAS
 	template<class Scalar>
 	TrapezoidalMap<Scalar>::TrapezoidalMap (const Point<Scalar> &_bottomLeft, const Point<Scalar> &_topRight)
 	{
-		setBounds (_bottomLeft, topRight);
+		setBounds (_bottomLeft, _topRight);
 		clear ();
 	}
 

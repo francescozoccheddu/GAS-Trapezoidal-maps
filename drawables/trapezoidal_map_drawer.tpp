@@ -14,9 +14,9 @@ namespace GAS
 		{
 
 			template<class Scalar>
-			void drawTrapezoid (const Trapezoid<Scalar> &_trapezoid, cg3::Color _color, int _thickness, bool _fill)
+			void drawTrapezoid (const Trapezoid<Scalar> &_trapezoid, const cg3::Color &_color, int _thickness, bool _fill)
 			{
-				// TODO Implement
+				cg3::opengl::drawQuad2 (_trapezoid.getBottomLeft (), _trapezoid.getTopLeft (), _trapezoid.getTopRight (), _trapezoid.getBottomRight (), _color, _thickness, _fill);
 			}
 
 		}
@@ -26,7 +26,7 @@ namespace GAS
 		{
 			ensureValid ();
 			const std::vector<Trapezoid<Scalar>> &trapezoids { m_trapezoidalMap->getTrapezoids () };
-			for (int i { 0 }; i < trapezoids.size; i++)
+			for (int i { 0 }; i < trapezoids.size (); i++)
 			{
 				cg3::Color color { m_colorizer->provideColor (*m_trapezoidalMap, i) };
 				m_painter->draw (*m_trapezoidalMap, i, color);
@@ -37,7 +37,8 @@ namespace GAS
 		cg3::Point3d TrapezoidalMapDrawer<Scalar>::sceneCenter () const
 		{
 			ensureValidMap ();
-			return (m_trapezoidalMap->getBottomLeft () + m_trapezoidalMap->getTopRight ()) / 2.0;
+			const Point<Scalar> center { (m_trapezoidalMap->getBottomLeft () + m_trapezoidalMap->getTopRight ()) / 2.0 };
+			return { center.x (), center.y (), 0.0 };
 		}
 
 		template<class Scalar>
@@ -83,13 +84,13 @@ namespace GAS
 		}
 
 		template<class Scalar>
-		const TrapezoidalMapDrawer<Scalar>::Colorizer *TrapezoidalMapDrawer<Scalar>::getColorizer () const
+		const typename TrapezoidalMapDrawer<Scalar>::Colorizer *TrapezoidalMapDrawer<Scalar>::getColorizer () const
 		{
 			return m_colorizer;
 		}
 
 		template<class Scalar>
-		TrapezoidalMapDrawer<Scalar>::Colorizer *TrapezoidalMapDrawer<Scalar>::getColorizer ()
+		typename TrapezoidalMapDrawer<Scalar>::Colorizer *TrapezoidalMapDrawer<Scalar>::getColorizer ()
 		{
 			return m_colorizer;
 		}
@@ -101,13 +102,13 @@ namespace GAS
 		}
 
 		template<class Scalar>
-		const TrapezoidalMapDrawer<Scalar>::Painter *TrapezoidalMapDrawer<Scalar>::getPainter () const
+		const typename TrapezoidalMapDrawer<Scalar>::Painter *TrapezoidalMapDrawer<Scalar>::getPainter () const
 		{
 			return m_painter;
 		}
 
 		template<class Scalar>
-		TrapezoidalMapDrawer<Scalar>::Painter *TrapezoidalMapDrawer<Scalar>::getPainter ()
+		typename TrapezoidalMapDrawer<Scalar>::Painter *TrapezoidalMapDrawer<Scalar>::getPainter ()
 		{
 			return m_painter;
 		}
@@ -125,10 +126,14 @@ namespace GAS
 		}
 
 		template<class Scalar>
+		TrapezoidConstantColorizer<Scalar>::TrapezoidConstantColorizer (const cg3::Color &_color) : color { _color }
+		{}
+
+		template<class Scalar>
 		const cg3::Color &TrapezoidFancyColorizer<Scalar>::provideColor (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index) const
 		{
 			cg3::Color color;
-			color.setHsvF (_index / (float) _trapezoidalMap.getTrapezoids ().size, m_saturation, m_value);
+			color.setHsvF (_index / (float) _trapezoidalMap.getTrapezoids ().size (), m_saturation, m_value);
 			color.setAlphaF (m_alpha);
 			return color;
 		}
@@ -207,7 +212,7 @@ namespace GAS
 		template<class Scalar>
 		void TrapezoidFillPainter<Scalar>::draw (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const cg3::Color &_color) const
 		{
-			const Trapezoid<Scalar> &trapezoid { _trapezoidalMap->getTrapezoids ()[_index] };
+			const Trapezoid<Scalar> &trapezoid { _trapezoidalMap.getTrapezoids ()[_index] };
 			Internals::drawTrapezoid (trapezoid, _color, 0, true);
 		}
 

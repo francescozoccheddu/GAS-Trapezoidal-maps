@@ -9,25 +9,25 @@ namespace GAS
 	template<class Scalar>
 	Point<Scalar> Trapezoid<Scalar>::getBottomLeft () const
 	{
-		return { *left, Geometry::evalLine (*bottom, *left) };
+		return { left->x (), Geometry::evalLine (*bottom, left->x ()) };
 	}
 
 	template<class Scalar>
 	Point<Scalar> Trapezoid<Scalar>::getBottomRight () const
 	{
-		return { *left, Geometry::evalLine (*bottom, *right) };
+		return { right->x (), Geometry::evalLine (*bottom, right->x ()) };
 	}
 
 	template<class Scalar>
 	Point<Scalar> Trapezoid<Scalar>::getTopLeft () const
 	{
-		return { *left, Geometry::evalLine (*top, *left) };
+		return { left->x (), Geometry::evalLine (*top, left->x ()) };
 	}
 
 	template<class Scalar>
 	Point<Scalar> Trapezoid<Scalar>::getTopRight () const
 	{
-		return { *left, Geometry::evalLine (*top, *right) };
+		return { right->x (), Geometry::evalLine (*top, right->x ()) };
 	}
 
 	template<class Scalar>

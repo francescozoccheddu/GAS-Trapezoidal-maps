@@ -5,6 +5,7 @@
 #include "trapezoid.hpp"
 #include "trapezoidal_dag.hpp"
 #include <vector>
+#include <deque>
 
 namespace GAS
 {
@@ -13,11 +14,41 @@ namespace GAS
 	class TrapezoidalMap
 	{
 
+	public:
+
+		class Iterator
+		{
+
+			friend class TrapezoidalMap;
+
+			Iterator (const Trapezoid<Scalar> *trapezoid);
+
+			std::deque<const Trapezoid<Scalar> *> m_deque;
+			const Trapezoid<Scalar> *m_current;
+
+		public:
+
+			Iterator &operator++();
+			const Trapezoid<Scalar> &operator*() const;
+			const Trapezoid<Scalar> *operator->() const;
+
+		};
+
+	private:
+
 		std::vector<Segment<Scalar>> m_segments;
-		std::vector<Trapezoid<Scalar>> m_trapezoids;
 		TrapezoidalDAG::Node<Scalar> m_dag;
+		int m_trapezoidsCount;
+		Trapezoid<Scalar> *m_leftmostTrapezoid;
+		const Iterator m_end { nullptr };
 
 		Segment<Scalar> m_bottom, m_top;
+
+		void splitFive (Trapezoid<Scalar> &trapezoid, const Segment<Scalar> segment);
+		void splitLeft (Trapezoid<Scalar> &trapezoid, const Segment<Scalar> segment);
+		void splitHalf (Trapezoid<Scalar> &trapezoid, const Segment<Scalar> segment);
+		void splitRight (Trapezoid<Scalar> &trapezoid, const Segment<Scalar> segment);
+		void mergeLeft (Trapezoid<Scalar> &trapezoid);
 
 	public:
 
@@ -25,7 +56,9 @@ namespace GAS
 		virtual ~TrapezoidalMap () = default;
 
 		// Trapezoids
-		const std::vector<Trapezoid<Scalar>> &getTrapezoids () const;
+		int getTrapezoidsCount () const;
+		Iterator begin () const;
+		const Iterator &end () const;
 
 		// Bounds
 		const Point<Scalar> &getBottomLeft () const;

@@ -2,9 +2,72 @@
 
 #include "trapezoidal_map.hpp"
 #include <stdexcept>
+#include <utils/geometry_utils.hpp>
 
 namespace GAS
 {
+
+	template<class Scalar>
+	TrapezoidalMap<Scalar>::Iterator::Iterator (const Trapezoid<Scalar> *_trapezoid) : m_current { _trapezoid }
+	{}
+
+	template<class Scalar>
+	TrapezoidalMap<Scalar>::Iterator &TrapezoidalMap<Scalar>::Iterator::operator++ ()
+	{
+		if (m_current->upperRightNeighbor && m_current->upperRightNeighbor->top == m_current->top)
+		{
+			if (m_current->lowerRightNeighbor)
+			{
+				m_deque.push_back (m_current->lowerRightNeighbor);
+			}
+			m_current = m_current->upperRightNeighbor;
+		}
+		else if (m_current->lowerRightNeighbor)
+		{
+			m_current = m_current->lowerRightNeighbor;
+		}
+		else if (m_deque!.empty ())
+		{
+			m_current = m_deque.pop_back ();
+		}
+		else
+		{
+			m_current = nullptr;
+		}
+		return *this;
+	}
+
+	template<class Scalar>
+	const Trapezoid<Scalar> &TrapezoidalMap<Scalar>::Iterator::operator* () const
+	{
+		return *m_current;
+	}
+
+	template<class Scalar>
+	const Trapezoid<Scalar> *TrapezoidalMap<Scalar>::Iterator::operator-> () const
+	{
+		return m_current;
+	}
+
+	template<class Scalar>
+	void TrapezoidalMap<Scalar>::splitFive (Trapezoid<Scalar> &trapezoid, const Segment<Scalar> segment)
+	{}
+
+	template<class Scalar>
+	void TrapezoidalMap<Scalar>::splitLeft (Trapezoid<Scalar> &_trapezoid, const Segment<Scalar> _segment)
+	{}
+
+	template<class Scalar>
+	void TrapezoidalMap<Scalar>::splitHalf (Trapezoid<Scalar> &_trapezoid, const Segment<Scalar> _segment)
+	{}
+
+	template<class Scalar>
+	void TrapezoidalMap<Scalar>::splitRight (Trapezoid<Scalar> &_trapezoid, const Segment<Scalar> _segment)
+	{}
+
+	template<class Scalar>
+	void TrapezoidalMap<Scalar>::mergeLeft (Trapezoid<Scalar> &_trapezoid)
+	{}
 
 	template<class Scalar>
 	TrapezoidalMap<Scalar>::TrapezoidalMap (const Point<Scalar> &_bottomLeft, const Point<Scalar> &_topRight)
@@ -14,9 +77,21 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	const std::vector<Trapezoid<Scalar>> &TrapezoidalMap<Scalar>::getTrapezoids () const
+	int TrapezoidalMap<Scalar>::getTrapezoidsCount () const
 	{
-		return m_trapezoids;
+		return m_trapezoidsCount;
+	}
+
+	template<class Scalar>
+	TrapezoidalMap<Scalar>::Iterator TrapezoidalMap<Scalar>::begin () const
+	{
+		return Iterator (m_leftmostTrapezoid);
+	}
+
+	template<class Scalar>
+	const TrapezoidalMap<Scalar>::Iterator &TrapezoidalMap<Scalar>::end () const
+	{
+		return m_end;
 	}
 
 	template<class Scalar>
@@ -103,22 +178,82 @@ namespace GAS
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::clear ()
 	{
+		{
+			Iterator it { m_leftmostTrapezoid };
+			while (it != m_end)
+			{
+				Trapezoid<Scalar> *const t { it.m_current };
+				++it;
+				delete t;
+			}
+		}
 		m_segments.clear ();
-		m_trapezoids.clear ();
 		// Add bounding box trapezoid
-		Trapezoid<Scalar> t;
+		m_leftmostTrapezoid = new Trapezoid<Scalar>;
 		t.bottom = &m_bottom;
 		t.top = &m_top;
 		t.left = &getBottomLeft ();
 		t.right = &getBottomRight ();
-		m_trapezoids.push_back (t);
-		m_dag = { &t };
+		m_dag = &t;
+		m_trapezoidsCount = 1;
 	}
 
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::addSegment (const Segment<Scalar> &_segment)
 	{
-		// TODO
+		m_segments.push_back (_segment.p1 ().x () < _segment.p2 ().x () ? _segment : {_segment.p2 (), _segment.p1 ()});
+		const Segment<Scalar> &s { *m_segments[m_segments.size () - 1] };
+		// Find leftmost intersected trapezoid
+		// TODO Use DAG!!
+		Trapezoid<Scalar> *t;
+		{
+			const Point<Scalar> &lp { _segment.p1 () };
+			for (Trapezoid<Scalar> &t : *this)
+			{
+				if (lp.x () >= t.left->x () && lp.x () < t.right->x () && Geometry::getPointSideWithRespectToSegment (*t.bottom, lp) != Geometry::getPointSideWithRespectToSegment (*t.top, lp))
+				{
+					t = &t;
+					break;
+				}
+			}
+		}
+		// Start replacing
+		while (t)
+		{
+			Trapezoid<Scalar> &ct { *t };
+			const Scalar segLeft { s.p1 ().x () }, segRight { s.p2 ().x () };
+			const Scalar trapLeft { ct.left->x () }, trapRight { ct.right->x () };
+			t = Geometry::evalLine (s, trapRight) > ct.right->y () ? ct.upperRightNeighbor : ct.lowerRightNeighbor;
+			if (segLeft > trapLeft)
+			{
+				if (segRight < trapRight)
+				{
+					splitFive (ct, s);
+				}
+				else
+				{
+					splitLeft (ct, s);
+				}
+			}
+			else
+			{
+				if (segRight < trapRight)
+				{
+					if (segRight <= trapLeft)
+					{
+						t = nullptr;
+					}
+					else
+					{
+						splitRight (ct, s);
+					}
+				}
+				else
+				{
+					splitHalf (ct, s);
+				}
+			}
+		}
 	}
 
 }

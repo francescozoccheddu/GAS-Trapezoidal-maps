@@ -15,6 +15,14 @@ namespace GAS
 
 		Trapezoid *lowerLeftNeighbor {}, *upperLeftNeighbor {}, *lowerRightNeighbor {}, *upperRightNeighbor {};
 
+		Point<Scalar> getBottomLeft () const;
+		Point<Scalar> getBottomRight () const;
+		Point<Scalar> getTopLeft () const;
+		Point<Scalar> getTopRight () const;
+		Point<Scalar> getCentroid () const;
+
 	};
 
 }
+
+#include "trapezoid.tpp"

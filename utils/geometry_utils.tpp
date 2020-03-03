@@ -22,6 +22,13 @@ namespace GAS
 			return det > 0 ? ESide::Right : det < 0 ? ESide::Left : ESide::Collinear;
 		}
 
+		template<class Scalar>
+		Scalar evalLine (const Segment<Scalar> &_line, Scalar _x)
+		{
+			const Point<Scalar> &a { _line.p1 () }, &b { _line.p2 () };
+			return (b.y () - a.y ()) * (_x - a.x ()) / (b.x () - a.x ()) + a.y ();
+		}
+
 	}
 
 }

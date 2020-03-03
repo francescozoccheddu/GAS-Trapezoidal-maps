@@ -25,6 +25,9 @@ namespace GAS
 		template<class Scalar>
 		ESide getPointSideWithRespectToSegment (const Segment<Scalar> &segment, const Point<Scalar> &point);
 
+		template<class Scalar>
+		Scalar evalLine (const Segment<Scalar> &line, Scalar x);
+
 	}
 
 }

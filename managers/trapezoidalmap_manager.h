@@ -62,8 +62,8 @@ private:
 	//Declare your attributes here
 
 	GAS::TrapezoidalMap<double> m_trapezoidalMap;
-	GAS::Drawing::TrapezoidalMapDrawer<double> m_trapezoidalMapFillDrawer;
 	GAS::Drawing::TrapezoidalMapDrawer<double> m_trapezoidalMapStrokeDrawer;
+	GAS::Drawing::TrapezoidalMapDrawer<double> m_trapezoidalMapFillDrawer;
 	cg3::DrawableContainer m_trapezoidalMapDrawableContainer;
 
 	//#####################################################################

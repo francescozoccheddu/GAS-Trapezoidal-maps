@@ -46,10 +46,10 @@ namespace GAS
 
 		Segment<Scalar> m_bottom, m_top;
 
-		void splitFive (Trapezoid<Scalar> &trapezoid, const Segment<Scalar> segment);
-		void splitLeft (Trapezoid<Scalar> &trapezoid, const Segment<Scalar> segment);
-		void splitHalf (Trapezoid<Scalar> &trapezoid, const Segment<Scalar> segment);
-		void splitRight (Trapezoid<Scalar> &trapezoid, const Segment<Scalar> segment);
+		void splitFour (Trapezoid<Scalar> &trapezoid, const Segment<Scalar> &segment);
+		void splitLeft (Trapezoid<Scalar> &trapezoid, const Segment<Scalar> &segment);
+		void splitHalf (Trapezoid<Scalar> &trapezoid, const Segment<Scalar> &segment);
+		void splitRight (Trapezoid<Scalar> &trapezoid, const Segment<Scalar> &segment);
 		void mergeLeft (Trapezoid<Scalar> &trapezoid);
 
 	public:

@@ -5,6 +5,7 @@
 #include <cg3/utilities/color.h>
 #include <cg3/viewer/interfaces/drawable_object.h>
 #include <cg3/geometry/point3.h>
+#include <cg3/viewer/glcanvas.h>
 
 namespace GAS
 {
@@ -119,6 +120,9 @@ namespace GAS
 
 		public:
 
+			TrapezoidFancyColorizer () = default;
+			TrapezoidFancyColorizer (float saturation, float value, float alpha = 1.0f);
+
 			float getSaturation () const;
 			void setSaturation (float saturation);
 			float getValue () const;
@@ -162,6 +166,30 @@ namespace GAS
 
 			// TrapezoidalMapDrawer::Painter
 			virtual void draw (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid, const cg3::Color &color) const override final;
+
+		};
+
+		template<class Scalar>
+		class TrapezoidTextPainter final : public TrapezoidalMapDrawer<Scalar>::Painter
+		{
+
+		private:
+
+			cg3::viewer::GLCanvas &m_canvas;
+			QFont m_font;
+			QFontMetrics m_fontMetrics;
+
+		protected:
+
+			// TrapezoidalMapDrawer::Painter
+			virtual void draw (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid, const cg3::Color &color) const override final;
+
+		public:
+
+			TrapezoidTextPainter (cg3::viewer::GLCanvas &_canvas, const QFont &font = { "Times", 10 });
+
+			const QFont &getFont () const;
+			void setFont (const QFont &font);
 
 		};
 

@@ -140,6 +140,10 @@ namespace GAS
 		}
 
 		template<class Scalar>
+		TrapezoidFancyColorizer<Scalar>::TrapezoidFancyColorizer (float _saturation, float _value, float _alpha) : m_saturation { _saturation }, m_value { _value }, m_alpha { _alpha }
+		{}
+
+		template<class Scalar>
 		float TrapezoidFancyColorizer<Scalar>::getSaturation () const
 		{
 			return m_saturation;
@@ -217,6 +221,41 @@ namespace GAS
 		void TrapezoidFillPainter<Scalar>::draw (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid, const cg3::Color &_color) const
 		{
 			Internals::drawTrapezoid (_trapezoid, _color, 0, true);
+		}
+
+		template<class Scalar>
+		inline void TrapezoidTextPainter<Scalar>::draw (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid, const cg3::Color &_color) const
+		{
+			// Backup
+			bool wasTextEnabled { m_canvas.textIsEnabled () };
+			// Draw
+			glDisable (GL_LIGHTING);
+			glDisable (GL_DEPTH_TEST);
+			glColor3f (_color.redF (), _color.greenF (), _color.blueF ());
+			const Point<Scalar> centroid { _trapezoid.getCentroid () };
+			const qglviewer::Vec point { m_canvas.camera ()->projectedCoordinatesOf ({ centroid.x (), centroid.y (), 0 }) };
+			m_canvas.setTextIsEnabled ();
+			QString text { QString::fromStdString (std::to_string (_index)) };
+			m_canvas.drawText (point.x - m_fontMetrics.width (text) / 2, point.y - m_fontMetrics.height () / 2, text, m_font);
+			// Restore
+			m_canvas.setTextIsEnabled (wasTextEnabled);
+		}
+
+		template<class Scalar>
+		TrapezoidTextPainter<Scalar>::TrapezoidTextPainter (cg3::viewer::GLCanvas &_canvas, const QFont &_font) : m_canvas { _canvas }, m_font { _font }, m_fontMetrics { m_font }
+		{}
+
+		template<class Scalar>
+		const QFont &TrapezoidTextPainter<Scalar>::getFont () const
+		{
+			return m_font;
+		}
+
+		template<class Scalar>
+		void TrapezoidTextPainter<Scalar>::setFont (const QFont &_font)
+		{
+			m_font = _font;
+			m_fontMetrics = QFontMetrics (m_font);
 		}
 
 	}

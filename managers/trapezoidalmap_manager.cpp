@@ -83,21 +83,20 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
     //and re-drawing it again. See how we implemented the drawing of the bounding box and 
     //the dataset.
 
+    m_trapezoidalMapFillDrawer.setTrapezoidalMap(&m_trapezoidalMap);
+    m_trapezoidalMapFillDrawer.setPainter(new GAS::Drawing::TrapezoidFillPainter<double>);
+    m_trapezoidalMapFillDrawer.setColorizer(new GAS::Drawing::TrapezoidFancyColorizer<double> {1.0f, 1.0f});
+    m_trapezoidalMapDrawableContainer.pushBack(&m_trapezoidalMapFillDrawer, "Fill");
+
     m_trapezoidalMapStrokeDrawer.setTrapezoidalMap(&m_trapezoidalMap);
     m_trapezoidalMapStrokeDrawer.setPainter(new GAS::Drawing::TrapezoidStrokePainter<double> {2});
     m_trapezoidalMapStrokeDrawer.setColorizer(new GAS::Drawing::TrapezoidConstantColorizer<double> {{0, 0, 0}});
     m_trapezoidalMapDrawableContainer.pushBack(&m_trapezoidalMapStrokeDrawer, "Stroke");
 
-    m_trapezoidalMapFillDrawer.setTrapezoidalMap(&m_trapezoidalMap);
-    m_trapezoidalMapFillDrawer.setPainter(new GAS::Drawing::TrapezoidFillPainter<double>);
-    {
-        GAS::Drawing::TrapezoidFancyColorizer<double> *const colorizer { new GAS::Drawing::TrapezoidFancyColorizer<double> };
-        colorizer->setSaturation(1.0f);
-        colorizer->setValue(1.0f);
-        colorizer->setAlpha(0.5f);
-        m_trapezoidalMapFillDrawer.setColorizer(colorizer);
-    }
-    m_trapezoidalMapDrawableContainer.pushBack(&m_trapezoidalMapFillDrawer, "Fill");
+    m_trapezoidalMapTextDrawer.setTrapezoidalMap(&m_trapezoidalMap);
+    m_trapezoidalMapTextDrawer.setPainter(new GAS::Drawing::TrapezoidTextPainter<double> { mainWindow.canvas });
+    m_trapezoidalMapTextDrawer.setColorizer(new GAS::Drawing::TrapezoidFancyColorizer<double> {1.0f, 0.5f});
+    m_trapezoidalMapDrawableContainer.pushBack(&m_trapezoidalMapTextDrawer, "Text");
 
     mainWindow.pushDrawableObject(&m_trapezoidalMapDrawableContainer, "Trapezoidal map");
 

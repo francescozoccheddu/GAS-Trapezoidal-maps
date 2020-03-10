@@ -22,7 +22,7 @@ namespace GAS
 			}
 			m_current = m_current->upperRightNeighbor;
 		}
-		else if (m_current->lowerRightNeighbor)
+		else if (m_current->lowerRightNeighbor && m_current->lowerRightNeighbor->top == m_current->top)
 		{
 			m_current = m_current->lowerRightNeighbor;
 		}

@@ -49,3 +49,4 @@ desktop.ini
 /*.sln
 Build/
 x64/
+*.natvis

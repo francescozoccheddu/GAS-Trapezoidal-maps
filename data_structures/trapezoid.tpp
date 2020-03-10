@@ -87,6 +87,19 @@ namespace GAS
 		}
 	}
 
+#ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
+
+	template<class Scalar>
+	int Trapezoid<Scalar>::s_serial {};
+
+	template<class Scalar>
+	int Trapezoid<Scalar>::getSerial () const
+	{
+		return m_serial;
+	}
+
+#endif
+
 	template<class Scalar>
 	Trapezoid<Scalar>::~Trapezoid ()
 	{

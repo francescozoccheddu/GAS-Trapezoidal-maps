@@ -235,7 +235,11 @@ namespace GAS
 			const Point<Scalar> centroid { _trapezoid.getCentroid () };
 			const qglviewer::Vec point { m_canvas.camera ()->projectedCoordinatesOf ({ centroid.x (), centroid.y (), 0 }) };
 			m_canvas.setTextIsEnabled ();
-			QString text { QString::fromStdString (std::to_string (_index)) };
+#ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
+			QString text { QString::number (_trapezoid.getSerial ()) };
+#else
+			QString text { QString::number (_index) };
+#endif 
 			m_canvas.drawText (point.x - m_fontMetrics.width (text) / 2, point.y - m_fontMetrics.height () / 2, text, m_font);
 			// Restore
 			m_canvas.setTextIsEnabled (wasTextEnabled);

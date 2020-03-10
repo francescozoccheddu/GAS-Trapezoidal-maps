@@ -3,6 +3,9 @@
 #include "point.hpp"
 #include "segment.hpp"
 
+// For debugging purposes
+#define GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
+
 namespace GAS
 {
 
@@ -21,7 +24,16 @@ namespace GAS
 
 		friend class TrapezoidalMap<Scalar>;
 
+#ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
+		static int s_serial;
+		int m_serial { s_serial++ };
+#endif
+
 	public:
+
+#ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
+		int getSerial () const;
+#endif
 
 		const Point<Scalar> *left {}, *right {};
 		const Segment<Scalar> *bottom {}, *top {};

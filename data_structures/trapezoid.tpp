@@ -6,87 +6,6 @@
 namespace GAS
 {
 
-	template<class Scalar>
-	void Trapezoid<Scalar>::replaceLeft (const Trapezoid &_target, Trapezoid *_substitute)
-	{
-		if (lowerLeftNeighbor == &_target)
-		{
-			lowerLeftNeighbor = _substitute;
-		}
-		if (upperLeftNeighbor == &_target)
-		{
-			upperLeftNeighbor = _substitute;
-		}
-	}
-
-	template<class Scalar>
-	void Trapezoid<Scalar>::replaceRight (const Trapezoid &_target, Trapezoid *_substitute)
-	{
-		if (lowerRightNeighbor == &_target)
-		{
-			lowerRightNeighbor = _substitute;
-		}
-		if (upperRightNeighbor == &_target)
-		{
-			upperRightNeighbor = _substitute;
-		}
-	}
-
-	template<class Scalar>
-	void Trapezoid<Scalar>::link (Trapezoid &_bottomLeft, Trapezoid &_topLeft, Trapezoid &_bottomRight, Trapezoid &_topRight)
-	{
-		if (_bottomLeft.getTopRight ().y () < _bottomRight.getTopLeft ().y ())
-		{
-			_bottomRight.lowerLeftNeighbor = &_bottomLeft;
-			_bottomRight.upperLeftNeighbor = &_topLeft;
-			_bottomLeft.lowerRightNeighbor = _bottomLeft.upperRightNeighbor = &_bottomRight;
-		}
-		else
-		{
-			_bottomRight.lowerLeftNeighbor = _bottomRight.upperLeftNeighbor = &_bottomLeft;
-			_bottomLeft.lowerRightNeighbor = &_bottomRight;
-			_bottomLeft.upperRightNeighbor = &_topRight;
-		}
-		if (_topLeft.getBottomRight ().y () > _topRight.getBottomLeft ().y ())
-		{
-			_topRight.lowerLeftNeighbor = &_bottomLeft;
-			_topRight.upperLeftNeighbor = &_topLeft;
-			_topLeft.lowerRightNeighbor = _bottomLeft.upperRightNeighbor = &_topRight;
-		}
-		else
-		{
-			_topRight.lowerLeftNeighbor = _topRight.upperLeftNeighbor = &_topLeft;
-			_topLeft.lowerRightNeighbor = &_bottomRight;
-			_topLeft.upperRightNeighbor = &_topRight;
-		}
-	}
-
-	template<class Scalar>
-	void Trapezoid<Scalar>::replaceAndLinkLeft (Trapezoid &_old, Trapezoid &_bottomRight, Trapezoid &_topRight)
-	{
-		if (_old.lowerLeftNeighbor)
-		{
-			link (*_old.lowerLeftNeighbor, *_old.upperLeftNeighbor, _bottomRight, _topRight);
-		}
-		else
-		{
-			_bottomRight.lowerLeftNeighbor = _bottomRight.upperLeftNeighbor = _topRight.lowerLeftNeighbor = _topRight.upperLeftNeighbor = nullptr;
-		}
-	}
-
-	template<class Scalar>
-	void Trapezoid<Scalar>::replaceAndLinkRight (Trapezoid &_old, Trapezoid &_bottomRight, Trapezoid &_topRight)
-	{
-		if (_old.lowerRightNeighbor)
-		{
-			link (*_old.lowerRightNeighbor, *_old.upperRightNeighbor, _bottomRight, _topRight);
-		}
-		else
-		{
-			_bottomRight.lowerRightNeighbor = _bottomRight.upperRightNeighbor = _topRight.lowerRightNeighbor = _topRight.upperRightNeighbor = nullptr;
-		}
-	}
-
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
 
 	template<class Scalar>
@@ -98,57 +17,205 @@ namespace GAS
 		return m_serial;
 	}
 
+	template<class Scalar>
+	Trapezoid<Scalar>::Trapezoid (const Trapezoid &_clone) :
+		m_left { _clone.left }, m_right { _clone.right }, m_top { _clone.top }, m_bottom { _clone.bottom },
+		m_lowerLeftNeighbor { _clone.m_lowerLeftNeighbor }, m_upperLeftNeighbor { _clone.m_upperLeftNeighbor },
+		m_lowerRightNeighbor { _clone.m_lowerRightNeighbor }, m_upperRightNeighbor { _clone.m_upperRightNeighbor }
+	{}
+
+	template<class Scalar>
+	Trapezoid<Scalar> &Trapezoid<Scalar>::operator= (const Trapezoid &_clone)
+	{
+		m_left = _clone.m_left;
+		m_right = _clone.m_right;
+		m_top = _clone.m_top;
+		m_bottom = _clone.m_bottom;
+		m_lowerLeftNeighbor = _clone.m_lowerLeftNeighbor;
+		m_upperLeftNeighbor = _clone.m_upperLeftNeighbor;
+		m_lowerRightNeighbor = _clone.m_lowerRightNeighbor;
+		m_upperRightNeighbor = _clone.m_upperRightNeighbor;
+		return *this;
+	}
+
 #endif
 
 	template<class Scalar>
-	Trapezoid<Scalar>::~Trapezoid ()
+	const Point<Scalar> *Trapezoid<Scalar>::getLeft () const
 	{
-		if (lowerLeftNeighbor)
-		{
-			lowerLeftNeighbor->replaceRight (*this, nullptr);
-		}
-		if (lowerRightNeighbor)
-		{
-			lowerRightNeighbor->replaceLeft (*this, nullptr);
-		}
-		if (upperLeftNeighbor)
-		{
-			upperLeftNeighbor->replaceRight (*this, nullptr);
-		}
-		if (upperRightNeighbor)
-		{
-			upperRightNeighbor->replaceLeft (*this, nullptr);
-		}
+		return m_left;
+	}
+
+	template<class Scalar>
+	const Point<Scalar> *Trapezoid<Scalar>::getRight () const
+	{
+		return m_right;
+	}
+
+	template<class Scalar>
+	const Segment<Scalar> *Trapezoid<Scalar>::getBottom () const
+	{
+		return m_bottom;
+	}
+
+	template<class Scalar>
+	const Segment<Scalar> *Trapezoid<Scalar>::getTop () const
+	{
+		return m_top;
+	}
+
+	template<class Scalar>
+	const Trapezoid<Scalar> *Trapezoid<Scalar>::getLowerLeftNeighbor () const
+	{
+		return m_lowerLeftNeighbor;
+	}
+
+	template<class Scalar>
+	const Trapezoid<Scalar> *Trapezoid<Scalar>::getUpperLeftNeighbor () const
+	{
+		return m_upperLeftNeighbor;
+	}
+
+	template<class Scalar>
+	const Trapezoid<Scalar> *Trapezoid<Scalar>::getLowerRightNeighbor () const
+	{
+		return m_lowerRightNeighbor;
+	}
+
+	template<class Scalar>
+	const Trapezoid<Scalar> *Trapezoid<Scalar>::getUpperRightNeighbor () const
+	{
+		return m_upperRightNeighbor;
+	}
+
+	template<class Scalar>
+	const Point<Scalar> *&Trapezoid<Scalar>::left ()
+	{
+		return m_left;
+	}
+
+	template<class Scalar>
+	const Point<Scalar> *&Trapezoid<Scalar>::right ()
+	{
+		return m_right;
+	}
+
+	template<class Scalar>
+	const Segment<Scalar> *&Trapezoid<Scalar>::bottom ()
+	{
+		return m_bottom;
+	}
+
+	template<class Scalar>
+	const Segment<Scalar> *&Trapezoid<Scalar>::top ()
+	{
+		return m_top;
+	}
+
+	template<class Scalar>
+	Trapezoid<Scalar> *&Trapezoid<Scalar>::lowerLeftNeighbor ()
+	{
+		return m_lowerLeftNeighbor;
+	}
+
+	template<class Scalar>
+	Trapezoid<Scalar> *&Trapezoid<Scalar>::upperLeftNeighbor ()
+	{
+		return m_upperLeftNeighbor;
+	}
+
+	template<class Scalar>
+	Trapezoid<Scalar> *&Trapezoid<Scalar>::lowerRightNeighbor ()
+	{
+		return m_lowerRightNeighbor;
+	}
+
+	template<class Scalar>
+	Trapezoid<Scalar> *&Trapezoid<Scalar>::upperRightNeighbor ()
+	{
+		return m_upperRightNeighbor;
 	}
 
 	template<class Scalar>
 	Point<Scalar> Trapezoid<Scalar>::getBottomLeft () const
 	{
-		return { left->x (), Geometry::evalLine (*bottom, left->x ()) };
+		return { m_left->x (), Geometry::evalLine (*m_bottom, m_left->x ()) };
 	}
 
 	template<class Scalar>
 	Point<Scalar> Trapezoid<Scalar>::getBottomRight () const
 	{
-		return { right->x (), Geometry::evalLine (*bottom, right->x ()) };
+		return { m_right->x (), Geometry::evalLine (*m_bottom, m_right->x ()) };
 	}
 
 	template<class Scalar>
 	Point<Scalar> Trapezoid<Scalar>::getTopLeft () const
 	{
-		return { left->x (), Geometry::evalLine (*top, left->x ()) };
+		return { m_left->x (), Geometry::evalLine (*m_top, m_left->x ()) };
 	}
 
 	template<class Scalar>
 	Point<Scalar> Trapezoid<Scalar>::getTopRight () const
 	{
-		return { right->x (), Geometry::evalLine (*top, right->x ()) };
+		return { m_right->x (), Geometry::evalLine (*m_top, m_right->x ()) };
 	}
 
 	template<class Scalar>
 	Point<Scalar> Trapezoid<Scalar>::getCentroid () const
 	{
 		return (getBottomLeft () + getBottomRight () + getTopLeft () + getTopRight ()) / 4;
+	}
+
+	template<class Scalar>
+	void Trapezoid<Scalar>::replaceInLeftNeighbors (Trapezoid *_replacement)
+	{
+		if (m_lowerLeftNeighbor)
+		{
+			m_lowerLeftNeighbor->replaceRightNeighbor (*this, _replacement);
+		}
+		if (m_upperLeftNeighbor)
+		{
+			m_upperLeftNeighbor->replaceRightNeighbor (*this, _replacement);
+		}
+	}
+
+	template<class Scalar>
+	void Trapezoid<Scalar>::replaceInRightNeighbors (Trapezoid *_replacement)
+	{
+		if (m_lowerRightNeighbor)
+		{
+			m_lowerRightNeighbor->replaceLeftNeighbor (*this, _replacement);
+		}
+		if (m_upperRightNeighbor)
+		{
+			m_upperRightNeighbor->replaceLeftNeighbor (*this, _replacement);
+		}
+	}
+
+	template<class Scalar>
+	void Trapezoid<Scalar>::replaceLeftNeighbor (const Trapezoid &_replaced, Trapezoid *_replacement)
+	{
+		if (m_lowerLeftNeighbor == &_replaced)
+		{
+			m_lowerLeftNeighbor = _replacement;
+		}
+		if (m_upperLeftNeighbor == &_replaced)
+		{
+			m_upperLeftNeighbor = _replacement;
+		}
+	}
+
+	template<class Scalar>
+	void Trapezoid<Scalar>::replaceRightNeighbor (const Trapezoid &_replaced, Trapezoid *_replacement)
+	{
+		if (m_lowerRightNeighbor == &_replaced)
+		{
+			m_lowerRightNeighbor = _replacement;
+		}
+		if (m_upperRightNeighbor == &_replaced)
+		{
+			m_upperRightNeighbor = _replacement;
+		}
 	}
 
 }

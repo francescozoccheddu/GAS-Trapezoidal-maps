@@ -10,42 +10,69 @@ namespace GAS
 {
 
 	template<class Scalar>
-	class TrapezoidalMap;
-
-	template<class Scalar>
 	class Trapezoid final
 	{
 
-		void replaceLeft (const Trapezoid &target, Trapezoid *substitute);
-		void replaceRight (const Trapezoid &target, Trapezoid *substitute);
-		static void link (Trapezoid &bottomLeft, Trapezoid &topLeft, Trapezoid &bottomRight, Trapezoid &topRight);
-		static void replaceAndLinkLeft (Trapezoid &old, Trapezoid &bottom, Trapezoid &top);
-		static void replaceAndLinkRight (Trapezoid &old, Trapezoid &bottom, Trapezoid &top);
+	public:
 
-		friend class TrapezoidalMap<Scalar>;
+		using Point = Point<Scalar>;
+		using Segment = Segment<Scalar>;
+
+	private:
 
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
 		static int s_serial;
 		int m_serial { s_serial++ };
 #endif
 
+		const Point *m_left {}, *m_right {};
+		const Segment *m_bottom {}, *m_top {};
+		Trapezoid *m_lowerLeftNeighbor {}, *m_upperLeftNeighbor {}, *m_lowerRightNeighbor {}, *m_upperRightNeighbor {};
+
 	public:
+
+		Trapezoid () = default;
 
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
 		int getSerial () const;
+
+		Trapezoid (const Trapezoid &clone);
+		Trapezoid &operator=(const Trapezoid &clone);
+#else
+		Trapezoid (const Trapezoid &clone) = default;
 #endif
 
-		const Point<Scalar> *left {}, *right {};
-		const Segment<Scalar> *bottom {}, *top {};
+		const Point *getLeft () const;
+		const Point *getRight () const;
+		const Segment *getBottom () const;
+		const Segment *getTop () const;
 
-		Trapezoid *lowerLeftNeighbor {}, *upperLeftNeighbor {}, *lowerRightNeighbor {}, *upperRightNeighbor {};
-		~Trapezoid ();
+		const Trapezoid *getLowerLeftNeighbor () const;
+		const Trapezoid *getUpperLeftNeighbor () const;
+		const Trapezoid *getLowerRightNeighbor () const;
+		const Trapezoid *getUpperRightNeighbor () const;
 
-		Point<Scalar> getBottomLeft () const;
-		Point<Scalar> getBottomRight () const;
-		Point<Scalar> getTopLeft () const;
-		Point<Scalar> getTopRight () const;
-		Point<Scalar> getCentroid () const;
+		const Point *&left ();
+		const Point *&right ();
+		const Segment *&bottom ();
+		const Segment *&top ();
+
+
+		Trapezoid *&lowerLeftNeighbor ();
+		Trapezoid *&upperLeftNeighbor ();
+		Trapezoid *&lowerRightNeighbor ();
+		Trapezoid *&upperRightNeighbor ();
+
+		Point getBottomLeft () const;
+		Point getBottomRight () const;
+		Point getTopLeft () const;
+		Point getTopRight () const;
+		Point getCentroid () const;
+
+		void replaceInLeftNeighbors (Trapezoid *replacement);
+		void replaceInRightNeighbors (Trapezoid *replacement);
+		void replaceLeftNeighbor (const Trapezoid &replaced, Trapezoid *replacement);
+		void replaceRightNeighbor (const Trapezoid &replaced, Trapezoid *replacement);
 
 	};
 

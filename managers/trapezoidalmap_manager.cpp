@@ -285,7 +285,7 @@ void TrapezoidalMapManager::clearTrapezoidalMap()
     //---------------------------------------------------------------------
     //Clear here your trapezoidal map data structure.
 
-
+    m_trapezoidalMap.clear();
 
     //#####################################################################
 }

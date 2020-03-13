@@ -7,24 +7,34 @@
 namespace GAS
 {
 
+
 	template<class Scalar>
-	TrapezoidalMap<Scalar>::Iterator::Iterator (const Trapezoid<Scalar> *_trapezoid) : m_current { _trapezoid }
+	TrapezoidalMap<Scalar>::Iterator::Iterator (Trapezoid *_node) : m_current { _node }
 	{}
 
 	template<class Scalar>
-	typename TrapezoidalMap<Scalar>::Iterator &TrapezoidalMap<Scalar>::Iterator::operator++ ()
+	typename TrapezoidalMap<Scalar>::Iterator TrapezoidalMap<Scalar>::Iterator::fromTrapezoidalMap (const TrapezoidalMap &_trapezoidalMap)
 	{
-		if (m_current->upperRightNeighbor && m_current->upperRightNeighbor->top == m_current->top)
+		return Iterator { _trapezoidalMap.m_leftmostTrapezoid };
+	}
+
+	template<class Scalar>
+	const typename TrapezoidalMap<Scalar>::Iterator TrapezoidalMap<Scalar>::Iterator::end { nullptr };
+
+	template<class Scalar>
+	typename TrapezoidalMap<Scalar>::Iterator &TrapezoidalMap<Scalar>::Iterator::operator++()
+	{
+		if (m_current->upperRightNeighbor () && m_current->upperRightNeighbor ()->top () == m_current->top ())
 		{
-			if (m_current->lowerRightNeighbor && m_current->lowerRightNeighbor != m_current->upperRightNeighbor)
+			if (m_current->lowerRightNeighbor () && m_current->lowerRightNeighbor () != m_current->upperRightNeighbor ())
 			{
-				m_deque.push_back (m_current->lowerRightNeighbor);
+				m_deque.push_back (m_current->lowerRightNeighbor ());
 			}
-			m_current = m_current->upperRightNeighbor;
+			m_current = m_current->upperRightNeighbor ();
 		}
-		else if (m_current->lowerRightNeighbor && m_current->lowerRightNeighbor->top == m_current->top)
+		else if (m_current->lowerRightNeighbor () && m_current->lowerRightNeighbor ()->top () == m_current->top ())
 		{
-			m_current = m_current->lowerRightNeighbor;
+			m_current = m_current->lowerRightNeighbor ();
 		}
 		else if (!m_deque.empty ())
 		{
@@ -39,156 +49,65 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	const Trapezoid<Scalar> &TrapezoidalMap<Scalar>::Iterator::operator* () const
+	const Trapezoid<Scalar> &TrapezoidalMap<Scalar>::Iterator::operator*() const
 	{
 		return *m_current;
 	}
 
 	template<class Scalar>
-	const Trapezoid<Scalar> *TrapezoidalMap<Scalar>::Iterator::operator-> () const
+	const Trapezoid<Scalar> *TrapezoidalMap<Scalar>::Iterator::operator->() const
 	{
 		return m_current;
 	}
 
 	template<class Scalar>
-	bool TrapezoidalMap<Scalar>::Iterator::operator!= (const Iterator &_other) const
+	bool TrapezoidalMap<Scalar>::Iterator::operator!=(const Iterator &_other) const
 	{
 		return m_current != _other.m_current || m_deque != _other.m_deque;
 	}
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::splitFour (Trapezoid<Scalar> &_trapezoid, const Segment<Scalar> &_segment)
+	bool TrapezoidalMap<Scalar>::Iterator::hasNext () const
 	{
-		Trapezoid<Scalar> &left { *new Trapezoid<Scalar> }, &right { *new Trapezoid<Scalar> }, &top { *new Trapezoid<Scalar> }, &bottom { *new Trapezoid<Scalar> };
-		m_trapezoidsCount += 3;
-		if (m_leftmostTrapezoid == &_trapezoid)
+		return *this != end;
+	}
+
+	template<class Scalar>
+	TrapezoidalMap<Scalar>::HorizontalSplit::HorizontalSplit (Trapezoid &_bottom, Trapezoid &_top) : bottom { _bottom }, top { _top }
+	{}
+
+	template<class Scalar>
+	TDAG::Node<Scalar> &TrapezoidalMap<Scalar>::splitVertically (Trapezoid &_trapezoid, const Point &_point)
+	{
+		// Create new trapezoids
+		Node &leftNode { *new Node { _trapezoid } }, &rightNode { *new Node { _trapezoid } };
+		Trapezoid &left { leftNode.leafData () }, &right { rightNode.leafData () };
+		left.right () = right.left () = &_point;
+		left.lowerRightNeighbor () = left.upperRightNeighbor () = &right;
+		right.lowerLeftNeighbor () = right.upperLeftNeighbor () = &left;
+		// Replace old trapezoid
+		_trapezoid.replaceInLeftNeighbors (&left);
+		_trapezoid.replaceInRightNeighbors (&right);
+		if (&_trapezoid == m_leftmostTrapezoid)
 		{
 			m_leftmostTrapezoid = &left;
 		}
-		// Segments
-		left.bottom = right.bottom = bottom.bottom = _trapezoid.bottom;
-		left.top = right.top = top.top = _trapezoid.top;
-		bottom.top = top.bottom = &_segment;
-		// Points
-		left.left = _trapezoid.left;
-		right.right = _trapezoid.right;
-		left.right = bottom.left = top.left = &_segment.p1 ();
-		right.left = bottom.right = top.right = &_segment.p2 ();
-		// Neighbors
-		Trapezoid<Scalar>::replaceAndLinkLeft (_trapezoid, left, left);
-		Trapezoid<Scalar>::link (left, left, bottom, top);
-		Trapezoid<Scalar>::link (bottom, top, right, right);
-		Trapezoid<Scalar>::replaceAndLinkRight (_trapezoid, right, right);
-		// Cleanup
-		delete &_trapezoid;
+		// Update DAG
+		Node &node { Node::getNode (_trapezoid) };
+		node.setInner (_point.x (), leftNode, rightNode);
+		// Update trapezoids count
+		m_trapezoidsCount++;
+		return node;
 	}
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::splitRight (Trapezoid<Scalar> &_trapezoid, const Segment<Scalar> &_segment)
+	typename TrapezoidalMap<Scalar>::HorizontalSplit &TrapezoidalMap<Scalar>::splitHorizontallyAndLink (Trapezoid &_trapezoid, const Segment &_segment, HorizontalSplit _leftNeighbors)
 	{
-		Trapezoid<Scalar> &left { *new Trapezoid<Scalar> }, &top { *new Trapezoid<Scalar> }, &bottom { *new Trapezoid<Scalar> };
-		m_trapezoidsCount += 2;
-		if (m_leftmostTrapezoid == &_trapezoid)
-		{
-			m_leftmostTrapezoid = &left;
-		}
-		// Segments
-		left.bottom = bottom.bottom = _trapezoid.bottom;
-		left.top = top.top = _trapezoid.top;
-		bottom.top = top.bottom = &_segment;
-		// Points
-		left.left = _trapezoid.left;
-		left.right = bottom.left = top.left = &_segment.p1 ();
-		bottom.right = top.right = _trapezoid.right;
-		// Neighbors
-		Trapezoid<Scalar>::replaceAndLinkLeft (_trapezoid, left, left);
-		Trapezoid<Scalar>::link (left, left, bottom, top);
-		Trapezoid<Scalar>::replaceAndLinkRight (_trapezoid, bottom, top);
-		// Cleanup
-		delete &_trapezoid;
+		return {};
 	}
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::splitHalf (Trapezoid<Scalar> &_trapezoid, const Segment<Scalar> &_segment)
-	{
-		Trapezoid<Scalar> &top { *new Trapezoid<Scalar> }, &bottom { *new Trapezoid<Scalar> };
-		m_trapezoidsCount += 1;
-		if (m_leftmostTrapezoid == &_trapezoid)
-		{
-			throw std::domain_error ("Cannot splitHalf the leftmost trapezoid");
-		}
-		// Segments
-		bottom.bottom = _trapezoid.bottom;
-		top.top = _trapezoid.top;
-		bottom.top = top.bottom = &_segment;
-		// Points
-		bottom.left = top.left = _trapezoid.left;
-		bottom.right = top.right = _trapezoid.right;
-		// Neighbors
-		Trapezoid<Scalar>::replaceAndLinkLeft (_trapezoid, bottom, top);
-		Trapezoid<Scalar>::replaceAndLinkRight (_trapezoid, bottom, top);
-		// Cleanup
-		delete &_trapezoid;
-		// Merge
-		mergeLeft (bottom);
-		mergeLeft (top);
-	}
-
-	template<class Scalar>
-	void TrapezoidalMap<Scalar>::splitLeft (Trapezoid<Scalar> &_trapezoid, const Segment<Scalar> &_segment)
-	{
-		Trapezoid<Scalar> &right { *new Trapezoid<Scalar> }, &top { *new Trapezoid<Scalar> }, &bottom { *new Trapezoid<Scalar> };
-		m_trapezoidsCount += 2;
-		if (m_leftmostTrapezoid == &_trapezoid)
-		{
-			throw std::domain_error ("Cannot splitLeft the leftmost trapezoid");
-		}
-		// Segments
-		right.bottom = bottom.bottom = _trapezoid.bottom;
-		right.top = top.top = _trapezoid.top;
-		bottom.top = top.bottom = &_segment;
-		// Points
-		right.right = _trapezoid.right;
-		right.left = bottom.right = top.right = &_segment.p2 ();
-		bottom.right = top.right = _trapezoid.right;
-		// Neighbors
-		Trapezoid<Scalar>::replaceAndLinkLeft (_trapezoid, bottom, top);
-		Trapezoid<Scalar>::link (bottom, top, right, right);
-		Trapezoid<Scalar>::replaceAndLinkRight (_trapezoid, right, right);
-		// Cleanup
-		delete &_trapezoid;
-		// Merge
-		mergeLeft (bottom);
-		mergeLeft (top);
-	}
-
-	template<class Scalar>
-	void TrapezoidalMap<Scalar>::mergeLeft (Trapezoid<Scalar> &_trapezoid)
-	{
-		Trapezoid<Scalar> *neighbor { _trapezoid.lowerLeftNeighbor };
-		if (neighbor && neighbor == _trapezoid.upperLeftNeighbor && _trapezoid.bottom == neighbor->bottom && _trapezoid.top == neighbor->top)
-		{
-			if (neighbor->lowerLeftNeighbor)
-			{
-				neighbor->lowerLeftNeighbor->replaceRight (*neighbor, &_trapezoid);
-			}
-			if (neighbor->upperLeftNeighbor)
-			{
-				neighbor->upperLeftNeighbor->replaceRight (*neighbor, &_trapezoid);
-			}
-			_trapezoid.lowerLeftNeighbor = neighbor->lowerLeftNeighbor;
-			_trapezoid.upperLeftNeighbor = neighbor->upperLeftNeighbor;
-			_trapezoid.left = neighbor->left;
-			if (m_leftmostTrapezoid == neighbor)
-			{
-				throw std::domain_error ("Cannot mergeLeft to the leftmost trapezoid");
-			}
-			delete neighbor;
-		}
-	}
-
-	template<class Scalar>
-	TrapezoidalMap<Scalar>::TrapezoidalMap (const Point<Scalar> &_bottomLeft, const Point<Scalar> &_topRight)
+	TrapezoidalMap<Scalar>::TrapezoidalMap (const Point &_bottomLeft, const Point &_topRight)
 	{
 		setBounds (_bottomLeft, _topRight);
 		clear ();
@@ -203,13 +122,13 @@ namespace GAS
 	template<class Scalar>
 	typename TrapezoidalMap<Scalar>::Iterator TrapezoidalMap<Scalar>::begin () const
 	{
-		return Iterator (m_leftmostTrapezoid);
+		return Iterator::fromTrapezoidalMap (*this);
 	}
 
 	template<class Scalar>
 	const typename TrapezoidalMap<Scalar>::Iterator &TrapezoidalMap<Scalar>::end () const
 	{
-		return m_end;
+		return Iterator::end;
 	}
 
 	template<class Scalar>
@@ -273,7 +192,7 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::setBounds (const Point<Scalar> &_bottomLeft, const Point<Scalar> &_topRight)
+	void TrapezoidalMap<Scalar>::setBounds (const Point &_bottomLeft, const Point &_topRight)
 	{
 		if (_topRight.x () <= _bottomLeft.x ())
 		{
@@ -296,82 +215,39 @@ namespace GAS
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::clear ()
 	{
+		// Delete DAG and segments
+		if (m_dag)
 		{
-			Iterator it { m_leftmostTrapezoid };
-			while (it != m_end)
-			{
-				Trapezoid<Scalar> *const t { const_cast<Trapezoid<Scalar> *> (it.m_current) };
-				++it;
-				delete t;
-			}
+			Node::recursiveDelete (*m_dag, static_cast<size_t>(m_trapezoidsCount));
 		}
 		m_segments.clear ();
-		// Add bounding box trapezoid
-		m_leftmostTrapezoid = new Trapezoid<Scalar>;
-		m_leftmostTrapezoid->bottom = &m_bottom;
-		m_leftmostTrapezoid->top = &m_top;
-		m_leftmostTrapezoid->left = &getBottomLeft ();
-		m_leftmostTrapezoid->right = &getBottomRight ();
-		m_dag = m_leftmostTrapezoid;
+		// Create initial trapezoid
+		Trapezoid trapezoid;
+		trapezoid.left () = &getBottomLeft ();
+		trapezoid.right () = &getBottomRight ();
+		trapezoid.top () = &m_top;
+		trapezoid.bottom () = &m_bottom;
+		m_dag = new Node { trapezoid };
+		m_leftmostTrapezoid = &m_dag->leafData ();
 		m_trapezoidsCount = 1;
 	}
 
+
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::addSegment (const Segment<Scalar> &_segment)
+	inline TDAG::Node<Scalar> &getNode (const Point<Scalar> &_point)
 	{
-		m_segments.push_back (_segment.p1 ().x () < _segment.p2 ().x () ? _segment : Segment<Scalar> { _segment.p2 (), _segment.p1 () });
-		const Segment<Scalar> &s { m_segments[m_segments.size () - 1] };
+
+	}
+
+	template<class Scalar>
+	void TrapezoidalMap<Scalar>::addSegment (const Segment &_segment)
+	{
+		m_segments.push_front (_segment.p1 ().x () < _segment.p2 ().x () ? _segment : Segment { _segment.p2 (), _segment.p1 () });
+		const Segment &s { m_segments.front () };
 		// Find leftmost intersected trapezoid
 		// TODO Use DAG!!
-		Trapezoid<Scalar> *t;
-		{
-			const Point<Scalar> &lp { _segment.p1 () };
-			for (const Trapezoid<Scalar> &ti : *this)
-			{
-				if (lp.x () >= ti.left->x () && lp.x () < ti.right->x () && Geometry::getPointSideWithRespectToSegment (*ti.bottom, lp) != Geometry::getPointSideWithRespectToSegment (*ti.top, lp))
-				{
-					t = const_cast<Trapezoid<Scalar> *>(&ti);
-					break;
-				}
-			}
-		}
-		// Start replacing
-		while (t)
-		{
-			Trapezoid<Scalar> &ct { *t };
-			const Scalar segLeft { s.p1 ().x () }, segRight { s.p2 ().x () };
-			const Scalar trapLeft { ct.left->x () }, trapRight { ct.right->x () };
-			t = Geometry::evalLine (s, trapRight) > ct.right->y () ? ct.upperRightNeighbor : ct.lowerRightNeighbor;
-			if (segLeft > trapLeft)
-			{
-				if (segRight < trapRight)
-				{
-					splitFour (ct, s);
-				}
-				else
-				{
-					splitRight (ct, s);
-				}
-			}
-			else
-			{
-				if (segRight < trapRight)
-				{
-					if (segRight <= trapLeft)
-					{
-						t = nullptr;
-					}
-					else
-					{
-						splitLeft (ct, s);
-					}
-				}
-				else
-				{
-					splitHalf (ct, s);
-				}
-			}
-		}
+		splitVertically (*m_leftmostTrapezoid, s.p1 ());
+		// TODO Replace
 	}
 
 }

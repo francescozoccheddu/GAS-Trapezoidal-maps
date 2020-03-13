@@ -1,88 +1,60 @@
 ﻿#pragma once
 
 #include "trapezoidal_dag.hpp"
-#include <stdexcept>
+
+#include <cassert>
+
 
 namespace GAS
 {
 
-	namespace TrapezoidalDAG
+	namespace TDAG
 	{
 
 		template<class Scalar>
-		Node<Scalar>::Node (Trapezoid<Scalar> *_trapezoid) : type { ENodeType::Trapezoid }
+		Split<Scalar>::Split (const Scalar &_x)
 		{
-			data.trapezoid = _trapezoid;
+			setVertical (_x);
 		}
 
 		template<class Scalar>
-		Node<Scalar>::Node (const Scalar *_splitX, Node<Scalar> *_left, Node<Scalar> *_right) : type { ENodeType::VerticalSplit }
+		Split<Scalar>::Split (const Segment<Scalar> &_segment)
 		{
-			data.split.splitter.x = _splitX;
-			data.split.left = _left;
-			data.split.right = _right;
+			setSegment (_segment);
 		}
 
 		template<class Scalar>
-		Node<Scalar>::Node (const Segment<Scalar> *_splitSegment, Node<Scalar> *_left, Node<Scalar> *_right) : type { ENodeType::NonVerticalSplit }
+		ESplitType Split<Scalar>::getType () const
 		{
-			data.split.splitter.segment = _splitSegment;
-			data.split.left = _left;
-			data.split.right = _right;
+			return m_type;
 		}
 
 		template<class Scalar>
-		Geometry::EPolarizedSide disambiguateAlwaysRight (ENodeType _type, const Splitter<Scalar> &_splitter, const Point<Scalar> &_point)
+		const Scalar &Split<Scalar>::getX () const
 		{
-			return Geometry::EPolarizedSide::Right;
+			assert (m_type == ESplitType::Vertical);
+			return *m_data.x;
 		}
-
 
 		template<class Scalar>
-		Trapezoid<Scalar> *query (const Node<Scalar> &_dag, const Point<Scalar> &_point, QueryDisambiguator<Scalar> _disambiguator)
+		const Segment<Scalar> &Split<Scalar>::getSegment () const
 		{
-			const Node<Scalar> *node { &_dag };
-			while (node->type != ENodeType::Trapezoid)
-			{
-				const Geometry::EPolarizedSide side { Internals::getPointPolarizedSide (node->type, node->data.split.splitter, _point, _disambiguator) };
-				node = side == Geometry::EPolarizedSide::Right ? node->data.split.right : node->data.split.left;
-			}
-			return node->data.trapezoid;
+			assert (m_type == ESplitType::NonVertical);
+			return *m_data.segment;
 		}
 
-		namespace Internals
+		template<class Scalar>
+		void Split<Scalar>::setVertical (const Scalar &_x)
 		{
+			m_type = ESplitType::Vertical;
+			m_data.x = &_x;
+		}
 
-			template<class Scalar>
-			inline Geometry::ESide getPointSide (ENodeType _type, const Splitter<Scalar> &_splitter, const Point<Scalar> &_point)
-			{
-				switch (_type)
-				{
-					case ENodeType::VerticalSplit:
-						return Geometry::getPointSideWithRespectToVerticalLine (*_splitter.x, _point);
-					case ENodeType::NonVerticalSplit:
-						return Geometry::getPointSideWithRespectToSegment (*_splitter.segment, _point);
-					default:
-						throw std::domain_error ("Unexpected node type");
-				}
-			}
-
-			template<class Scalar>
-			inline Geometry::EPolarizedSide getPointPolarizedSide (ENodeType _type, const Splitter<Scalar> &_splitter, const Point<Scalar> &_point, QueryDisambiguator<Scalar> _disambiguator)
-			{
-				switch (getPointSide (_type, _splitter, _point))
-				{
-					case Geometry::ESide::Left:
-						return Geometry::EPolarizedSide::Left;
-					case Geometry::ESide::Right:
-						return Geometry::EPolarizedSide::Right;
-					case Geometry::ESide::Collinear:
-						return _disambiguator (_type, _splitter, _point);
-					default:
-						throw std::domain_error ("Unexpected point side");
-				}
-			}
-
+		template<class Scalar>
+		void Split<Scalar>::setSegment (const Segment<Scalar> &_segment)
+		{
+			m_type = ESplitType::NonVertical;
+			m_data.segment = &_segment;
 		}
 
 	}

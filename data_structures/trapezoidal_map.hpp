@@ -54,10 +54,16 @@ namespace GAS
 
 		std::forward_list<Segment> m_segments;
 		Node *m_dag {};
-		int m_trapezoidsCount;
+		int m_trapezoidsCount {};
 		Trapezoid *m_leftmostTrapezoid {};
 
 		Segment m_bottom, m_top;
+
+		void deleteAll ();
+
+		void initialize ();
+
+		Trapezoid &findLeftmostIntersectedTrapezoid (const Segment &segment);
 
 		Node &splitVertically (Trapezoid &trapezoid, const Point &point);
 

@@ -2,6 +2,7 @@
 
 #include "trapezoidal_map.hpp"
 #include <stdexcept>
+#include <cassert>
 #include <utils/geometry_utils.hpp>
 
 namespace GAS
@@ -77,6 +78,69 @@ namespace GAS
 	{}
 
 	template<class Scalar>
+	void TrapezoidalMap<Scalar>::deleteAll ()
+	{
+		if (m_dag)
+		{
+			Node::recursiveDelete (*m_dag, static_cast<size_t>(m_trapezoidsCount));
+			m_dag = nullptr;
+		}
+		m_segments.clear ();
+		m_leftmostTrapezoid = nullptr;
+		m_trapezoidsCount = 0;
+	}
+
+	template<class Scalar>
+	void TrapezoidalMap<Scalar>::initialize ()
+	{
+		assert (!m_dag && !m_leftmostTrapezoid && m_trapezoidsCount == 0);
+		Trapezoid trapezoid;
+		trapezoid.left () = &getBottomLeft ();
+		trapezoid.right () = &getBottomRight ();
+		trapezoid.top () = &m_top;
+		trapezoid.bottom () = &m_bottom;
+		m_dag = new Node { trapezoid };
+		m_leftmostTrapezoid = &m_dag->leafData ();
+		m_trapezoidsCount = 1;
+	}
+
+	template<class Scalar>
+	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::findLeftmostIntersectedTrapezoid (const Segment &_segment)
+	{
+		assert (Geometry::areSegmentPointsHorizzontallySorted (_segment));
+		const Point &left { _segment.p1 () }, &right { _segment.p2 () };
+		return BDAG::walk (*m_dag, [&](const TDAG::Split<Scalar> &_split) {
+			if (_split.getType () == TDAG::ESplitType::NonVertical)
+			{
+				const Segment &splitSegment { _split.getSegment () };
+				assert (Geometry::areSegmentPointsHorizzontallySorted (splitSegment));
+				const Point &splitLeft { splitSegment.p1 () };
+				// If two points share the same x-coordinate
+				if (splitLeft.x () == left.x ())
+				{
+					if (splitLeft.y () == left.y ())
+					{
+						// If two segments share the same left point
+						switch (Geometry::getPointSideWithSegment (splitSegment, right))
+						{
+							default:
+								assert (false);
+							case Geometry::ESide::Left:
+								return TDAG::EChild::Left;
+							case Geometry::ESide::Right:
+								return TDAG::EChild::Right;
+							case Geometry::ESide::Collinear:
+								throw std::domain_error ("Overlapping segments are illegal");
+						}
+					}
+					throw std::domain_error ("Points with the same x-coordinate are illegal");
+				}
+			}
+			return TDAG::Utils::getPointQueryNextChild (_split, left, TDAG::disambiguateAlwaysRight<Scalar>);
+		}).leafData ();
+	}
+
+	template<class Scalar>
 	TDAG::Node<Scalar> &TrapezoidalMap<Scalar>::splitVertically (Trapezoid &_trapezoid, const Point &_point)
 	{
 		// Create new trapezoids
@@ -110,7 +174,7 @@ namespace GAS
 	TrapezoidalMap<Scalar>::TrapezoidalMap (const Point &_bottomLeft, const Point &_topRight)
 	{
 		setBounds (_bottomLeft, _topRight);
-		clear ();
+		initialize ();
 	}
 
 	template<class Scalar>
@@ -215,38 +279,19 @@ namespace GAS
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::clear ()
 	{
-		// Delete DAG and segments
-		if (m_dag)
-		{
-			Node::recursiveDelete (*m_dag, static_cast<size_t>(m_trapezoidsCount));
-		}
-		m_segments.clear ();
-		// Create initial trapezoid
-		Trapezoid trapezoid;
-		trapezoid.left () = &getBottomLeft ();
-		trapezoid.right () = &getBottomRight ();
-		trapezoid.top () = &m_top;
-		trapezoid.bottom () = &m_bottom;
-		m_dag = new Node { trapezoid };
-		m_leftmostTrapezoid = &m_dag->leafData ();
-		m_trapezoidsCount = 1;
+		deleteAll ();
+		initialize ();
 	}
 
-
-	template<class Scalar>
-	inline TDAG::Node<Scalar> &getNode (const Point<Scalar> &_point)
-	{
-
-	}
 
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::addSegment (const Segment &_segment)
 	{
-		m_segments.push_front (_segment.p1 ().x () < _segment.p2 ().x () ? _segment : Segment { _segment.p2 (), _segment.p1 () });
-		const Segment &s { m_segments.front () };
+		m_segments.push_front (Geometry::sortSegmentPointsHorizontally (_segment));
+		const Segment &segment { m_segments.front () };
 		// Find leftmost intersected trapezoid
-		// TODO Use DAG!!
-		splitVertically (*m_leftmostTrapezoid, s.p1 ());
+		Trapezoid &leftmost { findLeftmostIntersectedTrapezoid (segment) };
+		splitVertically (leftmost, segment.p1 ());
 		// TODO Replace
 	}
 

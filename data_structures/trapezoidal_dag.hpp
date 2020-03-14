@@ -17,7 +17,6 @@ namespace GAS
 			Vertical, NonVertical
 		};
 
-
 		template<class Scalar>
 		class Split
 		{
@@ -41,12 +40,40 @@ namespace GAS
 			const Segment<Scalar> &getSegment () const;
 
 			void setVertical (const Scalar &x);
-			void setSegment (const Segment<Scalar> &segment);
+			void setNonVertical (const Segment<Scalar> &segment);
 
 		};
 
 		template<class Scalar>
 		using Node = BDAG::Node<Trapezoid<Scalar>, Split<Scalar>>;
+
+		using EChild = BDAG::EChild;
+
+		template<class Scalar>
+		EChild disambiguateAlwaysRight (const Split<Scalar> &split, const Point<Scalar> &point);
+
+		template<class Scalar, class Disambiguator>
+		inline const Trapezoid<Scalar> &query (const Node<Scalar> &root, const Point<Scalar> &point, Disambiguator disambiguator);
+
+		template<class Scalar, class Disambiguator>
+		inline Trapezoid<Scalar> &query (Node<Scalar> &root, const Point<Scalar> &point, Disambiguator disambiguator);
+
+		template<class Scalar>
+		inline const Trapezoid<Scalar> &query (const Node<Scalar> &root, const Point<Scalar> &point);
+
+		template<class Scalar>
+		inline Trapezoid<Scalar> &query (Node<Scalar> &root, const Point<Scalar> &point);
+
+		namespace Utils
+		{
+
+			template<class Scalar>
+			Geometry::ESide getPointSide (const Split<Scalar> &split, const Point<Scalar> &point);
+
+			template<class Scalar, class Disambiguator>
+			inline EChild getPointQueryNextChild (const Split<Scalar> &split, const Point<Scalar> &point, Disambiguator disambiguator);
+
+		}
 
 	}
 

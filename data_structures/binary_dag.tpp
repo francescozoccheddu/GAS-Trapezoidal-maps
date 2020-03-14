@@ -12,17 +12,10 @@ namespace GAS
 	{
 
 		template<class LeafData, class InnerData>
-		const Node<LeafData, InnerData> &Node<LeafData, InnerData>::getNode (const void *_data)
+		const Node<LeafData, InnerData> &Node<LeafData, InnerData>::getNode (const char *_data)
 		{
 			static_assert(std::is_standard_layout<Node>::value, "Node is not a standard layout type");
-			return *reinterpret_cast<const Node *>(&_data - offsetof (Node, m_data));
-		}
-
-		template<class LeafData, class InnerData>
-		Node<LeafData, InnerData> &Node<LeafData, InnerData>::getNode (void *_data)
-		{
-			static_assert(std::is_standard_layout<Node>::value, "Node is not a standard layout type");
-			return *reinterpret_cast<Node *>(&_data - offsetof (Node, m_data));
+			return *reinterpret_cast<const Node *>(_data - offsetof (Node, m_data));
 		}
 
 		template<class LeafData, class InnerData>
@@ -61,25 +54,27 @@ namespace GAS
 		template<class LeafData, class InnerData>
 		const Node<LeafData, InnerData> &Node<LeafData, InnerData>::getNode (const LeafData &_data)
 		{
-			return getNode (reinterpret_cast<const void *>(&_data));
+			return getNode (reinterpret_cast<const char *>(&_data));
 		}
 
 		template<class LeafData, class InnerData>
 		const Node<LeafData, InnerData> &Node<LeafData, InnerData>::getNode (const InnerData &_data)
 		{
-			return getNode (reinterpret_cast<const void *>(&_data));
+			return getNode (reinterpret_cast<const char *>(&_data));
 		}
 
 		template<class LeafData, class InnerData>
 		Node<LeafData, InnerData> &Node<LeafData, InnerData>::getNode (LeafData &_data)
 		{
-			return getNode (reinterpret_cast<void *>(&_data));
+			// Casting away constness is safe since _data is non-const
+			return const_cast<Node &>(getNode (reinterpret_cast<const char *>(&_data)));
 		}
 
 		template<class LeafData, class InnerData>
 		Node<LeafData, InnerData> &Node<LeafData, InnerData>::getNode (InnerData &_data)
 		{
-			return getNode (reinterpret_cast<void *>(&_data));
+			// Casting away constness is safe since _data is non-const
+			return const_cast<Node &>(getNode (reinterpret_cast<const char *>(&_data)));
 		}
 
 		template<class LeafData, class InnerData>
@@ -172,19 +167,19 @@ namespace GAS
 			m_data.leafData = _data;
 		}
 
-		template<class LeafData, class InnerData>
-		const Node<LeafData, InnerData> &walk (const Node<LeafData, InnerData> &_node, Walker<LeafData, InnerData> _walker)
+		template<class LeafData, class InnerData, class Walker>
+		const Node<LeafData, InnerData> &walk (const Node<LeafData, InnerData> &_node, Walker _walker)
 		{
 			const Node<LeafData, InnerData> *node { &_node };
 			while (!node->isLeaf ())
 			{
-				switch (_walker (*node))
+				switch (_walker (node->getInnerData ()))
 				{
 					case EChild::Left:
-						node = node->getLeft ();
+						node = &node->getLeft ();
 						break;
 					case EChild::Right:
-						node = node->getRight ();
+						node = &node->getRight ();
 						break;
 					default:
 						assert (false);
@@ -193,11 +188,11 @@ namespace GAS
 			return *node;
 		}
 
-		template<class LeafData, class InnerData>
-		Node<LeafData, InnerData> &walk (Node<LeafData, InnerData> &_node, Walker<LeafData, InnerData> _walker)
+		template<class LeafData, class InnerData, class Walker>
+		Node<LeafData, InnerData> &walk (Node<LeafData, InnerData> &_node, Walker _walker)
 		{
 			// Casting away constness is safe since _node is non-const
-			return const_cast<Node<LeafData, InnerData> &>(static_cast<const Node<LeafData, InnerData> (& > _node), _walker);
+			return const_cast<Node<LeafData, InnerData> &>(walk (static_cast<const Node<LeafData, InnerData> &> (_node), _walker));
 		}
 
 	}

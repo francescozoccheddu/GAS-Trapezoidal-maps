@@ -53,9 +53,9 @@ namespace GAS
 
 		private:
 
-			const TrapezoidalMap<Scalar> *m_trapezoidalMap;
-			Colorizer *m_colorizer;
-			Painter *m_painter;
+			const TrapezoidalMap<Scalar> *m_trapezoidalMap {};
+			Colorizer *m_colorizer {};
+			Painter *m_painter {};
 
 		protected:
 

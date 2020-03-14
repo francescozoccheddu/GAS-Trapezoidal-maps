@@ -14,19 +14,23 @@ namespace GAS
 			Left, Right, Collinear
 		};
 
-		enum class EPolarizedSide
-		{
-			Left, Right
-		};
+		template<class Scalar>
+		ESide getPointSideWithVerticalLine (const Scalar &lineX, const Point<Scalar> &point);
 
 		template<class Scalar>
-		ESide getPointSideWithRespectToVerticalLine (const Scalar &lineX, const Point<Scalar> &point);
-
-		template<class Scalar>
-		ESide getPointSideWithRespectToSegment (const Segment<Scalar> &segment, const Point<Scalar> &point);
+		ESide getPointSideWithSegment (const Segment<Scalar> &segment, const Point<Scalar> &point);
 
 		template<class Scalar>
 		Scalar evalLine (const Segment<Scalar> &line, Scalar x);
+
+		template<class Scalar>
+		bool areSegmentPointsHorizzontallySorted (const Segment<Scalar> &segment);
+
+		template<class Scalar>
+		bool isSegmentVertical (const Segment<Scalar> &segment);
+
+		template<class Scalar>
+		Segment<Scalar> sortSegmentPointsHorizontally (const Segment<Scalar> &segment);
 
 	}
 

@@ -8,7 +8,6 @@ namespace GAS
 	namespace BDAG
 	{
 
-
 		template<class LeafData, class InnerData>
 		class Node final
 		{
@@ -28,8 +27,7 @@ namespace GAS
 			bool m_leaf;
 			bool m_deleted { false };
 
-			static const Node &getNode (const void *data);
-			static Node &getNode (void *data);
+			static const Node &getNode (const char *data);
 
 		public:
 
@@ -66,14 +64,11 @@ namespace GAS
 			Left, Right
 		};
 
-		template<class LeafData, class InnerData>
-		using Walker = EChild (*)(const InnerData & node);
+		template<class LeafData, class InnerData, class Walker>
+		inline const Node<LeafData, InnerData> &walk (const Node<LeafData, InnerData> &node, Walker walker);
 
-		template<class LeafData, class InnerData>
-		const Node<LeafData, InnerData> &walk (const Node<LeafData, InnerData> &node, Walker<LeafData, InnerData> walker);
-
-		template<class LeafData, class InnerData>
-		Node<LeafData, InnerData> &walk (Node<LeafData, InnerData> &node, Walker<LeafData, InnerData> walker);
+		template<class LeafData, class InnerData, class Walker>
+		inline Node<LeafData, InnerData> &walk (Node<LeafData, InnerData> &node, Walker walker);
 
 	}
 

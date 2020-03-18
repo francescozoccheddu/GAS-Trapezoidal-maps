@@ -34,10 +34,10 @@ namespace GAS
 			Split (const Scalar &x);
 			Split (const Segment<Scalar> &segment);
 
-			ESplitType getType () const;
+			ESplitType type () const;
 
-			const Scalar &getX () const;
-			const Segment<Scalar> &getSegment () const;
+			const Scalar &x () const;
+			const Segment<Scalar> &segment () const;
 
 			void setVertical (const Scalar &x);
 			void setNonVertical (const Segment<Scalar> &segment);
@@ -45,7 +45,29 @@ namespace GAS
 		};
 
 		template<class Scalar>
-		using Node = BDAG::Node<Trapezoid<Scalar>, Split<Scalar>>;
+		union NodeData
+		{
+			Trapezoid<Scalar> trapezoid;
+			Split<Scalar> split;
+
+			static const NodeData &from (const Trapezoid<Scalar> &trapezoid);
+			static const NodeData &from (const Split<Scalar> &split);
+			static NodeData &from (Trapezoid<Scalar> &trapezoid);
+			static NodeData &from (Split<Scalar> &split);
+
+			NodeData (const Scalar &x);
+			NodeData (const Segment<Scalar> &segment);
+			NodeData (const Trapezoid<Scalar> &trapezoid);
+			NodeData (Trapezoid<Scalar> &&trapezoid);
+			NodeData (const NodeData &copy);
+			NodeData (NodeData &&moved);
+
+			NodeData &operator=(const NodeData &_copy);
+
+		};
+
+		template<class Scalar>
+		using Node = BDAG::Node<NodeData<Scalar>>;
 
 		using EChild = BDAG::EChild;
 

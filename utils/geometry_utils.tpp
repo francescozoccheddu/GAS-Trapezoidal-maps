@@ -21,7 +21,7 @@ namespace GAS
 		{
 			const Point<Scalar> &a { _segment.p1 () }, &b { _segment.p2 () };
 			const Scalar det { (b.x () - a.x ()) * (_point.y () - a.y ()) - (b.y () - a.y ()) * (_point.x () - a.x ()) };
-			return det > 0 ? ESide::Right : det < 0 ? ESide::Left : ESide::Collinear;
+			return det > 0 ? ESide::Left : det < 0 ? ESide::Right : ESide::Collinear;
 		}
 
 		template<class Scalar>

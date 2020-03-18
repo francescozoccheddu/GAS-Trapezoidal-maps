@@ -22,7 +22,7 @@ namespace GAS
 
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
 		static int s_serial;
-		int m_serial { s_serial++ };
+		const int m_serial { s_serial++ };
 #endif
 
 		const Point *m_left {}, *m_right {};
@@ -31,10 +31,12 @@ namespace GAS
 
 	public:
 
+		static void link (Trapezoid &left, Trapezoid &right);
+
 		Trapezoid () = default;
 
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
-		int getSerial () const;
+		int serial () const;
 
 		Trapezoid (const Trapezoid &clone);
 		Trapezoid &operator=(const Trapezoid &clone);
@@ -42,37 +44,41 @@ namespace GAS
 		Trapezoid (const Trapezoid &clone) = default;
 #endif
 
-		const Point *getLeft () const;
-		const Point *getRight () const;
-		const Segment *getBottom () const;
-		const Segment *getTop () const;
+		const Point *left () const;
+		const Point *right () const;
+		const Segment *bottom () const;
+		const Segment *top () const;
 
-		const Trapezoid *getLowerLeftNeighbor () const;
-		const Trapezoid *getUpperLeftNeighbor () const;
-		const Trapezoid *getLowerRightNeighbor () const;
-		const Trapezoid *getUpperRightNeighbor () const;
+		const Trapezoid *lowerLeftNeighbor () const;
+		const Trapezoid *upperLeftNeighbor () const;
+		const Trapezoid *lowerRightNeighbor () const;
+		const Trapezoid *upperRightNeighbor () const;
 
 		const Point *&left ();
 		const Point *&right ();
 		const Segment *&bottom ();
 		const Segment *&top ();
 
-
 		Trapezoid *&lowerLeftNeighbor ();
 		Trapezoid *&upperLeftNeighbor ();
 		Trapezoid *&lowerRightNeighbor ();
 		Trapezoid *&upperRightNeighbor ();
 
-		Point getBottomLeft () const;
-		Point getBottomRight () const;
-		Point getTopLeft () const;
-		Point getTopRight () const;
-		Point getCentroid () const;
+		Point bottomLeft () const;
+		Point bottomRight () const;
+		Point topLeft () const;
+		Point topRight () const;
+		Point centroid () const;
 
+		void setLeftNeighbors (Trapezoid *trapezoid);
+		void setRightNeighbors (Trapezoid *trapezoid);
+		void setLeftNeighbors (Trapezoid *lower, Trapezoid *upper);
+		void setRightNeighbors (Trapezoid *lower, Trapezoid *upper);
+		void replaceInNeighbors (Trapezoid *replacement);
 		void replaceInLeftNeighbors (Trapezoid *replacement);
 		void replaceInRightNeighbors (Trapezoid *replacement);
-		void replaceLeftNeighbor (const Trapezoid &replaced, Trapezoid *replacement);
-		void replaceRightNeighbor (const Trapezoid &replaced, Trapezoid *replacement);
+		void replaceLeftNeighbor (const Trapezoid *replaced, Trapezoid *replacement);
+		void replaceRightNeighbor (const Trapezoid *replaced, Trapezoid *replacement);
 
 	};
 

@@ -16,7 +16,7 @@ namespace GAS
 			template<class Scalar>
 			void drawTrapezoid (const Trapezoid<Scalar> &_trapezoid, const cg3::Color &_color, int _thickness, bool _fill)
 			{
-				cg3::opengl::drawQuad2 (_trapezoid.getBottomLeft (), _trapezoid.getTopLeft (), _trapezoid.getTopRight (), _trapezoid.getBottomRight (), _color, _thickness, _fill);
+				cg3::opengl::drawQuad2 (_trapezoid.bottomLeft (), _trapezoid.topLeft (), _trapezoid.topRight (), _trapezoid.bottomRight (), _color, _thickness, _fill);
 			}
 
 		}
@@ -26,10 +26,10 @@ namespace GAS
 		{
 			ensureValid ();
 			int i {};
-			for (const Trapezoid<Scalar> &t : *m_trapezoidalMap)
+			for (const Trapezoid<Scalar> *t : *m_trapezoidalMap)
 			{
-				cg3::Color color { m_colorizer->provideColor (*m_trapezoidalMap, i, t) };
-				m_painter->draw (*m_trapezoidalMap, i, t, color);
+				cg3::Color color { m_colorizer->provideColor (*m_trapezoidalMap, i, *t) };
+				m_painter->draw (*m_trapezoidalMap, i, *t, color);
 				i++;
 			}
 		}
@@ -38,7 +38,7 @@ namespace GAS
 		cg3::Point3d TrapezoidalMapDrawer<Scalar>::sceneCenter () const
 		{
 			ensureValidMap ();
-			const Point<Scalar> center { (m_trapezoidalMap->getBottomLeft () + m_trapezoidalMap->getTopRight ()) / 2.0 };
+			const Point<Scalar> center { (m_trapezoidalMap->bottomLeft () + m_trapezoidalMap->topRight ()) / 2.0 };
 			return { center.x (), center.y (), 0.0 };
 		}
 
@@ -46,7 +46,7 @@ namespace GAS
 		double TrapezoidalMapDrawer<Scalar>::sceneRadius () const
 		{
 			ensureValidMap ();
-			return m_trapezoidalMap->getBottomLeft ().dist (m_trapezoidalMap->getTopRight ()) / 2.0;
+			return m_trapezoidalMap->bottomLeft ().dist (m_trapezoidalMap->topRight ()) / 2.0;
 		}
 
 		template<class Scalar>
@@ -134,7 +134,7 @@ namespace GAS
 		const cg3::Color &TrapezoidFancyColorizer<Scalar>::provideColor (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid) const
 		{
 			cg3::Color color;
-			color.setHsvF (_index / (float) _trapezoidalMap.getTrapezoidsCount (), m_saturation, m_value);
+			color.setHsvF (_index / (float) _trapezoidalMap.trapezoidsCount (), m_saturation, m_value);
 			color.setAlphaF (m_alpha);
 			return color;
 		}
@@ -232,11 +232,11 @@ namespace GAS
 			glDisable (GL_LIGHTING);
 			glDisable (GL_DEPTH_TEST);
 			glColor3f (_color.redF (), _color.greenF (), _color.blueF ());
-			const Point<Scalar> centroid { _trapezoid.getCentroid () };
+			const Point<Scalar> centroid { _trapezoid.centroid () };
 			const qglviewer::Vec point { m_canvas.camera ()->projectedCoordinatesOf ({ centroid.x (), centroid.y (), 0 }) };
 			m_canvas.setTextIsEnabled ();
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
-			QString text { QString::number (_trapezoid.getSerial ()) };
+			QString text { QString::number (_trapezoid.serial ()) };
 #else
 			QString text { QString::number (_index) };
 #endif 

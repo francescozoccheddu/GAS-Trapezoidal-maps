@@ -1,6 +1,10 @@
 #pragma once
 
 #include <cstddef>
+#include <deque>
+#ifndef GAS_BDAG_ENABLE_VISITED_FLAG
+#include <unordered_set>
+#endif
 
 namespace GAS
 {
@@ -8,54 +12,47 @@ namespace GAS
 	namespace BDAG
 	{
 
-		template<class LeafData, class InnerData>
+		template<class Data>
 		class Node final
 		{
 
-		private:
-
-			union
-			{
-				LeafData leafData;
-				struct
-				{
-					InnerData data;
-					Node *left, *right;
-				} innerData;
-			} m_data {};
-
+			Data m_data;
 			bool m_leaf;
-			bool m_deleted { false };
+			Node *m_left, *m_right;
 
-			static const Node &getNode (const char *data);
+#ifdef GAS_BDAG_ENABLE_VISITED_FLAG
+			mutable bool m_visited { false };
+#endif
+
+			static const Node &fromData (const char *data);
 
 		public:
 
-			// TODO Partial specialization if LeafData == InnerData
+			static const Node &from (const Data &data);
+			static Node &from (Data &data);
 
-			static void recursiveDelete (Node &node, std::size_t sizeHint = 0);
-
-			static const Node &getNode (const LeafData &data);
-			static const Node &getNode (const InnerData &data);
-			static Node &getNode (LeafData &data);
-			static Node &getNode (InnerData &data);
-
-			Node (const LeafData &data);
-			Node (const InnerData &data, Node &left, Node &right);
+			Node (const Data &data, Node &left, Node &right);
+			Node (Data &&data, Node &left, Node &right);
+			Node (const Data &data);
+			Node (Data &&data);
 
 			bool isLeaf () const;
-			const Node &getLeft () const;
-			const Node &getRight () const;
-			const LeafData &getLeafData () const;
-			const InnerData &getInnerData () const;
+			const Data &data () const;
+			const Node &left () const;
+			const Node &right () const;
 
-			Node &getLeft ();
-			Node &getRight ();
-			LeafData &leafData ();
-			InnerData &innerData ();
+			Data &data ();
+			Node &left ();
+			Node &right ();
 
-			void setInner (const InnerData &data, Node &left, Node &right);
-			void setLeaf (const LeafData &data);
+			void setInner (Node &left, Node &right);
+			void setLeaf ();
+
+#ifdef GAS_BDAG_ENABLE_VISITED_FLAG
+			bool isVisited () const;
+			void setVisitedFlag () const;
+			void resetVisitedFlag () const;
+#endif
 
 		};
 
@@ -64,11 +61,73 @@ namespace GAS
 			Left, Right
 		};
 
-		template<class LeafData, class InnerData, class Walker>
-		inline const Node<LeafData, InnerData> &walk (const Node<LeafData, InnerData> &node, Walker walker);
+		template<class Data>
+		class ConstIterator
+		{
 
-		template<class LeafData, class InnerData, class Walker>
-		inline Node<LeafData, InnerData> &walk (Node<LeafData, InnerData> &node, Walker walker);
+			const Node<Data> *m_current;
+			std::deque<const Node<Data> *> m_postponed;
+#ifdef GAS_BDAG_ENABLE_VISITED_FLAG
+			const Node<Data> *m_first;
+#else
+			std::unordered_set<const Node<Data> *> m_visited;
+#endif
+			ConstIterator ();
+
+			void postpone (const Node<Data> &node);
+
+		public:
+
+			static const ConstIterator end;
+
+#ifdef GAS_BDAG_ENABLE_VISITED_FLAG
+			ConstIterator (const Node<Data> &node);
+			~ConstIterator ();
+#else
+			ConstIterator (const Node<Data> &node, std::size_t sizeHint = 0);
+#endif
+
+			const Node<Data> &operator*() const;
+			const Node<Data> *operator&() const;
+			const Node<Data> *operator->() const;
+
+			ConstIterator &operator++();
+
+			bool operator!=(const ConstIterator &other) const;
+
+		};
+
+		template<class Data>
+		class Iterator : public ConstIterator<Data>
+		{
+
+		public:
+
+#ifdef GAS_BDAG_ENABLE_VISITED_FLAG
+			Iterator (Node &node);
+#else
+			Iterator (Node<Data> &node, std::size_t sizeHint = 0);
+#endif
+
+			Node<Data> &operator*() const;
+			Node<Data> *operator&() const;
+			Node<Data> *operator->() const;
+
+		};
+
+#ifdef GAS_BDAG_ENABLE_VISITED_FLAG
+		template<class Data>
+		void resetVisitedFlag (const Node<Data> &node);
+#endif
+
+		template<class Data>
+		void deleteGraph (Node<Data> &node, std::size_t sizeHint);
+
+		template<class Data, class Walker>
+		const Node<Data> &walk (const Node<Data> &node, Walker walker);
+
+		template<class Data, class Walker>
+		Node<Data> &walk (Node<Data> &node, Walker walker);
 
 	}
 

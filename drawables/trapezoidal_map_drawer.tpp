@@ -2,6 +2,7 @@
 
 #include "trapezoidal_map_drawer.hpp"
 #include <stdexcept>
+#include <qstring>
 #include <cg3/viewer/opengl_objects/opengl_objects2.h>
 
 namespace GAS
@@ -26,10 +27,10 @@ namespace GAS
 		{
 			ensureValid ();
 			int i {};
-			for (const Trapezoid<Scalar> *t : *m_trapezoidalMap)
+			for (const TDAG::Node<Scalar> &t : *m_trapezoidalMap)
 			{
-				cg3::Color color { m_colorizer->provideColor (*m_trapezoidalMap, i, *t) };
-				m_painter->draw (*m_trapezoidalMap, i, *t, color);
+				cg3::Color color { m_colorizer->provideColor (*m_trapezoidalMap, i, t.data ().second ()) };
+				m_painter->draw (*m_trapezoidalMap, i, t.data ().second (), color);
 				i++;
 			}
 		}
@@ -236,7 +237,13 @@ namespace GAS
 			const qglviewer::Vec point { m_canvas.camera ()->projectedCoordinatesOf ({ centroid.x (), centroid.y (), 0 }) };
 			m_canvas.setTextIsEnabled ();
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
-			QString text { QString::number (_trapezoid.serial ()) };
+			QString text { QString { "%1 (%2 %3 %4 %5)" }
+				.arg (QString::fromStdString (_trapezoid.serial ()))
+				.arg (QString::fromStdString (_trapezoid.lowerLeftNeighbor () ? _trapezoid.lowerLeftNeighbor ()->serial () : Utils::Serial::null))
+				.arg (QString::fromStdString (_trapezoid.upperLeftNeighbor () ? _trapezoid.upperLeftNeighbor ()->serial () : Utils::Serial::null))
+				.arg (QString::fromStdString (_trapezoid.upperRightNeighbor () ? _trapezoid.upperRightNeighbor ()->serial () : Utils::Serial::null))
+				.arg (QString::fromStdString (_trapezoid.lowerRightNeighbor () ? _trapezoid.lowerRightNeighbor ()->serial () : Utils::Serial::null))
+			};
 #else
 			QString text { QString::number (_index) };
 #endif 

@@ -12,36 +12,38 @@ namespace GAS
 	typename TrapezoidalMap<Scalar>::ELeftWeldJointType TrapezoidalMap<Scalar>::getLeftWeldJointType (Pair _left)
 	{
 		assert (_left.isRightAligned ());
-		const Point &right { *_left.bottom ().right () };
 		if (!_left.isSplit ())
 		{
 			return ELeftWeldJointType::Compact;
 		}
-		else if (right == _left.bottom ().bottom ()->p2 ())
-		{
-			return ELeftWeldJointType::JointBottom;
-		}
-		else if (right == _left.top ().top ()->p2 ())
-		{
-			return ELeftWeldJointType::JointTop;
-		}
 		else
 		{
-			return ELeftWeldJointType::Split;
+			assert (_left.isHorizontalSplit ());
+			const Point &right { _left.bottom ().top ()->p2 () };
+			if (right == _left.bottom ().bottom ()->p2 ())
+			{
+				return ELeftWeldJointType::JointBottom;
+			}
+			else if (right == _left.top ().top ()->p2 ())
+			{
+				return ELeftWeldJointType::JointTop;
+			}
+			else
+			{
+				return ELeftWeldJointType::Split;
+			}
 		}
 	}
 
 	template<class Scalar>
-	typename TrapezoidalMap<Scalar>::ERightWeldFitness TrapezoidalMap<Scalar>::getRightWeldBottomFitness (Pair _left, Pair _right)
+	typename TrapezoidalMap<Scalar>::ERightWeldFitness TrapezoidalMap<Scalar>::getRightWeldBottomFitness (const Trapezoid &_left, const Trapezoid &_right)
 	{
-		const Segment &leftSegment { *_left.bottom ().bottom () }, &rightSegment { *_right.bottom ().bottom () };
-		assert (&leftSegment == &rightSegment || leftSegment.p2 ().x () == rightSegment.p1 ().x ());
-		if (&leftSegment == &rightSegment || leftSegment.p2 () == rightSegment.p1 ())
+		assert (_left.right ()->x () == _right.left ()->x ());
+		if (_left.bottom () == _right.bottom () || _left.bottom ()->p2 () == _right.bottom ()->p1 ())
 		{
-			assert (&leftSegment == &rightSegment || getLeftWeldJointType (_left) == ELeftWeldJointType::JointBottom);
 			return ERightWeldFitness::Fit;
 		}
-		else if (leftSegment.p2 ().y () > rightSegment.p1 ().y ())
+		else if (_left.bottomRight ().y () > _right.bottomLeft ().y ())
 		{
 			return ERightWeldFitness::Extended;
 		}
@@ -52,22 +54,20 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	typename TrapezoidalMap<Scalar>::ERightWeldFitness TrapezoidalMap<Scalar>::getRightWeldTopFitness (Pair _left, Pair _right)
+	typename TrapezoidalMap<Scalar>::ERightWeldFitness TrapezoidalMap<Scalar>::getRightWeldTopFitness (const Trapezoid &_left, const Trapezoid &_right)
 	{
-		const Segment &leftSegment { *_left.top ().top () }, &rightSegment { *_right.top ().top () };
-		assert (&leftSegment == &rightSegment || leftSegment.p2 ().x () == rightSegment.p1 ().x ());
-		if (&leftSegment == &rightSegment || leftSegment.p2 () == rightSegment.p1 ())
+		assert (_left.right ()->x () == _right.left ()->x ());
+		if (_left.top () == _right.top () || _left.top ()->p2 () == _right.top ()->p1 ())
 		{
-			assert (&leftSegment == &rightSegment || getLeftWeldJointType (_left) == ELeftWeldJointType::JointTop);
 			return ERightWeldFitness::Fit;
 		}
-		else if (leftSegment.p2 ().y () > rightSegment.p1 ().y ())
+		else if (_left.topRight ().y () < _right.topLeft ().y ())
 		{
-			return ERightWeldFitness::Shrinked;
+			return ERightWeldFitness::Extended;
 		}
 		else
 		{
-			return ERightWeldFitness::Extended;
+			return ERightWeldFitness::Shrinked;
 		}
 	}
 
@@ -77,8 +77,8 @@ namespace GAS
 		assert (_left.isRightAligned () && _right.isLeftAligned ());
 		RightWeldConfiguration configuration;
 		configuration.split = _right.isSplit ();
-		configuration.bottomFitness = getRightWeldBottomFitness (_left, _right);
-		configuration.topFitness = getRightWeldTopFitness (_left, _right);
+		configuration.bottomFitness = getRightWeldBottomFitness (_left.bottom (), _right.bottom ());
+		configuration.topFitness = getRightWeldTopFitness (_left.top (), _right.top ());
 		return configuration;
 	}
 
@@ -244,8 +244,8 @@ namespace GAS
 	{
 		assert (Geometry::areSegmentPointsHorizzontallySorted (_segment));
 		const Point &left { _segment.p1 () }, &right { _segment.p2 () };
-		return BDAG::walk (*m_dag, [&](const TDAG::NodeData<Scalar> &_data) {
-			const TDAG::Split<Scalar> &split { _data.split };
+		return BDAG::walk (*m_root, [&](const TDAG::NodeData<Scalar> &_data) {
+			const TDAG::Split<Scalar> &split { _data.first () };
 			if (split.type () == TDAG::ESplitType::NonVertical)
 			{
 				const Segment &splitSegment { split.segment () };
@@ -273,7 +273,7 @@ namespace GAS
 				}
 			}
 			return TDAG::Utils::getPointQueryNextChild (split, left, TDAG::disambiguateAlwaysRight<Scalar>);
-		}).data ().trapezoid;
+		}).data ().second ();
 	}
 
 	template<class Scalar>
@@ -296,7 +296,6 @@ namespace GAS
 	{
 		assert (_previous.isRightAligned ());
 		assert (Geometry::areSegmentPointsHorizzontallySorted (_segment));
-		assert (_trapezoid.left ()->x () == _segment.p1 ().x ());
 		// Create new trapezoids
 		Trapezoid &bottom { createTrapezoid (_trapezoid) }, &top { createTrapezoid (_trapezoid) };
 		bottom.top () = top.bottom () = &_segment;
@@ -309,6 +308,12 @@ namespace GAS
 		// Update DAG
 		splitTrapezoid (_trapezoid, _segment, top, bottom);
 		return { bottom, top };
+	}
+
+	template<class Scalar>
+	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::mergeLeft (Trapezoid &_trapezoid)
+	{
+
 	}
 
 }

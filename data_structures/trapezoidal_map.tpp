@@ -7,6 +7,13 @@
 
 namespace GAS
 {
+	template<class Scalar>
+	bool TrapezoidalMap<Scalar>::Pair::areAligned (const Pair &_left, const Pair &_right)
+	{
+		return (!_left.isSplit () || _left.isHorizontalSplit ())
+			&& (!_right.isSplit () || _right.isHorizontalSplit ())
+			&& *_left.bottom ().right () == *_right.bottom.left ();
+	}
 
 	template<class Scalar>
 	TrapezoidalMap<Scalar>::Pair::Pair (Trapezoid &_leftOrBottom, Trapezoid &_rightOrTop) : m_a { &_leftOrBottom }, m_b { &_rightOrTop }
@@ -32,15 +39,15 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	bool TrapezoidalMap<Scalar>::Pair::isHorizontal () const
+	bool TrapezoidalMap<Scalar>::Pair::isVerticalSplit () const
 	{
-		return m_a->right () == m_b->left ();
+		return isSplit () && m_a->right () == m_b->left ();
 	}
 
 	template<class Scalar>
-	bool TrapezoidalMap<Scalar>::Pair::isVertical () const
+	bool TrapezoidalMap<Scalar>::Pair::isHorizontalSplit () const
 	{
-		return m_a->top () == m_b->bottom ();
+		return isSplit () && m_a->top () == m_b->bottom ();
 	}
 
 	template<class Scalar>
@@ -77,67 +84,49 @@ namespace GAS
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::deleteAll ()
 	{
-		if (m_dag)
-		{
-			BDAG::deleteGraph (*m_dag, trapezoidsCount () * 2);
-			m_dag = nullptr;
-		}
+		m_root = nullptr;
+		m_graph.clear ();
 		m_segments.clear ();
-		m_trapezoids.clear ();
 	}
 
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::initialize ()
 	{
-		assert (!m_dag && m_segments.empty () && m_trapezoids.empty ());
+		assert (!m_root && m_segments.empty () && m_graph.isEmpty ());
 		Trapezoid trapezoid;
 		trapezoid.left () = &bottomLeft ();
 		trapezoid.right () = &bottomRight ();
 		trapezoid.top () = &m_top;
 		trapezoid.bottom () = &m_bottom;
-		m_dag = &getNode (createTrapezoid (trapezoid));
+		m_root = &getNode (createTrapezoid (trapezoid));
 	}
 
 	template<class Scalar>
 	TDAG::Node<Scalar> &TrapezoidalMap<Scalar>::getNode (Trapezoid &_trapezoid) const
 	{
-		return Node::from (TDAG::NodeData<Scalar>::from (_trapezoid));
+		return Node::from (NodeData::from (_trapezoid));
 	}
 
 	template<class Scalar>
 	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::createTrapezoid (const Trapezoid &_copy)
 	{
-		Node &node { *new Node { _copy } };
-		Trapezoid &trapezoid { node.data ().trapezoid };
-		m_trapezoids.insert (&trapezoid);
-		return trapezoid;
-	}
-
-	template<class Scalar>
-	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::createTrapezoid (Trapezoid &&_moved)
-	{
-		Node &node { *new Node { _moved } };
-		Trapezoid &trapezoid { node.data ().trapezoid };
-		m_trapezoids.insert (&trapezoid);
-		return trapezoid;
+		return m_graph.createLeaf (_copy).data ().second ();
 	}
 
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::splitTrapezoid (Trapezoid &_trapezoid, Scalar _x, Trapezoid &_left, Trapezoid &_right)
 	{
-		m_trapezoids.erase (&_trapezoid);
 		Node &node { getNode (_trapezoid) };
 		node.data () = _x;
-		node.setInner (getNode (_left), getNode (_right));
+		m_graph.setInner (node, getNode (_left), getNode (_right));
 	}
 
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::splitTrapezoid (Trapezoid &_trapezoid, Segment _segment, Trapezoid &_left, Trapezoid &_right)
 	{
-		m_trapezoids.erase (&_trapezoid);
 		Node &node { getNode (_trapezoid) };
 		node.data () = _segment;
-		node.setInner (getNode (_left), getNode (_right));
+		m_graph.setInner (node, getNode (_left), getNode (_right));
 	}
 
 	template<class Scalar>
@@ -150,19 +139,19 @@ namespace GAS
 	template<class Scalar>
 	int TrapezoidalMap<Scalar>::trapezoidsCount () const
 	{
-		return m_trapezoids.size ();
+		return m_graph.leafNodesCount ();
 	}
 
 	template<class Scalar>
 	typename TrapezoidalMap<Scalar>::TrapezoidIterator TrapezoidalMap<Scalar>::begin () const
 	{
-		return m_trapezoids.cbegin ();
+		return m_graph.leafNodes ().begin ();
 	}
 
 	template<class Scalar>
 	typename TrapezoidalMap<Scalar>::TrapezoidIterator TrapezoidalMap<Scalar>::end () const
 	{
-		return m_trapezoids.cend ();
+		return m_graph.leafNodes ().end ();
 	}
 
 	template<class Scalar>
@@ -262,7 +251,7 @@ namespace GAS
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::addSegment (const Segment &_segment)
 	{
-		assert (m_dag && !m_trapezoids.empty ());
+		assert (m_root && !m_graph.isEmpty ());
 		if (_segment.p1 () == _segment.p2 ())
 		{
 			throw std::invalid_argument ("Degenerate segment");
@@ -311,7 +300,7 @@ namespace GAS
 						previous = incrementalSplitHorizontally (*current, segment, previous);
 						// Decide whether to proceed splitting in the lower or the upper right neighbor
 						const bool segmentAboveRight { Geometry::evalLine (segment, rightPoint.x ()) > rightPoint.y () };
-						current = segmentAboveRight ? previous.top ().lowerRightNeighbor () : previous.bottom ().upperRightNeighbor ();
+						current = segmentAboveRight ? previous.bottom ().upperRightNeighbor () : previous.bottom ().lowerRightNeighbor ();
 					}
 				}
 				// Link last trapezoid

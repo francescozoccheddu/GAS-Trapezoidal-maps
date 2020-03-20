@@ -5,6 +5,7 @@
 #include "trapezoid.hpp"
 #include "binary_dag.hpp"
 #include <utils/geometry_utils.hpp>
+#include <utils/bivariant.hpp>
 
 namespace GAS
 {
@@ -25,9 +26,9 @@ namespace GAS
 
 			union
 			{
-				const Scalar *x;
-				const Segment<Scalar> *segment;
-			} m_data;
+				const Scalar *m_x;
+				const Segment<Scalar> *m_segment;
+			};
 
 		public:
 
@@ -35,7 +36,6 @@ namespace GAS
 			Split (const Segment<Scalar> &segment);
 
 			ESplitType type () const;
-
 			const Scalar &x () const;
 			const Segment<Scalar> &segment () const;
 
@@ -45,29 +45,13 @@ namespace GAS
 		};
 
 		template<class Scalar>
-		union NodeData
-		{
-			Trapezoid<Scalar> trapezoid;
-			Split<Scalar> split;
-
-			static const NodeData &from (const Trapezoid<Scalar> &trapezoid);
-			static const NodeData &from (const Split<Scalar> &split);
-			static NodeData &from (Trapezoid<Scalar> &trapezoid);
-			static NodeData &from (Split<Scalar> &split);
-
-			NodeData (const Scalar &x);
-			NodeData (const Segment<Scalar> &segment);
-			NodeData (const Trapezoid<Scalar> &trapezoid);
-			NodeData (Trapezoid<Scalar> &&trapezoid);
-			NodeData (const NodeData &copy);
-			NodeData (NodeData &&moved);
-
-			NodeData &operator=(const NodeData &_copy);
-
-		};
+		using NodeData = GAS::Utils::BiVariant<Split<Scalar>, Trapezoid<Scalar>>;
 
 		template<class Scalar>
 		using Node = BDAG::Node<NodeData<Scalar>>;
+
+		template<class Scalar>
+		using Graph = BDAG::Graph<NodeData<Scalar>>;
 
 		using EChild = BDAG::EChild;
 

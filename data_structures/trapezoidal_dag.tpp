@@ -3,7 +3,7 @@
 #include "trapezoidal_dag.hpp"
 
 #include <cassert>
-#include <cstring>
+#include <utils/parent_from_member.hpp>
 
 
 namespace GAS
@@ -34,91 +34,28 @@ namespace GAS
 		const Scalar &Split<Scalar>::x () const
 		{
 			assert (m_type == ESplitType::Vertical);
-			return *m_data.x;
+			return *m_x;
 		}
 
 		template<class Scalar>
 		const Segment<Scalar> &Split<Scalar>::segment () const
 		{
 			assert (m_type == ESplitType::NonVertical);
-			return *m_data.segment;
+			return *m_segment;
 		}
 
 		template<class Scalar>
 		void Split<Scalar>::setVertical (const Scalar &_x)
 		{
 			m_type = ESplitType::Vertical;
-			m_data.x = &_x;
+			m_x = &_x;
 		}
 
 		template<class Scalar>
 		void Split<Scalar>::setNonVertical (const Segment<Scalar> &_segment)
 		{
 			m_type = ESplitType::NonVertical;
-			m_data.segment = &_segment;
-		}
-
-		template<class Scalar>
-		const NodeData<Scalar> &NodeData<Scalar>::from (const Trapezoid<Scalar> &_trapezoid)
-		{
-			// Reinterpret cast is safe since NodeData is an union
-			return reinterpret_cast<const NodeData<Scalar> &>(_trapezoid);
-		}
-
-		template<class Scalar>
-		const NodeData<Scalar> &NodeData<Scalar>::from (const Split<Scalar> &_split)
-		{
-			// Reinterpret cast is safe since NodeData is an union
-			return reinterpret_cast<const NodeData<Scalar> &>(_split);
-		}
-
-		template<class Scalar>
-		NodeData<Scalar> &NodeData<Scalar>::from (Trapezoid<Scalar> &_trapezoid)
-		{
-			// Reinterpret cast is safe since NodeData is an union
-			return reinterpret_cast<NodeData<Scalar> &>(_trapezoid);
-		}
-
-		template<class Scalar>
-		NodeData<Scalar> &NodeData<Scalar>::from (Split<Scalar> &_split)
-		{
-			// Reinterpret cast is safe since NodeData is an union
-			return reinterpret_cast<NodeData<Scalar> &>(_split);
-		}
-
-		template<class Scalar>
-		NodeData<Scalar>::NodeData (const Scalar &_x) : split { _x }
-		{}
-
-		template<class Scalar>
-		NodeData<Scalar>::NodeData (const Segment<Scalar> &_segment) : split { _segment }
-		{}
-
-		template<class Scalar>
-		NodeData<Scalar>::NodeData (const Trapezoid<Scalar> &_trapezoid) : trapezoid { _trapezoid }
-		{}
-
-		template<class Scalar>
-		NodeData<Scalar>::NodeData (Trapezoid<Scalar> &&_trapezoid) : trapezoid { _trapezoid }
-		{}
-
-		template<class Scalar>
-		NodeData<Scalar>::NodeData (const NodeData &_copy)
-		{
-			*this = _copy;
-		}
-
-		template<class Scalar>
-		NodeData<Scalar>::NodeData (NodeData &&_moved)
-		{
-			*this = _moved;
-		}
-
-		template<class Scalar>
-		NodeData<Scalar> &NodeData<Scalar>::operator=(const NodeData &_copy)
-		{
-			memcpy (this, &_copy, sizeof (NodeData<Scalar>));
-			return *this;
+			m_segment = &_segment;
 		}
 
 		template<class Scalar>
@@ -130,17 +67,17 @@ namespace GAS
 		template<class Scalar, class Disambiguator>
 		const Trapezoid<Scalar> &query (const Node<Scalar> &_root, const Point<Scalar> &_point, Disambiguator _disambiguator)
 		{
-			return BDAG::walk (_root, [](const Split<Scalar> &_split) {
-				return Utils::getPointQueryNextChild (_split, _point, _disambiguator);
-			}).data ().trapezoid;
+			return BDAG::walk (_root, [](const NodeData<Scalar> &_node) {
+				return Utils::getPointQueryNextChild (_node.first (), _point, _disambiguator);
+			}).data ().second ();
 		}
 
 		template<class Scalar, class Disambiguator>
 		Trapezoid<Scalar> &query (Node<Scalar> &_root, const Point<Scalar> &_point, Disambiguator _disambiguator)
 		{
-			return BDAG::walk (_root, [](const Split<Scalar> &_split) {
-				return Utils::getPointQueryNextChild (_split, _point, _disambiguator);
-			}).data ().trapezoid;
+			return BDAG::walk (_root, [](const NodeData<Scalar> &_node) {
+				return Utils::getPointQueryNextChild (_node.first (), _point, _disambiguator);
+			}).data ().second ();
 		}
 
 		template<class Scalar>

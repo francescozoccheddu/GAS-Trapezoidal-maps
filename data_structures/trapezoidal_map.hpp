@@ -5,8 +5,6 @@
 #include "trapezoid.hpp"
 #include "trapezoidal_dag.hpp"
 #include <forward_list>
-#include <deque>
-#include <unordered_set>
 
 namespace GAS
 {
@@ -15,15 +13,13 @@ namespace GAS
 	class TrapezoidalMap final
 	{
 
-	public:
-
 		using Point = Point<Scalar>;
 		using Segment = Segment<Scalar>;
 		using Trapezoid = Trapezoid<Scalar>;
 		using Node = TDAG::Node<Scalar>;
-		using TrapezoidIterator = typename std::unordered_set<Trapezoid *>::const_iterator;
-
-	private:
+		using NodeData = TDAG::NodeData<Scalar>;
+		using Graph = TDAG::Graph<Scalar>;
+		using TrapezoidIterator = typename TDAG::Graph<Scalar>::ConstLeafNodeIterator;
 
 		class Pair
 		{
@@ -34,13 +30,15 @@ namespace GAS
 
 		public:
 
+			static bool areAligned (const Pair &left, const Pair &right);
+
 			Pair (Trapezoid &leftOrBottom, Trapezoid &rightOrTop);
 
 			bool isSplit () const;
 			bool isLeftAligned () const;
 			bool isRightAligned () const;
-			bool isHorizontal () const;
-			bool isVertical () const;
+			bool isVerticalSplit () const;
+			bool isHorizontalSplit () const;
 
 			Trapezoid &compact () const;
 			Trapezoid &bottom () const;
@@ -67,14 +65,14 @@ namespace GAS
 		};
 
 		static ELeftWeldJointType getLeftWeldJointType (Pair left);
-		static ERightWeldFitness getRightWeldBottomFitness (Pair left, Pair right);
-		static ERightWeldFitness getRightWeldTopFitness (Pair left, Pair right);
+		static ERightWeldFitness getRightWeldBottomFitness (const Trapezoid &left, const Trapezoid &right);
+		static ERightWeldFitness getRightWeldTopFitness (const Trapezoid &left, const Trapezoid &right);
 		static RightWeldConfiguration getRightWeldConfiguration (Pair left, Pair right);
 		static void weld (Pair left, Pair right);
 
 		std::forward_list<Segment> m_segments;
-		Node *m_dag {};
-		std::unordered_set<Trapezoid *> m_trapezoids;
+		Node *m_root {};
+		Graph m_graph;
 
 		Segment m_bottom, m_top;
 
@@ -83,7 +81,6 @@ namespace GAS
 
 		Node &getNode (Trapezoid &trapezoid) const;
 		Trapezoid &createTrapezoid (const Trapezoid &copy = {});
-		Trapezoid &createTrapezoid (Trapezoid &&moved);
 		void splitTrapezoid (Trapezoid &trapezoid, Scalar x, Trapezoid &left, Trapezoid &right);
 		void splitTrapezoid (Trapezoid &trapezoid, Segment segment, Trapezoid &left, Trapezoid &right);
 
@@ -91,6 +88,7 @@ namespace GAS
 
 		Pair splitVertically (Trapezoid &trapezoid, const Point &point);
 		Pair incrementalSplitHorizontally (Trapezoid &trapezoid, const Segment &segment, Pair previous);
+		Trapezoid &mergeLeft (Trapezoid &trapezoid);
 
 	public:
 
@@ -98,8 +96,8 @@ namespace GAS
 
 		// Trapezoids
 		int trapezoidsCount () const;
-		TrapezoidIterator begin () const;
-		TrapezoidIterator end () const;
+		typename TrapezoidIterator begin () const;
+		typename TrapezoidIterator end () const;
 
 		// Bounds
 		const Point &bottomLeft () const;

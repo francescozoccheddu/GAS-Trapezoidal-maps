@@ -3,8 +3,10 @@
 #include "binary_dag.hpp"
 
 #include <cassert>
-#include <vector>
+#include <unordered_map>
+#include <type_traits>
 #include <utility>
+#include <utils/parent_from_member.hpp>
 
 namespace GAS
 {
@@ -13,40 +15,24 @@ namespace GAS
 	{
 
 		template<class Data>
-		const Node<Data> &Node<Data>::fromData (const char *_data)
-		{
-			static_assert(std::is_standard_layout<Node>::value, "Node is not a standard layout type");
-			return *reinterpret_cast<const Node *>(_data - offsetof (Node, m_data));
-		}
+		Node<Data>::Node (const Data &_data) : m_data { _data }
+		{}
+
+		template<class Data>
+		Node<Data>::Node (Data &&_data) : m_data { std::move (_data) }
+		{}
 
 		template<class Data>
 		const Node<Data> &Node<Data>::from (const Data &_data)
 		{
-			return getNode (reinterpret_cast<const char *>(&_data));
+			return GAS_UTILS_PARENT_FROM_MEMBER (_data, Node, m_data);
 		}
 
 		template<class Data>
 		Node<Data> &Node<Data>::from (Data &_data)
 		{
-			// Casting away constness is safe since _data is non-const
-			return const_cast<Node &>(fromData (reinterpret_cast<const char *>(&_data)));
+			return GAS_UTILS_PARENT_FROM_MEMBER (_data, Node, m_data);
 		}
-
-		template<class Data>
-		Node<Data>::Node (const Data &_data, Node &_left, Node &_right) : m_data { _data }, m_leaf { false }, m_left { &_left }, m_right { &_right }
-		{}
-
-		template<class Data>
-		Node<Data>::Node (Data &&_data, Node &_left, Node &_right) : m_data { _data }, m_leaf { false }, m_left { &_left }, m_right { &_right }
-		{}
-
-		template<class Data>
-		Node<Data>::Node (const Data &_data) : m_data { _data }, m_leaf { true }
-		{}
-
-		template<class Data>
-		Node<Data>::Node (Data &&_data) : m_data { _data }, m_leaf { true }
-		{}
 
 		template<class Data>
 		bool Node<Data>::isLeaf () const
@@ -58,6 +44,18 @@ namespace GAS
 		const Data &Node<Data>::data () const
 		{
 			return m_data;
+		}
+
+		template<class Data>
+		const Data &Node<Data>::operator*() const
+		{
+			return m_data;
+		}
+
+		template<class Data>
+		const Data *Node<Data>::operator->() const
+		{
+			return &m_data;
 		}
 
 		template<class Data>
@@ -81,6 +79,18 @@ namespace GAS
 		}
 
 		template<class Data>
+		Data &Node<Data>::operator*()
+		{
+			return m_data;
+		}
+
+		template<class Data>
+		Data *Node<Data>::operator->()
+		{
+			return &m_data;
+		}
+
+		template<class Data>
 		Node<Data> &Node<Data>::left ()
 		{
 			assert (!isLeaf ());
@@ -95,229 +105,337 @@ namespace GAS
 		}
 
 		template<class Data>
-		void Node<Data>::setInner (Node &_left, Node &_right)
+		void Graph<Data>::registerNode (Node &_node)
 		{
-			m_leaf = false;
-			m_left = &_left;
-			m_right = &_right;
-		}
-
-		template<class Data>
-		void Node<Data>::setLeaf ()
-		{
-			m_leaf = true;
-		}
-
-#ifdef GAS_BDAG_ENABLE_VISITED_FLAG
-
-		template<class Data>
-		bool Node<Data>::isVisited () const
-		{
-			return m_visited;
-		}
-
-		template<class Data>
-		void Node<Data>::setVisitedFlag () const
-		{
-			m_visited = true;
-		}
-
-		template<class Data>
-		void Node<Data>::resetVisitedFlag () const
-		{
-			m_visited = false;
-		}
-
-#endif
-
-		template<class Data>
-		ConstIterator<Data>::ConstIterator () : m_current {}
-		{}
-
-		template<class Data>
-		void ConstIterator<Data>::postpone (const Node<Data> &_node)
-		{
-#ifdef GAS_BDAG_ENABLE_VISITED_FLAG
-			if (!_node.isVisited ())
+			m_nodesCount++;
+			if (m_lastNode)
 			{
-				_node.setVisitedFlag ();
-#else
-			if (std::get<1> (m_visited.insert (&_node)))
-			{
-#endif
-				m_postponed.push_back (&_node);
-			}
-		}
-
-		template<class Data>
-		const ConstIterator<Data> ConstIterator<Data>::end {};
-
-#ifdef GAS_BDAG_ENABLE_VISITED_FLAG
-		template<class Data>
-		ConstIterator<Data>::ConstIterator (const Node<Data> & _node) : m_current { &_node }, m_first { &_node }
-#else
-		template<class Data>
-		ConstIterator<Data>::ConstIterator (const Node<Data> & _node, std::size_t _sizeHint) : m_current { &_node }
-#endif
-		{
-#ifndef GAS_BDAG_ENABLE_VISITED_FLAG
-			if (_sizeHint > 0)
-			{
-				m_visited.reserve (_sizeHint);
-			}
-#endif
-			postpone (*m_current);
-			++(*this);
-		}
-
-#ifdef GAS_BDAG_ENABLE_VISITED_FLAG
-		template<class Data>
-		ConstIterator<Data>::~ConstIterator ()
-		{
-			resetVisitedFlag (*m_first);
-		}
-#endif
-
-		template<class Data>
-		const Node<Data> &ConstIterator<Data>::operator* () const
-		{
-			assert (m_current != nullptr);
-			return *m_current;
-		}
-
-		template<class Data>
-		const Node<Data> *ConstIterator<Data>::operator& () const
-		{
-			assert (m_current != nullptr);
-			return m_current;
-		}
-
-		template<class Data>
-		const Node<Data> *ConstIterator<Data>::operator-> () const
-		{
-			assert (m_current != nullptr);
-			return m_current;
-		}
-
-		template<class Data>
-		ConstIterator<Data> &ConstIterator<Data>::operator++ ()
-		{
-			if (!m_postponed.empty ())
-			{
-				m_current = m_postponed.front ();
-				m_postponed.pop_front ();
-				if (!m_current->isLeaf ())
-				{
-					postpone (m_current->left ());
-					postpone (m_current->right ());
-				}
+				m_lastNode->m_next = &_node;
 			}
 			else
 			{
-				m_current = nullptr;
+				m_firstNode = &_node;
+			}
+			_node.m_previous = m_lastNode;
+			m_lastNode = &_node;
+		}
+
+		template<class Data>
+		void Graph<Data>::registerLeaf (Node &_node)
+		{
+			assert (_node.isLeaf ());
+			m_leafNodesCount++;
+			if (m_lastLeafNode)
+			{
+				m_lastLeafNode->m_right = &_node;
+			}
+			else
+			{
+				m_firstLeafNode = &_node;
+			}
+			_node.m_left = m_lastLeafNode;
+			m_lastLeafNode = &_node;
+		}
+
+		template<class Data>
+		void Graph<Data>::unregisterNode (Node &_node)
+		{
+			m_nodesCount--;
+			if (_node.m_previous)
+			{
+				_node.m_previous->m_next = _node.m_next;
+			}
+			if (_node.m_next)
+			{
+				_node.m_next->m_previous = _node.m_previous;
+			}
+			if (&_node == m_firstNode)
+			{
+				m_firstNode = _node.m_next;
+			}
+			if (&_node == m_lastNode)
+			{
+				m_lastNode = _node.m_previous;
+			}
+		}
+
+		template<class Data>
+		void Graph<Data>::unregisterLeaf (Node &_node)
+		{
+			assert (_node.isLeaf ());
+			m_leafNodesCount--;
+			if (_node.m_left)
+			{
+				_node.m_left->m_right = _node.m_right;
+			}
+			if (_node.m_right)
+			{
+				_node.m_right->m_left = _node.m_left;
+			}
+			if (&_node == m_firstLeafNode)
+			{
+				m_firstLeafNode = _node.m_right;
+			}
+			if (&_node == m_lastLeafNode)
+			{
+				m_lastLeafNode = _node.m_left;
+			}
+		}
+
+		template<class Data>
+		Graph<Data>::Graph (const Graph &_copy)
+		{
+			// See copy assignment operator
+			*this = _copy;
+		}
+
+		template<class Data>
+		Graph<Data>::Graph (Graph &&_moved) :
+			m_firstNode { _moved.m_firstNode }, m_lastNode { _moved.m_lastNode },
+			m_lastLeafNode { _moved.m_lastLeafNode }, m_lastLeafNode { _moved.m_lastLeafNode },
+			m_nodesCount { _moved.m_nodesCount }, m_leafNodesCount { _moved.m_leafNodesCount }
+		{
+			_moved.clear ();
+		}
+
+		template<class Data>
+		Graph<Data>::~Graph ()
+		{
+			clear ();
+		}
+
+		template<class Data>
+		Graph<Data> &Graph<Data>::operator=(const Graph &_copy)
+		{
+			clear ();
+			std::unordered_map<const Node *, Node *> map;
+			map.reserve (_copy.nodesCount ());
+			for (const Node &node : _copy.nodes ())
+			{
+				Node &clone { *new Node { node.m_data } };
+				clone.m_leaf = node.m_leaf;
+				registerNode (clone);
+				if (clone.m_leaf)
+				{
+					registerLeaf (clone);
+				}
+				else
+				{
+					clone.m_left = node.m_left;
+					clone.m_right = node.m_right;
+				}
+				map.emplace (&node, &clone);
+			}
+			for (const std::pair<const Node *, Node *> &entry : map)
+			{
+				Node &node { *entry.second };
+				if (!node.m_leaf)
+				{
+					node.m_left = map.at (node.m_left);
+					node.m_right = map.at (node.m_right);
+				}
 			}
 			return *this;
 		}
 
 		template<class Data>
-		bool ConstIterator<Data>::operator != (const ConstIterator & _other) const
+		Graph<Data> &Graph<Data>::operator=(Graph &&_moved)
 		{
-			return m_current != m_current || m_postponed != _other.m_postponed;
-		}
-
-#ifdef GAS_BDAG_ENABLE_VISITED_FLAG
-		template<class Data>
-		Iterator<Data>::Iterator (Node<Data> & _node) : ConstIterator { _node }
-		{}
-#else
-		template<class Data>
-		Iterator<Data>::Iterator (Node<Data> & _node, std::size_t _sizeHint) : ConstIterator { _node, _sizeHint }
-		{}
-#endif
-
-		template<class Data>
-		Node<Data> &Iterator<Data>::operator* () const
-		{
-			// Casting away constness is safe since _node was non-const
-			return const_cast<Node<Data> &> (ConstIterator::operator*());
+			clear ();
+			m_firstNode = _moved.m_firstNode;
+			m_lastNode = _moved.m_lastNode;
+			m_lastLeafNode = _moved.m_lastLeafNode;
+			m_lastLeafNode = _moved.m_lastLeafNode;
+			m_nodesCount = _moved.m_nodesCount;
+			m_leafNodesCount = _moved.m_leafNodesCount;
+			_moved.clear ();
 		}
 
 		template<class Data>
-		Node<Data> *Iterator<Data>::operator& () const
+		bool Graph<Data>::isEmpty () const
 		{
-			// Casting away constness is safe since _node was non-const
-			return const_cast<Node<Data> *> (ConstIterator::operator&());
+			return !m_nodesCount;
 		}
 
 		template<class Data>
-		Node<Data> *Iterator<Data>::operator-> () const
+		int Graph<Data>::nodesCount () const
 		{
-			// Casting away constness is safe since _node was non-const
-			return const_cast<Node<Data> *> (ConstIterator::operator->());
+			return m_nodesCount;
 		}
 
-#ifdef GAS_BDAG_ENABLE_VISITED_FLAG
 		template<class Data>
-		void deleteComponent (const Node<Data> & _node)
+		int Graph<Data>::leafNodesCount () const
 		{
-			for (ConstIterator it { _node }; it != ConstIterator<Data>::end; ++it)
-			{
-				it->resetVisitedFlag ();
-			}
+			return m_leafNodesCount;
 		}
-#endif
 
 		template<class Data>
-		void deleteGraph (Node<Data> & _node, std::size_t _sizeHint)
+		int Graph<Data>::innerNodesCount () const
 		{
-#ifdef GAS_BDAG_ENABLE_VISITED_FLAG
-			std::vector<Node<Data> *> nodes;
-			if (_sizeHint > 0)
+			return m_nodesCount - m_leafNodesCount;
+		}
+
+		template<class Data>
+		Node<Data> &Graph<Data>::createLeaf ()
+		{
+			Node &node { *new Node };
+			registerNode (node);
+			registerLeaf (node);
+			return node;
+		}
+
+		template<class Data>
+		Node<Data> &Graph<Data>::createLeaf (const Data &_data)
+		{
+			Node &node { *new Node { _data } };
+			registerNode (node);
+			registerLeaf (node);
+			return node;
+		}
+
+		template<class Data>
+		Node<Data> &Graph<Data>::createLeaf (Data &&_data)
+		{
+			Node &node { *new Node { std::move (_data) } };
+			registerNode (node);
+			registerLeaf (node);
+			return node;
+		}
+
+		template<class Data>
+		Node<Data> &Graph<Data>::createInner (Node &_left, Node &_right)
+		{
+			Node &node { *new Node };
+			node.m_left = &_left;
+			node.m_right = &_right;
+			node.m_leaf = false;
+			registerNode (node);
+			return node;
+		}
+
+		template<class Data>
+		Node<Data> &Graph<Data>::createInner (const Data &_data, Node &_left, Node &_right)
+		{
+			Node &node { *new Node { _data } };
+			node.m_left = &_left;
+			node.m_right = &_right;
+			node.m_leaf = false;
+			registerNode (node);
+			return node;
+		}
+
+		template<class Data>
+		Node<Data> &Graph<Data>::createInner (Data &&_data, Node &_left, Node &_right)
+		{
+			Node &node { *new Node { std::move (_data) } };
+			node.m_left = &_left;
+			node.m_right = &_right;
+			node.m_leaf = false;
+			registerNode (node);
+			return node;
+		}
+
+		template<class Data>
+		void Graph<Data>::setLeaf (Node &_node)
+		{
+			if (!_node.isLeaf ())
 			{
-				nodes.reserve (_sizeHint);
+				_node.m_leaf = true;
+				registerLeaf (_node);
 			}
-			for (Iterator<Data> it { _node }; it != Iterator<Data>::end; ++it)
+		}
+
+		template<class Data>
+		void Graph<Data>::setInner (Node &_node, Node &_left, Node &_right)
+		{
+			if (_node.isLeaf ())
 			{
-				nodes.push_back (&it);
+				_node.m_left = &_left;
+				_node.m_right = &_right;
+				_node.m_leaf = false;
+				unregisterLeaf (_node);
 			}
-			for (Iterator<Data> it { _node }; it != Iterator<Data>::end; ++it)
+		}
+
+		template<class Data>
+		void Graph<Data>::destroyNode (Node &_node)
+		{
+			unregisterNode (_node);
+			if (_node.isLeaf ())
 			{
-				delete &it;
+				unregisterLeaf (_node);
 			}
-#else
-			for (Iterator<Data> it { _node, _sizeHint }; it != Iterator<Data>::end; ++it)
+			delete &_node;
+		}
+
+		template<class Data>
+		void Graph<Data>::clear ()
+		{
+			if (!isEmpty ())
 			{
-				delete &it;
+				// Deleting the current node invalidates the iterator
+				Node *lastNode {};
+				for (Node &node : nodes ())
+				{
+					delete lastNode;
+					lastNode = &node;
+				}
+				delete lastNode;
 			}
-#endif
+			m_firstNode = m_lastNode = m_firstLeafNode = m_lastLeafNode = nullptr;
+			m_nodesCount = m_leafNodesCount = 0;
+		}
+
+		template<class Data>
+		typename Graph<Data>::ConstNodeIterator::Iterable Graph<Data>::nodes () const
+		{
+			return ConstNodeIterator::Iterable { *m_firstNode };
+		}
+
+		template<class Data>
+		typename Graph<Data>::NodeIterator::Iterable Graph<Data>::nodes ()
+		{
+			return NodeIterator::Iterable { *m_firstNode };
+		}
+
+		template<class Data>
+		typename Graph<Data>::ConstLeafNodeIterator::Iterable Graph<Data>::leafNodes () const
+		{
+			return ConstLeafNodeIterator::Iterable { *m_firstLeafNode };
+		}
+
+		template<class Data>
+		typename Graph<Data>::LeafNodeIterator::Iterable Graph<Data>::leafNodes ()
+		{
+			return LeafNodeIterator::Iterable { *m_firstLeafNode };
 		}
 
 		template<class Data, class Walker>
-		const Node<Data> &walk (const Node<Data> & _node, Walker _walker)
+		Node<Data> &walk (Node<Data> &_root, Walker _walker)
 		{
-			const Node<Data> *node { &_node };
+			Node<Data> *node { &_root };
 			while (!node->isLeaf ())
 			{
 				switch (_walker (node->data ()))
 				{
+					default:
+						assert (false);
 					case EChild::Left:
 						node = &node->left ();
 						break;
 					case EChild::Right:
 						node = &node->right ();
 						break;
-					default:
-						assert (false);
 				}
 			}
 			return *node;
 		}
 
 		template<class Data, class Walker>
-		Node<Data> &walk (Node<Data> & _node, Walker _walker)
+		const Node<Data> &walk (const Node<Data> &_root, Walker _walker)
 		{
-			// Casting away constness is safe since _node is non-const
-			return const_cast<Node<Data> &>(walk (static_cast<const Node<Data> &> (_node), _walker));
+			// Casting away constness is safe since _root is non-const
+			return const_cast<Node<Data> &>(walk (static_cast<Node<Data> &>(_root), _walker));
 		}
 
 	}

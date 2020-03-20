@@ -6,13 +6,6 @@
 namespace GAS
 {
 
-#ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
-
-	template<class Scalar>
-	int Trapezoid<Scalar>::s_serial {};
-
-#endif
-
 	template<class Scalar>
 	void Trapezoid<Scalar>::link (Trapezoid &_left, Trapezoid &_right)
 	{
@@ -24,29 +17,9 @@ namespace GAS
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
 
 	template<class Scalar>
-	int Trapezoid<Scalar>::serial () const
+	const Utils::Serial &Trapezoid<Scalar>::serial () const
 	{
 		return m_serial;
-	}
-
-	template<class Scalar>
-	Trapezoid<Scalar>::Trapezoid (const Trapezoid &_clone)
-	{
-		*this = _clone;
-	}
-
-	template<class Scalar>
-	Trapezoid<Scalar> &Trapezoid<Scalar>::operator= (const Trapezoid &_clone)
-	{
-		m_left = _clone.m_left;
-		m_right = _clone.m_right;
-		m_top = _clone.m_top;
-		m_bottom = _clone.m_bottom;
-		m_lowerLeftNeighbor = _clone.m_lowerLeftNeighbor;
-		m_upperLeftNeighbor = _clone.m_upperLeftNeighbor;
-		m_lowerRightNeighbor = _clone.m_lowerRightNeighbor;
-		m_upperRightNeighbor = _clone.m_upperRightNeighbor;
-		return *this;
 	}
 
 #endif

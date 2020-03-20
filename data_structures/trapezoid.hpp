@@ -6,6 +6,11 @@
 // For debugging purposes
 #define GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
 
+#ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
+#include <utils/serial.hpp>
+#endif
+
+
 namespace GAS
 {
 
@@ -21,8 +26,10 @@ namespace GAS
 	private:
 
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
-		static int s_serial;
-		const int m_serial { s_serial++ };
+		Utils::Serial m_serial {};
+	public:
+		const Utils::Serial &serial () const;
+	private:
 #endif
 
 		const Point *m_left {}, *m_right {};
@@ -32,17 +39,6 @@ namespace GAS
 	public:
 
 		static void link (Trapezoid &left, Trapezoid &right);
-
-		Trapezoid () = default;
-
-#ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
-		int serial () const;
-
-		Trapezoid (const Trapezoid &clone);
-		Trapezoid &operator=(const Trapezoid &clone);
-#else
-		Trapezoid (const Trapezoid &clone) = default;
-#endif
 
 		const Point *left () const;
 		const Point *right () const;

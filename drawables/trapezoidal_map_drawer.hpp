@@ -7,11 +7,30 @@
 #include <cg3/geometry/point3.h>
 #include <cg3/viewer/glcanvas.h>
 
+#ifdef WIN32
+#include "windows.h"
+#endif
+
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+
+#define GAS_DRAWING_RESTORE_GL_STATE
+
+/*
+	I could have used cg3::opengl::draw* functions but they don't support transparency and
+	they don't allow drawing quads with zero width strokes as glLineWidth(0) is illegal by OpenGL specs.
+*/
+
 namespace GAS
 {
 
 	namespace Drawing
 	{
+
+		using Color = cg3::Color;
 
 		template<class Scalar>
 		class TrapezoidalMapDrawer : public cg3::DrawableObject
@@ -26,8 +45,9 @@ namespace GAS
 
 				friend void TrapezoidalMapDrawer::draw () const;
 
-				// Pure virtual methods
-				virtual const cg3::Color &provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const = 0;
+				// Interface methods
+				virtual const Color &provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const = 0;
+				virtual bool requiresBlending () const;
 
 			public:
 
@@ -42,8 +62,10 @@ namespace GAS
 
 				friend void TrapezoidalMapDrawer::draw () const;
 
-				// Pure virtual methods
-				virtual void draw (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid, const cg3::Color &color) const = 0;
+				// Interface methods
+				virtual void beforeDraw (const TrapezoidalMap<Scalar> &trapezoidalMap) const;
+				virtual void draw (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid, const Color &color) const = 0;
+				virtual void afterDraw (const TrapezoidalMap<Scalar> &trapezoidalMap) const;
 
 			public:
 
@@ -71,13 +93,13 @@ namespace GAS
 
 			virtual ~TrapezoidalMapDrawer () = default;
 
-			const TrapezoidalMap<Scalar> *getTrapezoidalMap () const;
+			const TrapezoidalMap<Scalar> *trapezoidalMap () const;
 			void setTrapezoidalMap (const TrapezoidalMap<Scalar> *trapezoidalMap);
-			const Colorizer *getColorizer () const;
-			Colorizer *getColorizer ();
+			const Colorizer *colorizer () const;
+			Colorizer *colorizer ();
 			void setColorizer (Colorizer *colorizer);
-			const Painter *getPainter () const;
-			Painter *getPainter ();
+			const Painter *painter () const;
+			Painter *painter ();
 			void setPainter (Painter *painter);
 
 		};
@@ -89,17 +111,21 @@ namespace GAS
 		class TrapezoidConstantColorizer final : public TrapezoidalMapDrawer<Scalar>::Colorizer
 		{
 
+			Color m_color;
+
 		protected:
 
 			// TrapezoidalMapDrawer::Colorizer
-			virtual const cg3::Color &provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const override final;
+			virtual const Color &provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const override final;
+			virtual bool requiresBlending () const override final;
 
 		public:
 
-			cg3::Color color;
-
 			TrapezoidConstantColorizer () = default;
-			TrapezoidConstantColorizer (const cg3::Color &color);
+			TrapezoidConstantColorizer (const Color &color);
+
+			const Color &color () const;
+			void setColor (const Color &color);
 
 		};
 
@@ -116,19 +142,21 @@ namespace GAS
 		protected:
 
 			// TrapezoidalMapDrawer::Colorizer
-			virtual const cg3::Color &provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const override final;
+			virtual const Color &provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const override final;
+			virtual bool requiresBlending () const override final;
 
 		public:
 
 			TrapezoidFancyColorizer () = default;
 			TrapezoidFancyColorizer (float saturation, float value, float alpha = 1.0f);
 
-			float getSaturation () const;
+			float saturation () const;
+			float value () const;
+			float alpha () const;
+
 			void setSaturation (float saturation);
-			float getValue () const;
-			void setValue (float value);
-			float getAlpha () const;
-			void setAlpha (float alpha);
+			void setValue (float saturation);
+			void setAlpha (float saturation);
 
 		};
 
@@ -146,14 +174,16 @@ namespace GAS
 		protected:
 
 			// TrapezoidalMapDrawer::Painter
-			virtual void draw (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid, const cg3::Color &color) const override final;
+			virtual void beforeDraw (const TrapezoidalMap<Scalar> &trapezoidalMap) const override final;
+			virtual void draw (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid, const Color &color) const override final;
+			virtual void afterDraw (const TrapezoidalMap<Scalar> &trapezoidalMap) const override final;
 
 		public:
 
 			TrapezoidStrokePainter () = default;
 			TrapezoidStrokePainter (int thickness);
 
-			int getThickness () const;
+			int thickness () const;
 			void setThickness (int thickness);
 
 		};
@@ -165,7 +195,9 @@ namespace GAS
 		protected:
 
 			// TrapezoidalMapDrawer::Painter
-			virtual void draw (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid, const cg3::Color &color) const override final;
+			virtual void beforeDraw (const TrapezoidalMap<Scalar> &trapezoidalMap) const override final;
+			virtual void draw (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid, const Color &color) const override final;
+			virtual void afterDraw (const TrapezoidalMap<Scalar> &trapezoidalMap) const override final;
 
 		};
 
@@ -175,20 +207,30 @@ namespace GAS
 
 		private:
 
-			cg3::viewer::GLCanvas &m_canvas;
+			cg3::viewer::GLCanvas *m_canvas;
 			QFont m_font;
 			QFontMetrics m_fontMetrics;
+
+#ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
+			static QString getTrapezoidSerial (const Trapezoid<Scalar> *trapezoid);
+#endif
+
+			static bool isRectInsideTrapezoid (const Point<Scalar> &center, Scalar halfWidth, Scalar halfHeight, const Trapezoid<Scalar> &trapezoid);
+
+			void drawText (const QString &text, const Trapezoid<Scalar> &trapezoid) const;
 
 		protected:
 
 			// TrapezoidalMapDrawer::Painter
-			virtual void draw (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid, const cg3::Color &color) const override final;
+			virtual void beforeDraw (const TrapezoidalMap<Scalar> &trapezoidalMap) const override final;
+			virtual void draw (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid, const Color &color) const override final;
+			virtual void afterDraw (const TrapezoidalMap<Scalar> &trapezoidalMap) const override final;
 
 		public:
 
-			TrapezoidTextPainter (cg3::viewer::GLCanvas &_canvas, const QFont &font = { "Times", 10 });
+			TrapezoidTextPainter (cg3::viewer::GLCanvas &canvas, const QFont &font = {});
 
-			const QFont &getFont () const;
+			const QFont &font () const;
 			void setFont (const QFont &font);
 
 		};

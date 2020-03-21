@@ -117,16 +117,16 @@ namespace GAS
 	void TrapezoidalMap<Scalar>::splitTrapezoid (Trapezoid &_trapezoid, Scalar _x, Trapezoid &_left, Trapezoid &_right)
 	{
 		Node &node { getNode (_trapezoid) };
-		node.data () = _x;
 		m_graph.setInner (node, getNode (_left), getNode (_right));
+		node.data () = _x;
 	}
 
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::splitTrapezoid (Trapezoid &_trapezoid, Segment _segment, Trapezoid &_left, Trapezoid &_right)
 	{
 		Node &node { getNode (_trapezoid) };
-		node.data () = _segment;
 		m_graph.setInner (node, getNode (_left), getNode (_right));
+		node.data () = _segment;
 	}
 
 	template<class Scalar>
@@ -143,15 +143,15 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	typename TrapezoidalMap<Scalar>::TrapezoidIterator TrapezoidalMap<Scalar>::begin () const
+	TDAG::Utils::ConstTrapezoidIterator<Scalar> TrapezoidalMap<Scalar>::begin () const
 	{
-		return m_graph.leafNodes ().begin ();
+		return TDAG::Utils::ConstTrapezoidIterator<Scalar> { m_graph.leafNodes ().begin () };
 	}
 
 	template<class Scalar>
-	typename TrapezoidalMap<Scalar>::TrapezoidIterator TrapezoidalMap<Scalar>::end () const
+	TDAG::Utils::ConstTrapezoidIterator<Scalar> TrapezoidalMap<Scalar>::end () const
 	{
-		return m_graph.leafNodes ().end ();
+		return TDAG::Utils::ConstTrapezoidIterator<Scalar> { m_graph.leafNodes ().end () };
 	}
 
 	template<class Scalar>
@@ -296,11 +296,12 @@ namespace GAS
 					}
 					// Split horizontally, link trapezoids and find next trapezoid
 					{
-						const Point &rightPoint { *current->right () };
+						// Decide whether to proceed splitting in the lower or the upper right neighbor before splitting
+						const bool segmentAboveRight { Geometry::evalLine (segment, current->right ()->x ()) > current->right ()->y () };
+						Trapezoid *next { segmentAboveRight ? current->upperRightNeighbor () : current->lowerRightNeighbor () };
+						// Split
 						previous = incrementalSplitHorizontally (*current, segment, previous);
-						// Decide whether to proceed splitting in the lower or the upper right neighbor
-						const bool segmentAboveRight { Geometry::evalLine (segment, rightPoint.x ()) > rightPoint.y () };
-						current = segmentAboveRight ? previous.bottom ().upperRightNeighbor () : previous.bottom ().lowerRightNeighbor ();
+						current = next;
 					}
 				}
 				// Link last trapezoid

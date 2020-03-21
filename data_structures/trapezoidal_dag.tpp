@@ -123,6 +123,12 @@ namespace GAS
 				}
 			}
 
+			template<class Scalar>
+			const Trapezoid<Scalar> &getTrapezoid (const typename Graph<Scalar>::ConstLeafNodeIterator &_iterator)
+			{
+				return _iterator->data ().second ();
+			}
+
 		}
 
 	}

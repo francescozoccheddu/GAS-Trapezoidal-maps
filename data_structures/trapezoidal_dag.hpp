@@ -6,6 +6,7 @@
 #include "binary_dag.hpp"
 #include <utils/geometry_utils.hpp>
 #include <utils/bivariant.hpp>
+#include <utils/iterator_utils.hpp>
 
 namespace GAS
 {
@@ -78,6 +79,12 @@ namespace GAS
 
 			template<class Scalar, class Disambiguator>
 			inline EChild getPointQueryNextChild (const Split<Scalar> &split, const Point<Scalar> &point, Disambiguator disambiguator);
+
+			template<class Scalar>
+			const Trapezoid<Scalar> &getTrapezoid (const typename Graph<Scalar>::ConstLeafNodeIterator &iterator);
+
+			template<class Scalar>
+			using ConstTrapezoidIterator = GAS::Utils::IteratorAdapter <typename Graph<Scalar>::ConstLeafNodeIterator, const Trapezoid<Scalar>, getTrapezoid<Scalar>>;
 
 		}
 

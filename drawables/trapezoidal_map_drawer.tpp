@@ -27,10 +27,10 @@ namespace GAS
 		{
 			ensureValid ();
 			int i {};
-			for (const TDAG::Node<Scalar> &t : *m_trapezoidalMap)
+			for (const Trapezoid<Scalar> &t : *m_trapezoidalMap)
 			{
-				cg3::Color color { m_colorizer->provideColor (*m_trapezoidalMap, i, t.data ().second ()) };
-				m_painter->draw (*m_trapezoidalMap, i, t.data ().second (), color);
+				cg3::Color color { m_colorizer->provideColor (*m_trapezoidalMap, i, t) };
+				m_painter->draw (*m_trapezoidalMap, i, t, color);
 				i++;
 			}
 		}

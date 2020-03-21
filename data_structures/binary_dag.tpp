@@ -350,10 +350,10 @@ namespace GAS
 		{
 			if (_node.isLeaf ())
 			{
+				unregisterLeaf (_node);
 				_node.m_left = &_left;
 				_node.m_right = &_right;
 				_node.m_leaf = false;
-				unregisterLeaf (_node);
 			}
 		}
 

@@ -89,28 +89,6 @@ namespace GAS
 			return const_cast<Node *>(m_current);
 		}
 
-		template<typename Node,
-			typename std::remove_const<Node>::type * std::remove_const<Node>::type:: * Previous,
-			typename std::remove_const<Node>::type * std::remove_const<Node>::type:: * Next>
-			IntrusiveListIterator<Node, Previous, Next>::Iterable::Iterable (Node &_begin) : m_begin { &_begin }
-		{}
-
-		template<typename Node,
-			typename std::remove_const<Node>::type * std::remove_const<Node>::type:: * Previous,
-			typename std::remove_const<Node>::type * std::remove_const<Node>::type:: * Next>
-			IntrusiveListIterator<Node, Previous, Next> IntrusiveListIterator<Node, Previous, Next>::Iterable::begin () const
-		{
-			return IntrusiveListIterator { *m_begin };
-		}
-
-		template<typename Node,
-			typename std::remove_const<Node>::type * std::remove_const<Node>::type:: * Previous,
-			typename std::remove_const<Node>::type * std::remove_const<Node>::type:: * Next>
-			const IntrusiveListIterator<Node, Previous, Next> &IntrusiveListIterator<Node, Previous, Next>::Iterable::end () const
-		{
-			return IntrusiveListIterator::end;
-		}
-
 	}
 
 }

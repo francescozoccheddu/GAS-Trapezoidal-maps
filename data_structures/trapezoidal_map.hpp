@@ -19,7 +19,6 @@ namespace GAS
 		using Node = TDAG::Node<Scalar>;
 		using NodeData = TDAG::NodeData<Scalar>;
 		using Graph = TDAG::Graph<Scalar>;
-		using TrapezoidIterator = typename TDAG::Graph<Scalar>::ConstLeafNodeIterator;
 
 		class Pair
 		{
@@ -96,8 +95,8 @@ namespace GAS
 
 		// Trapezoids
 		int trapezoidsCount () const;
-		typename TrapezoidIterator begin () const;
-		typename TrapezoidIterator end () const;
+		TDAG::Utils::ConstTrapezoidIterator<Scalar> begin () const;
+		TDAG::Utils::ConstTrapezoidIterator<Scalar> end () const;
 
 		// Bounds
 		const Point &bottomLeft () const;

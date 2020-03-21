@@ -1,6 +1,7 @@
 #pragma once
 
 #include <type_traits>
+#include <utils/iterator_utils.hpp>
 
 namespace GAS
 {
@@ -22,21 +23,7 @@ namespace GAS
 
 		public:
 
-			class Iterable final
-			{
-
-				using Iterator = IntrusiveListIterator<Node, Previous, Next>;
-
-				Node *m_begin {};
-
-			public:
-
-				Iterable (Node &begin);
-
-				Iterator begin () const;
-				const Iterator &end () const;
-
-			};
+			using Iterable = Iterable<IntrusiveListIterator>;
 
 			static const IntrusiveListIterator end;
 

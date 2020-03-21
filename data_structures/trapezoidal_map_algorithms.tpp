@@ -43,6 +43,7 @@ namespace GAS
 		{
 			return ERightWeldFitness::Fit;
 		}
+		// TODO Do not rely on floating point computations
 		else if (_left.bottomRight ().y () > _right.bottomLeft ().y ())
 		{
 			return ERightWeldFitness::Extended;
@@ -61,6 +62,7 @@ namespace GAS
 		{
 			return ERightWeldFitness::Fit;
 		}
+		// TODO Do not rely on floating point computations
 		else if (_left.topRight ().y () < _right.topLeft ().y ())
 		{
 			return ERightWeldFitness::Extended;

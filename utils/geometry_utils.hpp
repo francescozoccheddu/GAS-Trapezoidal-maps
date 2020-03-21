@@ -17,6 +17,9 @@ namespace GAS
 		template<class Scalar>
 		ESide getPointSideWithVerticalLine (const Scalar &lineX, const Point<Scalar> &point);
 
+		/*
+			I could have used cg3::internal::positionOfPointWithRespectToSegment but it looks like a private API.
+		*/
 		template<class Scalar>
 		ESide getPointSideWithSegment (const Segment<Scalar> &segment, const Point<Scalar> &point);
 

@@ -44,6 +44,8 @@ namespace GAS
 		const Point *right () const;
 		const Segment *bottom () const;
 		const Segment *top () const;
+		const Scalar leftX () const;
+		const Scalar rightX () const;
 
 		const Trapezoid *lowerLeftNeighbor () const;
 		const Trapezoid *upperLeftNeighbor () const;
@@ -65,6 +67,8 @@ namespace GAS
 		Point topLeft () const;
 		Point topRight () const;
 		Point centroid () const;
+
+		bool contains (const Point &point) const;
 
 		void setLeftNeighbors (Trapezoid *trapezoid);
 		void setRightNeighbors (Trapezoid *trapezoid);

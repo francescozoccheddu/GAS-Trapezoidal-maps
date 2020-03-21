@@ -14,8 +14,11 @@ namespace GAS
 		class BiVariant final
 		{
 
+			struct Monostate {}; // std::monostate is not available prior to C++17.
+
 			union Union
 			{
+				Monostate monostate {};
 				TypeA a;
 				TypeB b;
 

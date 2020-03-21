@@ -11,9 +11,8 @@ namespace GAS
 
 	namespace Utils
 	{
-
 		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::Union::Union ()
+		BiVariant<TypeA, TypeB>::Union::Union () : monostate {}
 		{}
 
 		template<class TypeA, class TypeB>
@@ -96,7 +95,6 @@ namespace GAS
 		{
 			*this = _copy;
 		}
-
 		template<class TypeA, class TypeB>
 		BiVariant<TypeA, TypeB>::BiVariant (BiVariant &&_moved)
 		{

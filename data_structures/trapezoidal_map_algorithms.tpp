@@ -38,7 +38,7 @@ namespace GAS
 	template<class Scalar>
 	typename TrapezoidalMap<Scalar>::ERightWeldFitness TrapezoidalMap<Scalar>::getRightWeldBottomFitness (const Trapezoid &_left, const Trapezoid &_right)
 	{
-		assert (_left.right ()->x () == _right.left ()->x ());
+		assert (_left.rightX () == _right.leftX ());
 		if (_left.bottom () == _right.bottom () || _left.bottom ()->p2 () == _right.bottom ()->p1 ())
 		{
 			return ERightWeldFitness::Fit;
@@ -57,7 +57,7 @@ namespace GAS
 	template<class Scalar>
 	typename TrapezoidalMap<Scalar>::ERightWeldFitness TrapezoidalMap<Scalar>::getRightWeldTopFitness (const Trapezoid &_left, const Trapezoid &_right)
 	{
-		assert (_left.right ()->x () == _right.left ()->x ());
+		assert (_left.rightX () == _right.leftX ());
 		if (_left.top () == _right.top () || _left.top ()->p2 () == _right.top ()->p1 ())
 		{
 			return ERightWeldFitness::Fit;

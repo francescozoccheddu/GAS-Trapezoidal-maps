@@ -49,6 +49,18 @@ namespace GAS
 	}
 
 	template<class Scalar>
+	const Scalar Trapezoid<Scalar>::leftX () const
+	{
+		return m_left->x ();
+	}
+
+	template<class Scalar>
+	const Scalar Trapezoid<Scalar>::rightX () const
+	{
+		return m_right->x ();
+	}
+
+	template<class Scalar>
 	const Trapezoid<Scalar> *Trapezoid<Scalar>::lowerLeftNeighbor () const
 	{
 		return m_lowerLeftNeighbor;
@@ -148,6 +160,14 @@ namespace GAS
 	Point<Scalar> Trapezoid<Scalar>::centroid () const
 	{
 		return (bottomLeft () + bottomRight () + topLeft () + topRight ()) / 4;
+	}
+
+	template<class Scalar>
+	bool Trapezoid<Scalar>::contains (const Point &_point) const
+	{
+		return _point.x () >= leftX () && _point.x () < rightX () &&
+			Geometry::getPointSideWithSegment (*m_top, _point) == Geometry::ESide::Right &&
+			Geometry::getPointSideWithSegment (*m_bottom, _point) == Geometry::ESide::Left;
 	}
 
 	template<class Scalar>

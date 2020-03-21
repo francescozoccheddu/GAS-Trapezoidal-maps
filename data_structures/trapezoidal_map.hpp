@@ -69,10 +69,13 @@ namespace GAS
 		static RightWeldConfiguration getRightWeldConfiguration (Pair left, Pair right);
 		static void weld (Pair left, Pair right);
 
-		std::forward_list<Segment> m_segments;
+		std::forward_list<Segment> m_segments; // for stable references
 		Node *m_root {};
 		Graph m_graph;
 
+		/*
+			I could have used cg3::BoundingBox2 but i needed this two segments to be referenceable.
+		*/
 		Segment m_bottom, m_top;
 
 		void deleteAll ();

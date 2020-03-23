@@ -38,19 +38,10 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
     firstPointSelectedColor(220, 80, 80),
     firstPointSelectedSize(5),
     isFirstPointSelected(false),
-    m_trapezoidalMap{ { -BOUNDINGBOX, -BOUNDINGBOX }, { BOUNDINGBOX, BOUNDINGBOX } }
+	m_trapezoidalMap { { -BOUNDINGBOX, -BOUNDINGBOX }, { BOUNDINGBOX, BOUNDINGBOX } }
+
+
 {
-	//NOTE 1: you probably need to initialize some objects in the constructor. You
-	//can see how to initialize an attribute in the lines above. This is C++ style
-	//attribute initialization (it is different to write an assignment operator in
-	//the constructor). For example, if a variable is const you can only use this
-	//syntax to initialize the variable (see the bounding box).
-
-	//NOTE 2: Try to AVOID using dynamic objects whenever it is possible (it will
-	//be evaluated!). We remind C++ is not java, objects can be allocated in the
-	//stack without dynamic allocation (new), so we suggest to study the slides
-	//and see some examples. Avoid pointers, unless it is necessary!
-
 	//UI setup
     ui->setupUi(this);
 
@@ -62,47 +53,16 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
     mainWindow.canvas.set2DMode();
     mainWindow.canvas.setMouseBinding(Qt::NoModifier, Qt::LeftButton, mainWindow.canvas.SELECT);
 
-    //Add the drawable object to the mainWindow.
-    //The mainWindow will take care of rendering the bounding box and the selected point
+	//Add the drawable object to the mainWindow.
+	//The mainWindow will take care of rendering the bounding box and the selected point
     mainWindow.pushDrawableObject(&drawableBoundingBox, "Bounding box");
-    mainWindow.pushDrawableObject(&drawableTrapezoidalMapDataset, "Segments");
 
-
-
-	//---------------------------------------------------------------------
-	//Add the drawable objects you need. Note that the drawable trapezoidal map could only
-	//draw the trapezoids (polygons, see GL_POLYGON!). You have already the segments drawn.
-	//If you want to draw points and segments of the trapezoidal map, you should hide
-	//drawableTrapezoidalMapDataset
-	//
-	//Example:
-	//      mainWindow.pushDrawableObject(&drawableTrapezoidalMap);
-	//
-	//Note that you could keep a Drawable trapezoidal map (drawableTrapezoidalMap) object
-	//always rendered (even when it is empty), instead of deleting it from the main window
-	//and re-drawing it again. See how we implemented the drawing of the bounding box and 
-	//the dataset.
-
-	m_trapezoidalMapFillDrawer.setTrapezoidalMap (&m_trapezoidalMap);
-	m_trapezoidalMapFillDrawer.setPainter (new GAS::Drawing::TrapezoidFillPainter<double>);
-	m_trapezoidalMapFillDrawer.setColorizer (new GAS::Drawing::TrapezoidFancyColorizer<double> { 1.0f, 1.0f });
 	m_trapezoidalMapDrawableContainer.pushBack (&m_trapezoidalMapFillDrawer, "Fill");
-
-	m_trapezoidalMapStrokeDrawer.setTrapezoidalMap (&m_trapezoidalMap);
-	m_trapezoidalMapStrokeDrawer.setPainter (new GAS::Drawing::TrapezoidStrokePainter<double> { 2 });
-	m_trapezoidalMapStrokeDrawer.setColorizer (new GAS::Drawing::TrapezoidConstantColorizer<double> { { 0, 0, 0 } });
 	m_trapezoidalMapDrawableContainer.pushBack (&m_trapezoidalMapStrokeDrawer, "Stroke");
-
-	m_trapezoidalMapTextDrawer.setTrapezoidalMap (&m_trapezoidalMap);
-	m_trapezoidalMapTextDrawer.setPainter (new GAS::Drawing::TrapezoidTextPainter<double> { mainWindow.canvas });
-	m_trapezoidalMapTextDrawer.setColorizer (new GAS::Drawing::TrapezoidFancyColorizer<double> { 1.0f, 0.5f });
 	m_trapezoidalMapDrawableContainer.pushBack (&m_trapezoidalMapTextDrawer, "Text");
-
 	mainWindow.pushDrawableObject (&m_trapezoidalMapDrawableContainer, "Trapezoidal map");
 
-	//#####################################################################
-
-
+	mainWindow.pushDrawableObject (&drawableTrapezoidalMapDataset, "Segments");
 
     //Fit the scene
     fitScene();
@@ -120,51 +80,11 @@ TrapezoidalMapManager::~TrapezoidalMapManager()
 {
     //Delete the drawable objects
     mainWindow.deleteDrawableObject(&drawableBoundingBox);
+	mainWindow.deleteDrawableObject (&m_trapezoidalMapDrawableContainer);
     mainWindow.deleteDrawableObject(&drawableTrapezoidalMapDataset);
     if (isFirstPointSelected) {
         mainWindow.deleteDrawableObject(&firstPointSelected);
     }
-
-
-	//---------------------------------------------------------------------
-	//When the manager is destroyed, the mainWindow should not have any
-	//reference to the drawable objects.
-	//
-	//Example:
-	//      mainWindow.deleteDrawableObject(&drawableTrapezoidalMap);
-	//
-	//Try to AVOID using dynamic objects whenever it is possible (it will
-	//be evaluated!)
-
-
-
-
-	//#####################################################################
-
-
-
-	//---------------------------------------------------------------------
-	//In case you allocated dynamic objects in this manager, you should delete
-	//(deallocate) all of them when the application closes.
-	//Remember that each class which allocates dynamic objects should implement
-	//a destructor which deallocates them.
-	//
-	//Example:
-	//      delete dynamicObject;
-	//      dynamicObject = nullptr;
-	//
-	//Try to AVOID using dynamic objects whenever it is possible (it will
-	//be evaluated!)
-
-
-
-
-	//#####################################################################
-
-	delete m_trapezoidalMapFillDrawer.colorizer ();
-	delete m_trapezoidalMapFillDrawer.painter ();
-	delete m_trapezoidalMapStrokeDrawer.colorizer ();
-	delete m_trapezoidalMapStrokeDrawer.painter ();
 
 	delete ui; //Delete interface
 }
@@ -179,44 +99,6 @@ TrapezoidalMapManager::~TrapezoidalMapManager()
  */
 void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& segment)
 {
-
-
-	//---------------------------------------------------------------------
-	//Execute the incremental step to add a segment to your output TrapezoidalMap data
-	//structure.
-	//
-	//Obviously, you have to define your algorithms and data structures in separate files.
-	//Algorithms must be defined AS A FUNCTION (in a namespace, if you want to hierarchically
-	//organize your functions) and NOT IN CLASSES (it is not Java).
-	//Data structures have to be defined in classes. Try to define a class for each data
-	//structure: each one must implement the methods of their responsibilities.
-	//Separate data structures from algorithms!
-	//
-	//HINT: the trapezoidal map is not a DAG (it uses a DAG as an associated search data structure),
-	//the DAG is not a trapezoidal map (and does not contain a trapezoidal map). TrapezoidalMap
-	//and DAG are two separate data structures.
-	//As example, we show two valid modeling options:
-	//  1. TrapezoidalMap could handle the construction and query in its inner methods, so it would
-	//contain the DAG and use its methods to perform the operations. It is easy to implement, but a
-	//bit less modular and general purpose. However, it is fine: it is not an error to model the
-	//TrapezoidalMap to have these responsibilities.
-	//  2. You could see construction and query as algorithms working on a TrapezoidalMap (which just
-	// handles the geometry of trapezoids and its points/segments) and a DAG (that allows for searching
-	//in the structure). This is a bit more complicated, but a better structure, because, in this case
-	//TrapezoidalMap and DAG are two separate general purpose data structures that an algorithm uses.
-	//THINK ABOUT YOUR STRUCTURE BEFORE WRITING CODE!
-	//
-	//NOTE: in TrapezoidalMapDataset you can see how we guaranteed no duplicates points.
-	//Indeed we use a vector for indexing the points, and a map to check if the point is
-	//already in the structure. You could use it for your trapezoidal map to make it more
-	//efficient in memory. However, depending on how you implement your algorithms and data 
-	//structures, you could save directly the point (Point2d) in each trapezoid (it is fine).
-
-
-
-
-	//#####################################################################
-
 	m_trapezoidalMap.addSegment (segment);
 }
 
@@ -226,55 +108,14 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
  */
 void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
 {
-
-
-	//---------------------------------------------------------------------
-	//Execute the point location algorithm of your TrapezoidalMap to locate in which trapezoid
-	//the point is contained.
-	//
-	//Obviously, you have to define your algorithms and data structures in separate files.
-	//Algorithms must be defined AS A FUNCTION (in a namespace, if you want to hierarchically
-	//organize your functions) and NOT IN CLASSES (it is not Java).
-	//Data structures have to be defined in classes. Try to define a class for each data
-	//structure: each one must implement the methods of their responsibilities.
-	//Separate data structures from algorithms!
-	//
-	//HINT: the trapezoidal map is not a DAG (it uses a DAG as an associated search data structure),
-	//the DAG is not a trapezoidal map (and does not contain a trapezoidal map). TrapezoidalMap
-	//and DAG are two separate data structures.
-	//You have two options:
-	//1) TrapezoidalMap could handle the construction and query in its inner methods, so it would
-	//contain the DAG and use its methods to perform the operations. It is easy to implement, but
-	//a bit less modular. It is fine anyways, since TrapezoidalMap can have those responsibilities.
-	//2) You could see construction and query as algorithms working on a TrapezoidalMap (which just
-	//handles the geometry of trapezoids and its points/segments) and a DAG (that allows for searching
-	//in the structure). This is a bit more complicated, but a better structure, because, in this case
-	//TrapezoidalMap and DAG are two separate general purpose data structures that an algorithm uses.
-	//THINK ABOUT YOUR STRUCTURE BEFORE WRITING CODE!
-
-
-
-
-	//#####################################################################
-
-
-
-	//---------------------------------------------------------------------
-	//When you find the trapezoid in which the point is contained, you should highlight
-	//the output trapezoid in the canvas (DrawableTrapezoidMap should implement the method
-	//to do that).
-
-
-
-
-
-	//#####################################################################
-
-
-
-	//You can delete this line after you implement the algorithm: it is
-	//just needed to suppress the unused-variable warning
-    CG3_SUPPRESS_WARNING(queryPoint);
+	if (m_trapezoidalMap.isPointInsideBounds (queryPoint))
+	{
+		m_trapezoidSelectorFillColorizer.selected () = &m_trapezoidalMap.query (queryPoint);
+	}
+	else
+	{
+		m_trapezoidSelectorFillColorizer.selected () = nullptr;
+	}
 }
 
 /**
@@ -282,12 +123,7 @@ void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
  */
 void TrapezoidalMapManager::clearTrapezoidalMap()
 {
-	//---------------------------------------------------------------------
-	//Clear here your trapezoidal map data structure.
-
 	m_trapezoidalMap.clear ();
-
-	//#####################################################################
 }
 
 

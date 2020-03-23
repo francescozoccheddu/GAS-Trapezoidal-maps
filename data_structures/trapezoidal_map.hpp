@@ -101,6 +101,7 @@ namespace GAS
 		int trapezoidsCount () const;
 		TDAG::Utils::ConstTrapezoidIterator<Scalar> begin () const;
 		TDAG::Utils::ConstTrapezoidIterator<Scalar> end () const;
+		const Trapezoid &query (const Point &point) const;
 
 		// Bounds
 		const Point &bottomLeft () const;
@@ -120,6 +121,7 @@ namespace GAS
 		// Segments
 		void clear ();
 		void addSegment (const Segment &segment);
+		const std::forward_list<Segment> &segments () const;
 
 	};
 

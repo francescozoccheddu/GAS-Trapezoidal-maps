@@ -161,6 +161,16 @@ namespace GAS
 	}
 
 	template<class Scalar>
+	const Trapezoid<Scalar> &TrapezoidalMap<Scalar>::query (const Point &_point) const
+	{
+		if (!isPointInsideBounds (_point))
+		{
+			throw std::invalid_argument ("Point is outside bounds");
+		}
+		return TDAG::query (*m_root, _point);
+	}
+
+	template<class Scalar>
 	const Point<Scalar> &TrapezoidalMap<Scalar>::bottomLeft () const
 	{
 		return m_bottom.p1 ();
@@ -315,5 +325,12 @@ namespace GAS
 			}
 		}
 	}
+
+	template<class Scalar>
+	const std::forward_list<Segment<Scalar>> &TrapezoidalMap<Scalar>::segments () const
+	{
+		return m_segments;
+	}
+
 
 }

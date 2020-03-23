@@ -91,7 +91,7 @@ namespace GAS
 
 		Pair splitVertically (Trapezoid &trapezoid, const Point &point);
 		Pair incrementalSplitHorizontally (Trapezoid &trapezoid, const Segment &segment, Pair previous);
-		bool mergeRight (Trapezoid &trapezoid);
+		Trapezoid &mergeLeft (Trapezoid &trapezoid);
 
 	public:
 

@@ -308,25 +308,27 @@ namespace GAS
 		_trapezoid.upperRightNeighbor ()->replaceLeftNeighbor (&_trapezoid, &top);
 		weld (_previous, { bottom, top });
 		// Update DAG
-		splitTrapezoid (_trapezoid, _segment, top, bottom);
-		return { bottom, top };
+		Pair merged { mergeLeft (bottom), mergeLeft (top) };
+		splitTrapezoid (_trapezoid, _segment, merged.top (), merged.bottom ());
+		return merged;
 	}
 
 	template<class Scalar>
-	bool TrapezoidalMap<Scalar>::mergeRight (Trapezoid &_trapezoid)
+	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::mergeLeft (Trapezoid &_trapezoid)
 	{
-		if (_trapezoid.lowerRightNeighbor () == _trapezoid.upperRightNeighbor ())
+		if (_trapezoid.lowerLeftNeighbor () == _trapezoid.upperLeftNeighbor ())
 		{
-			Trapezoid &right { *_trapezoid.lowerRightNeighbor () };
-			if (right.top () == _trapezoid.top () && right.bottom () == _trapezoid.bottom ())
+			Trapezoid &left { *_trapezoid.lowerLeftNeighbor () };
+			if (left.top () == _trapezoid.top () && left.bottom () == _trapezoid.bottom ())
 			{
-				_trapezoid.setRightNeighbors (right.lowerRightNeighbor (), right.upperRightNeighbor ());
-				_trapezoid.right () = right.right ();
-				destroyTrapezoid (right);
-				return true;
+				left.setRightNeighbors (_trapezoid.lowerRightNeighbor (), _trapezoid.upperRightNeighbor ());
+				left.right () = _trapezoid.right ();
+				_trapezoid.replaceInRightNeighbors (&left);
+				destroyTrapezoid (_trapezoid);
+				return left;
 			}
 		}
-		return false;
+		return _trapezoid;
 	}
 
 }

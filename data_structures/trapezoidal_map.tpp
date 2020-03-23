@@ -114,7 +114,7 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::splitTrapezoid (Trapezoid &_trapezoid, Scalar _x, Trapezoid &_left, Trapezoid &_right)
+	void TrapezoidalMap<Scalar>::splitTrapezoid (Trapezoid &_trapezoid, const Scalar &_x, Trapezoid &_left, Trapezoid &_right)
 	{
 		Node &node { getNode (_trapezoid) };
 		m_graph.setInner (node, getNode (_left), getNode (_right));
@@ -122,7 +122,7 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::splitTrapezoid (Trapezoid &_trapezoid, Segment _segment, Trapezoid &_left, Trapezoid &_right)
+	void TrapezoidalMap<Scalar>::splitTrapezoid (Trapezoid &_trapezoid, const Segment &_segment, Trapezoid &_left, Trapezoid &_right)
 	{
 		Node &node { getNode (_trapezoid) };
 		m_graph.setInner (node, getNode (_left), getNode (_right));

@@ -30,7 +30,7 @@ namespace GAS
 			constexpr int digitCount { 10 + 26 };
 			std::string result;
 			int remainder { std::abs (_serial) };
-			while (remainder > digitCount)
+			while (remainder >= digitCount)
 			{
 				result.insert (0, 1, encodeDigit (remainder % digitCount));
 				remainder /= digitCount;

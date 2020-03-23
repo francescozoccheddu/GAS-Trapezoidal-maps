@@ -83,8 +83,8 @@ namespace GAS
 
 		Node &getNode (Trapezoid &trapezoid) const;
 		Trapezoid &createTrapezoid (const Trapezoid &copy = {});
-		void splitTrapezoid (Trapezoid &trapezoid, Scalar x, Trapezoid &left, Trapezoid &right);
-		void splitTrapezoid (Trapezoid &trapezoid, Segment segment, Trapezoid &left, Trapezoid &right);
+		void splitTrapezoid (Trapezoid &trapezoid, const Scalar &x, Trapezoid &left, Trapezoid &right);
+		void splitTrapezoid (Trapezoid &trapezoid, const Segment &segment, Trapezoid &left, Trapezoid &right);
 		void destroyTrapezoid (Trapezoid &trapezoid);
 
 		Trapezoid &findLeftmostIntersectedTrapezoid (const Segment &segment) const;

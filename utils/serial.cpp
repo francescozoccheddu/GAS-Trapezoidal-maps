@@ -41,6 +41,9 @@ namespace GAS
 
 		const std::string Serial::null { '-' };
 
+		Serial::Serial (int _serial) : m_serial { _serial }
+		{}
+
 		Serial::Serial (const Serial &_copy)
 		{
 			// Intercept and prevent serial copy

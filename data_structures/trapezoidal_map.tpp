@@ -82,7 +82,7 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::deleteAll ()
+	void TrapezoidalMap<Scalar>::destroy ()
 	{
 		m_root = nullptr;
 		m_graph.clear ();
@@ -127,6 +127,12 @@ namespace GAS
 		Node &node { getNode (_trapezoid) };
 		m_graph.setInner (node, getNode (_left), getNode (_right));
 		node.data () = _segment;
+	}
+
+	template<class Scalar>
+	void TrapezoidalMap<Scalar>::destroyTrapezoid (Trapezoid &_trapezoid)
+	{
+		m_graph.destroyNode (getNode (_trapezoid));
 	}
 
 	template<class Scalar>
@@ -244,7 +250,7 @@ namespace GAS
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::clear ()
 	{
-		deleteAll ();
+		destroy ();
 		initialize ();
 	}
 

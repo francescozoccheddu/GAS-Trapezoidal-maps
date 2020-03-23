@@ -78,19 +78,20 @@ namespace GAS
 		*/
 		Segment m_bottom, m_top;
 
-		void deleteAll ();
+		void destroy ();
 		void initialize ();
 
 		Node &getNode (Trapezoid &trapezoid) const;
 		Trapezoid &createTrapezoid (const Trapezoid &copy = {});
 		void splitTrapezoid (Trapezoid &trapezoid, Scalar x, Trapezoid &left, Trapezoid &right);
 		void splitTrapezoid (Trapezoid &trapezoid, Segment segment, Trapezoid &left, Trapezoid &right);
+		void destroyTrapezoid (Trapezoid &trapezoid);
 
 		Trapezoid &findLeftmostIntersectedTrapezoid (const Segment &segment) const;
 
 		Pair splitVertically (Trapezoid &trapezoid, const Point &point);
 		Pair incrementalSplitHorizontally (Trapezoid &trapezoid, const Segment &segment, Pair previous);
-		Trapezoid &mergeLeft (Trapezoid &trapezoid);
+		bool mergeRight (Trapezoid &trapezoid);
 
 	public:
 

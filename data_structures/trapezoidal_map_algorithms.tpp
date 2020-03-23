@@ -313,9 +313,20 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::mergeLeft (Trapezoid &_trapezoid)
+	bool TrapezoidalMap<Scalar>::mergeRight (Trapezoid &_trapezoid)
 	{
-
+		if (_trapezoid.lowerRightNeighbor () == _trapezoid.upperRightNeighbor ())
+		{
+			Trapezoid &right { *_trapezoid.lowerRightNeighbor () };
+			if (right.top () == _trapezoid.top () && right.bottom () == _trapezoid.bottom ())
+			{
+				_trapezoid.setRightNeighbors (right.lowerRightNeighbor (), right.upperRightNeighbor ());
+				_trapezoid.right () = right.right ();
+				destroyTrapezoid (right);
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

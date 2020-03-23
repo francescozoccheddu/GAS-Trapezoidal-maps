@@ -27,6 +27,7 @@ namespace GAS
 			static const std::string null;
 
 			Serial () = default;
+			Serial (int serial);
 			Serial (const Serial &copy);
 
 			Serial &operator = (const Serial &copy);

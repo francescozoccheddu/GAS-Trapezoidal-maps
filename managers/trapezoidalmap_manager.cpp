@@ -53,15 +53,14 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
     mainWindow.canvas.set2DMode();
     mainWindow.canvas.setMouseBinding(Qt::NoModifier, Qt::LeftButton, mainWindow.canvas.SELECT);
 
-	//Add the drawable object to the mainWindow.
-	//The mainWindow will take care of rendering the bounding box and the selected point
-    mainWindow.pushDrawableObject(&drawableBoundingBox, "Bounding box");
-
 	m_trapezoidalMapDrawableContainer.pushBack (&m_trapezoidalMapFillDrawer, "Fill");
 	m_trapezoidalMapDrawableContainer.pushBack (&m_trapezoidalMapStrokeDrawer, "Stroke");
 	m_trapezoidalMapDrawableContainer.pushBack (&m_trapezoidalMapTextDrawer, "Text");
 	mainWindow.pushDrawableObject (&m_trapezoidalMapDrawableContainer, "Trapezoidal map");
 
+	//Add the drawable object to the mainWindow.
+	//The mainWindow will take care of rendering the bounding box and the selected point
+    mainWindow.pushDrawableObject(&drawableBoundingBox, "Bounding box");
 	mainWindow.pushDrawableObject (&drawableTrapezoidalMapDataset, "Segments");
 
     //Fit the scene

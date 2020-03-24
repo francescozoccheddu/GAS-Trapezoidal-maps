@@ -43,14 +43,13 @@ namespace GAS
 		{
 			return ERightWeldFitness::Fit;
 		}
-		// TODO Do not rely on floating point computations
-		else if (_left.bottomRight ().y () > _right.bottomLeft ().y ())
+		else if (_left.lowerRightNeighbor ()->top () == _right.bottom ())
 		{
-			return ERightWeldFitness::Extended;
+			return ERightWeldFitness::Shrinked;
 		}
 		else
 		{
-			return ERightWeldFitness::Shrinked;
+			return ERightWeldFitness::Extended;
 		}
 	}
 
@@ -62,14 +61,13 @@ namespace GAS
 		{
 			return ERightWeldFitness::Fit;
 		}
-		// TODO Do not rely on floating point computations
-		else if (_left.topRight ().y () < _right.topLeft ().y ())
+		else if (_left.upperRightNeighbor ()->bottom () == _right.top ())
 		{
-			return ERightWeldFitness::Extended;
+			return ERightWeldFitness::Shrinked;
 		}
 		else
 		{
-			return ERightWeldFitness::Shrinked;
+			return ERightWeldFitness::Extended;
 		}
 	}
 

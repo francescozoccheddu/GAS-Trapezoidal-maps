@@ -1,12 +1,12 @@
 #pragma once
 
-#include <data_structures/point.hpp>
-#include <data_structures/segment.hpp>
-#include <data_structures/trapezoid.hpp>
-#include <data_structures/binary_dag.hpp>
-#include <utils/geometry_utils.hpp>
-#include <utils/bivariant.hpp>
-#include <utils/iterator_utils.hpp>
+#include <gas/data/point.hpp>
+#include <gas/data/segment.hpp>
+#include <gas/data/trapezoid.hpp>
+#include <gas/data/binary_dag.hpp>
+#include <gas/utils/geometry.hpp>
+#include <gas/utils/bivariant.hpp>
+#include <gas/utils/iterators.hpp>
 
 namespace GAS
 {

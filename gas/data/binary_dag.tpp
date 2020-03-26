@@ -5,7 +5,7 @@
 #include <cassert>
 #include <unordered_map>
 #include <utility>
-#include <utils/parent_from_member.hpp>
+#include <gas/utils/parent_from_member.hpp>
 
 namespace GAS
 {

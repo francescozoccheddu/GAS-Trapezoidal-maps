@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 #include <cassert>
-#include <utils/geometry_utils.hpp>
+#include <gas/utils/geometry.hpp>
 
 namespace GAS
 {

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <data_structures/trapezoidal_map.hpp>
-#include <data_structures/trapezoid.hpp>
+#include <gas/data/trapezoidal_map.hpp>
+#include <gas/data/trapezoid.hpp>
 #include <cg3/viewer/glcanvas.h>
-#include <drawables/color.hpp>
+#include <gas/drawing/color.hpp>
 
 #define GAS_DRAWING_RESTORE_GL_STATE
 

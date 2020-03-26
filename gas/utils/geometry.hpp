@@ -1,7 +1,7 @@
 #pragma once
 
-#include <data_structures/point.hpp>
-#include <data_structures/segment.hpp>
+#include <gas/data/point.hpp>
+#include <gas/data/segment.hpp>
 
 namespace GAS
 {
@@ -39,4 +39,4 @@ namespace GAS
 
 }
 
-#include "geometry_utils.tpp"
+#include "geometry.tpp"

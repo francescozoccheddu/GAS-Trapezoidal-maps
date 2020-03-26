@@ -2,7 +2,7 @@
 
 #include "bivariant.hpp"
 
-#include <utils/parent_from_member.hpp>
+#include <gas/utils/parent_from_member.hpp>
 #include <cassert>
 #include <utility>
 #include <new>

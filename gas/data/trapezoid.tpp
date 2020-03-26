@@ -2,7 +2,7 @@
 
 #include "trapezoid.hpp"
 
-#include <utils/geometry_utils.hpp>
+#include <gas/utils/geometry.hpp>
 
 namespace GAS
 {

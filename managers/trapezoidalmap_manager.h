@@ -12,8 +12,8 @@
 
 #include "drawables/drawable_trapezoidalmap_dataset.h"
 
-#include <data_structures/trapezoidal_map.hpp>
-#include <drawables/trapezoidal_map_drawer.hpp>
+#include <gas/data/trapezoidal_map.hpp>
+#include <gas/drawing/trapezoidal_map_drawer.hpp>
 #include <cg3/viewer/interfaces/drawable_container.h>
 
 namespace Ui {

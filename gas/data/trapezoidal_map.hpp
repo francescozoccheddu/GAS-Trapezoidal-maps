@@ -1,9 +1,9 @@
 #pragma once
 
-#include <data_structures/point.hpp>
-#include <data_structures/segment.hpp>
-#include <data_structures/trapezoid.hpp>
-#include <data_structures/trapezoidal_dag.hpp>
+#include <gas/data/point.hpp>
+#include <gas/data/segment.hpp>
+#include <gas/data/trapezoid.hpp>
+#include <gas/data/trapezoidal_dag.hpp>
 #include <forward_list>
 
 namespace GAS

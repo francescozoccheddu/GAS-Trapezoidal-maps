@@ -1,13 +1,13 @@
 #pragma once
 
-#include <data_structures/point.hpp>
-#include <data_structures/segment.hpp>
+#include <gas/data/point.hpp>
+#include <gas/data/segment.hpp>
 
 // For debugging purposes
 #define GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
 
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
-#include <utils/serial.hpp>
+#include <gas/utils/serial.hpp>
 #endif
 
 

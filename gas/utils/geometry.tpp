@@ -1,6 +1,6 @@
 #pragma once
 
-#include "geometry_utils.hpp"
+#include "geometry.hpp"
 
 namespace GAS
 {

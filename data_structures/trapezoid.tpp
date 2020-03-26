@@ -173,13 +173,13 @@ namespace GAS
 	template<class Scalar>
 	bool Trapezoid<Scalar>::isJointRight () const
 	{
-		return m_bottom->p2 () == m_top->p2 ();
+		return m_bottom->p2 () == m_top->p2 () && m_bottom->p2 () == *m_right;
 	}
 
 	template<class Scalar>
 	bool Trapezoid<Scalar>::isJointLeft () const
 	{
-		return m_bottom->p1 () == m_top->p1 ();
+		return m_bottom->p1 () == m_top->p1 () && m_bottom->p1 () == *m_left;
 	}
 
 	template<class Scalar>
@@ -187,7 +187,6 @@ namespace GAS
 	{
 		if (isJointLeft ())
 		{
-			assert (*m_left == m_bottom->p1 ());
 			return ETrapezoidSideSource::Joint;
 		}
 		else if (*m_left == m_bottom->p1 ())
@@ -209,7 +208,6 @@ namespace GAS
 	{
 		if (isJointRight ())
 		{
-			assert (*m_right == m_bottom->p2 ());
 			return ETrapezoidSideSource::Joint;
 		}
 		else if (*m_right == m_bottom->p2 ())

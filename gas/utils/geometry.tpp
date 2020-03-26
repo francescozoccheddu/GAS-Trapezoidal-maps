@@ -1,4 +1,9 @@
-#pragma once
+#ifndef GAS_UTILS_GEOMETRY_IMPL_INCLUDED
+#define GAS_UTILS_GEOMETRY_IMPL_INCLUDED
+
+#ifndef GAS_UTILS_GEOMETRY_INCLUDED
+#error __FILE__ should not be directly included
+#endif
 
 #include "geometry.hpp"
 
@@ -51,3 +56,5 @@ namespace GAS
 	}
 
 }
+
+#endif

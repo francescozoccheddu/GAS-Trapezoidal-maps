@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAS_DRAWING_TRAPEZOID_COLORIZERS_INCLUDED
+#define GAS_DRAWING_TRAPEZOID_COLORIZERS_INCLUDED
 
 #include <gas/data/trapezoidal_map.hpp>
 #include <gas/data/trapezoid.hpp>
@@ -127,3 +128,5 @@ namespace GAS
 }
 
 #include "trapezoid_colorizers.tpp"
+
+#endif

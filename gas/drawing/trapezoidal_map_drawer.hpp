@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAS_DRAWING_TRAPEZOIDAL_MAP_DRAWER_INCLUDED
+#define GAS_DRAWING_TRAPEZOIDAL_MAP_DRAWER_INCLUDED
 
 #include <gas/data/trapezoidal_map.hpp>
 #include <gas/data/trapezoid.hpp>
@@ -52,3 +53,5 @@ namespace GAS
 }
 
 #include "trapezoidal_map_drawer.tpp"
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAS_UTILS_PARENT_FROM_MEMBER_INCLUDED
+#define GAS_UTILS_PARENT_FROM_MEMBER_INCLUDED
 
 #include <type_traits>
 #include <cstddef>
@@ -36,3 +37,5 @@ namespace GAS
 	}
 
 }
+
+#endif

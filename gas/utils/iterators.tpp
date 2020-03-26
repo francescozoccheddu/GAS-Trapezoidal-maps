@@ -1,4 +1,9 @@
-#pragma once
+#ifndef GAS_UTILS_ITERATORS_IMPL_INCLUDED
+#define GAS_UTILS_ITERATORS_IMPL_INCLUDED
+
+#ifndef GAS_UTILS_ITERATORS_INCLUDED
+#error __FILE__ should not be directly included
+#endif
 
 #include "iterators.hpp"
 
@@ -95,3 +100,5 @@ namespace GAS
 	}
 
 }
+
+#endif

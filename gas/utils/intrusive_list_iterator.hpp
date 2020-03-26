@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAS_UTILS_INTRUSIVE_LIST_ITERATOR_INCLUDED
+#define GAS_UTILS_INTRUSIVE_LIST_ITERATOR_INCLUDED
 
 #include <type_traits>
 #include <gas/utils/iterators.hpp>
@@ -48,3 +49,5 @@ namespace GAS
 }
 
 #include "intrusive_list_iterator.tpp"
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAS_DATA_TRAPEZOID_INCLUDED
+#define GAS_DATA_TRAPEZOID_INCLUDED
 
 #include <gas/data/point.hpp>
 #include <gas/data/segment.hpp>
@@ -96,3 +97,5 @@ namespace GAS
 }
 
 #include "trapezoid.tpp"
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAS_DATA_BINARY_DAG_INCLUDED
+#define GAS_DATA_BINARY_DAG_INCLUDED
 
 #include <gas/utils/intrusive_list_iterator.hpp>
 
@@ -126,3 +127,5 @@ namespace GAS
 
 
 #include "binary_dag.tpp"
+
+#endif

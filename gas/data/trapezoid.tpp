@@ -1,4 +1,9 @@
-#pragma once
+#ifndef GAS_DATA_TRAPEZOID_IMPL_INCLUDED
+#define GAS_DATA_TRAPEZOID_IMPL_INCLUDED
+
+#ifndef GAS_DATA_TRAPEZOID_INCLUDED
+#error __FILE__ should not be directly included
+#endif
 
 #include "trapezoid.hpp"
 
@@ -311,3 +316,5 @@ namespace GAS
 	}
 
 }
+
+#endif

@@ -1,4 +1,9 @@
-#pragma once
+#ifndef GAS_UTILS_BIVARIANT_IMPL_INCLUDED
+#define GAS_UTILS_BIVARIANT_IMPL_INCLUDED
+
+#ifndef GAS_UTILS_BIVARIANT_INCLUDED
+#error __FILE__ should not be directly included
+#endif
 
 #include "bivariant.hpp"
 
@@ -269,3 +274,4 @@ namespace GAS
 
 }
 
+#endif

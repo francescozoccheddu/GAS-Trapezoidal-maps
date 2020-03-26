@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAS_DRAWING_TRAPEZOID_BRUSHES_INCLUDED
+#define GAS_DRAWING_TRAPEZOID_BRUSHES_INCLUDED
 
 #include <gas/data/trapezoidal_map.hpp>
 #include <gas/data/trapezoid.hpp>
@@ -120,3 +121,5 @@ namespace GAS
 }
 
 #include "trapezoid_brushes.tpp"
+
+#endif

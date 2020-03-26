@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAS_DATA_TRAPEZOIDAL_MAP_INCLUDED
+#define GAS_DATA_TRAPEZOIDAL_MAP_INCLUDED
 
 #include <gas/data/point.hpp>
 #include <gas/data/segment.hpp>
@@ -131,3 +132,5 @@ namespace GAS
 
 #include "trapezoidal_map.tpp"
 #include "trapezoidal_map_algorithms.tpp"
+
+#endif

@@ -1,4 +1,10 @@
-#pragma once
+#ifndef GAS_DRAWING_TRAPEZOID_BRUSHES_IMPL_INCLUDED
+#define GAS_DRAWING_TRAPEZOID_BRUSHES_IMPL_INCLUDED
+
+#ifndef GAS_DRAWING_TRAPEZOID_BRUSHES_INCLUDED
+#error __FILE__ should not be directly included
+#endif
+
 
 #include "trapezoid_brushes.hpp"
 
@@ -298,3 +304,5 @@ namespace GAS
 	}
 
 }
+
+#endif

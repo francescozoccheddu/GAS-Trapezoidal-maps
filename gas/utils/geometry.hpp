@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAS_UTILS_GEOMETRY_INCLUDED
+#define GAS_UTILS_GEOMETRY_INCLUDED
 
 #include <gas/data/point.hpp>
 #include <gas/data/segment.hpp>
@@ -40,3 +41,5 @@ namespace GAS
 }
 
 #include "geometry.tpp"
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAS_UTILS_ITERATORS_INCLUDED
+#define GAS_UTILS_ITERATORS_INCLUDED
 
 namespace GAS
 {
@@ -56,3 +57,5 @@ namespace GAS
 }
 
 #include "iterators.tpp"
+
+#endif

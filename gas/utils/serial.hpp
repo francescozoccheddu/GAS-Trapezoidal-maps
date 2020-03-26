@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAS_UTILS_SERIAL_INCLUDED
+#define GAS_UTILS_SERIAL_INCLUDED
 
 #include <string>
 
@@ -41,3 +42,5 @@ namespace GAS
 	}
 
 }
+
+#endif

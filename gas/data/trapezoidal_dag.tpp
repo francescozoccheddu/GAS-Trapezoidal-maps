@@ -1,4 +1,9 @@
-﻿#pragma once
+﻿#ifndef GAS_DATA_TRAPEZOIDAL_DAG_IMPL_INCLUDED
+#define GAS_DATA_TRAPEZOIDAL_DAG_IMPL_INCLUDED
+
+#ifndef GAS_DATA_TRAPEZOIDAL_DAG_INCLUDED
+#error __FILE__ should not be directly included
+#endif
 
 #include "trapezoidal_dag.hpp"
 
@@ -133,3 +138,5 @@ namespace GAS
 	}
 
 }
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAS_DRAWING_COLOR_INCLUDED
+#define GAS_DRAWING_COLOR_INCLUDED
 
 #include <cg3/utilities/color.h>
 
@@ -13,3 +14,5 @@ namespace GAS
 	}
 
 }
+
+#endif

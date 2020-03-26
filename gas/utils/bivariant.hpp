@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAS_UTILS_BIVARIANT_INCLUDED
+#define GAS_UTILS_BIVARIANT_INCLUDED
 
 namespace GAS
 {
@@ -86,3 +87,5 @@ namespace GAS
 }
 
 #include "bivariant.tpp"
+
+#endif

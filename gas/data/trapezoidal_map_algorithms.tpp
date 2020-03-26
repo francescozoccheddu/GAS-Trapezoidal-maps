@@ -1,4 +1,9 @@
-#pragma once
+#ifndef GAS_DATA_TRAPEZOIDAL_MAP_ALGORITHMS_IMPL_INCLUDED
+#define GAS_DATA_TRAPEZOIDAL_MAP_ALGORITHMS_IMPL_INCLUDED
+
+#ifndef GAS_DATA_TRAPEZOIDAL_MAP_INCLUDED
+#error __FILE__ should not be directly included
+#endif
 
 #include "trapezoidal_map.hpp"
 
@@ -277,3 +282,5 @@ namespace GAS
 	}
 
 }
+
+#endif

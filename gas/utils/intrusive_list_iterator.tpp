@@ -1,4 +1,9 @@
-#pragma once
+#ifndef GAS_UTILS_INTRUSIVE_LIST_ITERATOR_IMPL_INCLUDED
+#define GAS_UTILS_INTRUSIVE_LIST_ITERATOR_IMPL_INCLUDED
+
+#ifndef GAS_UTILS_INTRUSIVE_LIST_ITERATOR_INCLUDED
+#error __FILE__ should not be directly included
+#endif
 
 #include "intrusive_list_iterator.hpp"
 
@@ -92,3 +97,5 @@ namespace GAS
 	}
 
 }
+
+#endif

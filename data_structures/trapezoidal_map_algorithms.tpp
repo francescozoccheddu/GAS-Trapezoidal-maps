@@ -29,16 +29,15 @@ namespace GAS
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::weld (Trapezoid &_trapezoid, Pair _neighbors, bool _right)
 	{
-		assert (!_neighbors.isSplit () || _neighbors.isHorizontalSplit ());
 		if (_right)
 		{
 			assert (_neighbors.isLeftAligned ());
-			assert (_trapezoid.rightX () == _neighbors.bottom ().leftX ());
+			assert (_trapezoid.right () == _neighbors.bottom ().left ());
 		}
 		else
 		{
 			assert (_neighbors.isRightAligned ());
-			assert (_trapezoid.leftX () == _neighbors.bottom ().rightX ());
+			assert (_trapezoid.left () == _neighbors.bottom ().right ());
 		}
 		Trapezoid *&upper { _right ? _trapezoid.upperRightNeighbor () : _trapezoid.upperLeftNeighbor () };
 		Trapezoid *&lower { _right ? _trapezoid.lowerRightNeighbor () : _trapezoid.lowerLeftNeighbor () };

@@ -36,8 +36,6 @@ namespace GAS
 			bool isSplit () const;
 			bool isLeftAligned () const;
 			bool isRightAligned () const;
-			bool isVerticalSplit () const;
-			bool isHorizontalSplit () const;
 
 			Trapezoid &left () const;
 			Trapezoid &right () const;

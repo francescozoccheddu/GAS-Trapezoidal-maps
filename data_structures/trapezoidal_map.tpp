@@ -34,18 +34,6 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	bool TrapezoidalMap<Scalar>::Pair::isVerticalSplit () const
-	{
-		return isSplit () && m_a->right () == m_b->left ();
-	}
-
-	template<class Scalar>
-	bool TrapezoidalMap<Scalar>::Pair::isHorizontalSplit () const
-	{
-		return isSplit () && m_a->top () == m_b->bottom ();
-	}
-
-	template<class Scalar>
 	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::Pair::left () const
 	{
 		return *m_a;

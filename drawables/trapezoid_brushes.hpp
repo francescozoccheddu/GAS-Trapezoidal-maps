@@ -3,6 +3,7 @@
 #include <data_structures/trapezoidal_map.hpp>
 #include <data_structures/trapezoid.hpp>
 #include <cg3/viewer/glcanvas.h>
+#include <drawables/color.hpp>
 
 #define GAS_DRAWING_RESTORE_GL_STATE
 

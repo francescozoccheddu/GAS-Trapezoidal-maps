@@ -4,9 +4,9 @@
 #include <data_structures/trapezoid.hpp>
 #include <cg3/viewer/interfaces/drawable_object.h>
 #include <cg3/geometry/point3.h>
-#include "color.hpp"
-#include "trapezoid_brushes.hpp"
-#include "trapezoid_colorizers.hpp"
+#include <drawables/color.hpp>
+#include <drawables/trapezoid_colorizers.hpp>
+#include <drawables/trapezoid_brushes.hpp>
 
 namespace GAS
 {

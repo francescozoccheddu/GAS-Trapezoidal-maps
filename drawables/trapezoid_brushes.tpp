@@ -1,6 +1,7 @@
 #pragma once
 
 #include "trapezoid_brushes.hpp"
+
 #include <stdexcept>
 #include <qstring>
 #include <type_traits>
@@ -64,18 +65,18 @@ namespace GAS
 		}
 
 		template<class Scalar>
-		void TrapezoidBrush<Scalar>::beforeDraw (const TrapezoidalMap<Scalar> &_trapezoidalMap) const
+		void TrapezoidBrush<Scalar>::beforeDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 		{}
 
 		template<class Scalar>
-		void TrapezoidBrush<Scalar>::afterDraw (const TrapezoidalMap<Scalar> &_trapezoidalMap) const
+		void TrapezoidBrush<Scalar>::afterDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 		{}
 
 		namespace TrapezoidBrushes
 		{
 
 			template<class Scalar>
-			void Stroke<Scalar>::beforeDraw (const TrapezoidalMap<Scalar> &_trapezoidalMap) const
+			void Stroke<Scalar>::beforeDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 			{
 				if (m_thickness > 0)
 				{
@@ -90,7 +91,7 @@ namespace GAS
 			}
 
 			template<class Scalar>
-			void Stroke<Scalar>::draw (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
+			void Stroke<Scalar>::draw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/, int /*_index*/, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
 			{
 				if (m_thickness > 0 && _color.alpha () > 0)
 				{
@@ -112,7 +113,7 @@ namespace GAS
 			}
 
 			template<class Scalar>
-			void Stroke<Scalar>::afterDraw (const TrapezoidalMap<Scalar> &_trapezoidalMap) const
+			void Stroke<Scalar>::afterDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 			{
 				if (m_thickness > 0)
 				{
@@ -149,7 +150,7 @@ namespace GAS
 			}
 
 			template<class Scalar>
-			void Fill<Scalar>::beforeDraw (const TrapezoidalMap<Scalar> &_trapezoidalMap) const
+			void Fill<Scalar>::beforeDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 			{
 #ifdef GAS_DRAWING_RESTORE_GL_STATE
 				glPushAttrib (GL_ENABLE_BIT);
@@ -160,7 +161,7 @@ namespace GAS
 			}
 
 			template<class Scalar>
-			void Fill<Scalar>::draw (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
+			void Fill<Scalar>::draw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/, int /*_index*/, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
 			{
 				if (_color.alpha () > 0)
 				{
@@ -173,7 +174,7 @@ namespace GAS
 			}
 
 			template<class Scalar>
-			void Fill<Scalar>::afterDraw (const TrapezoidalMap<Scalar> &_trapezoidalMap) const
+			void Fill<Scalar>::afterDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 			{
 				glEnd ();
 #ifdef GAS_DRAWING_RESTORE_GL_STATE
@@ -216,7 +217,7 @@ namespace GAS
 			}
 
 			template<class Scalar>
-			void Text<Scalar>::beforeDraw (const TrapezoidalMap<Scalar> &_trapezoidalMap) const
+			void Text<Scalar>::beforeDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 			{
 #ifdef GAS_DRAWING_RESTORE_GL_STATE
 				glPushAttrib (GL_ENABLE_BIT);
@@ -226,7 +227,7 @@ namespace GAS
 			}
 
 			template<class Scalar>
-			void Text<Scalar>::draw (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
+			void Text<Scalar>::draw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/, int /*_index*/, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
 			{
 				if (!m_canvas)
 				{
@@ -252,7 +253,7 @@ namespace GAS
 			}
 
 			template<class Scalar>
-			void Text<Scalar>::afterDraw (const TrapezoidalMap<Scalar> &_trapezoidalMap) const
+			void Text<Scalar>::afterDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 			{
 #ifdef GAS_DRAWING_RESTORE_GL_STATE
 				glPopAttrib ();

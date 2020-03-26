@@ -2,8 +2,6 @@
 
 #include "trapezoidal_map_drawer.hpp"
 #include <stdexcept>
-#include <qstring>
-#include <type_traits>
 
 namespace GAS
 {

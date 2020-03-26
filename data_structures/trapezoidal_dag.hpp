@@ -1,9 +1,9 @@
 #pragma once
 
-#include "point.hpp"
-#include "segment.hpp"
-#include "trapezoid.hpp"
-#include "binary_dag.hpp"
+#include <data_structures/point.hpp>
+#include <data_structures/segment.hpp>
+#include <data_structures/trapezoid.hpp>
+#include <data_structures/binary_dag.hpp>
 #include <utils/geometry_utils.hpp>
 #include <utils/bivariant.hpp>
 #include <utils/iterator_utils.hpp>
@@ -56,9 +56,6 @@ namespace GAS
 
 		using EChild = BDAG::EChild;
 
-		template<class Scalar>
-		EChild disambiguateAlwaysRight (const Split<Scalar> &split, const Point<Scalar> &point);
-
 		template<class Scalar, class Disambiguator>
 		inline const Trapezoid<Scalar> &query (const Node<Scalar> &root, const Point<Scalar> &point, Disambiguator disambiguator);
 
@@ -73,6 +70,9 @@ namespace GAS
 
 		namespace Utils
 		{
+
+			template<class Scalar>
+			EChild disambiguateAlwaysRight (const Split<Scalar> &split, const Point<Scalar> &point);
 
 			template<class Scalar>
 			Geometry::ESide getPointSide (const Split<Scalar> &split, const Point<Scalar> &point);

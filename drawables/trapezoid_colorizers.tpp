@@ -1,6 +1,7 @@
 #pragma once
 
 #include "trapezoid_colorizers.hpp"
+
 #include <stdexcept>
 
 namespace GAS
@@ -19,7 +20,7 @@ namespace GAS
 		{
 
 			template<class Scalar>
-			const Color &Constant<Scalar>::provideColor (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid) const
+			Color Constant<Scalar>::provideColor (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/, int /*_index*/, const Trapezoid<Scalar> &/*_trapezoid*/) const
 			{
 				return m_color;
 			}
@@ -56,7 +57,7 @@ namespace GAS
 			}
 
 			template<class Scalar>
-			const Color &Rainbow<Scalar>::provideColor (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid) const
+			Color Rainbow<Scalar>::provideColor (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &/*_trapezoid*/) const
 			{
 				Color color;
 				color.setHsvF (_index / (float) _trapezoidalMap.trapezoidsCount (), m_saturation, m_value);
@@ -137,7 +138,7 @@ namespace GAS
 
 
 			template<class Scalar>
-			const Color &Selector<Scalar>::provideColor (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid) const
+			Color Selector<Scalar>::provideColor (const TrapezoidalMap<Scalar> &_trapezoidalMap, int _index, const Trapezoid<Scalar> &_trapezoid) const
 			{
 				if (&_trapezoid == m_selected)
 				{

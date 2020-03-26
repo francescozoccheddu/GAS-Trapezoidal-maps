@@ -30,6 +30,7 @@ namespace GAS
 
 			Node (const Node &) = delete;
 			Node (const Node &&) = delete;
+
 			Node &operator=(const Node &) = delete;
 			Node &operator=(Node &&) = delete;
 
@@ -114,10 +115,10 @@ namespace GAS
 		};
 
 		template<class Data, class Walker>
-		Node<Data> &walk (Node<Data> &root, Walker walker);
+		const Node<Data> &walk (const Node<Data> &root, Walker walker);
 
 		template<class Data, class Walker>
-		const Node<Data> &walk (const Node<Data> &root, Walker walker);
+		Node<Data> &walk (Node<Data> &root, Walker walker);
 
 	}
 

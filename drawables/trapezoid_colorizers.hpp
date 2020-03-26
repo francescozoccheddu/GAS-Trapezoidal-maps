@@ -2,8 +2,7 @@
 
 #include <data_structures/trapezoidal_map.hpp>
 #include <data_structures/trapezoid.hpp>
-
-#include "color.hpp"
+#include <drawables/color.hpp>
 
 namespace GAS
 {
@@ -29,7 +28,7 @@ namespace GAS
 
 		protected:
 
-			virtual const Color &provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const = 0;
+			virtual Color provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const = 0;
 			virtual bool requiresBlending () const;
 
 		public:
@@ -49,7 +48,7 @@ namespace GAS
 
 			protected:
 
-				virtual const Color &provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const override final;
+				virtual Color provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const override final;
 				virtual bool requiresBlending () const override final;
 
 			public:
@@ -74,7 +73,7 @@ namespace GAS
 
 			protected:
 
-				virtual const Color &provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const override final;
+				virtual Color provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const override final;
 				virtual bool requiresBlending () const override final;
 
 			public:
@@ -103,7 +102,7 @@ namespace GAS
 
 			protected:
 
-				virtual const Color &provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const override final;
+				virtual Color provideColor (const TrapezoidalMap<Scalar> &trapezoidalMap, int index, const Trapezoid<Scalar> &trapezoid) const override final;
 				virtual bool requiresBlending () const override final;
 
 			public:

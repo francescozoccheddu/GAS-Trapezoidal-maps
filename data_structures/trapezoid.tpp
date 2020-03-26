@@ -1,6 +1,7 @@
 #pragma once
 
 #include "trapezoid.hpp"
+
 #include <utils/geometry_utils.hpp>
 
 namespace GAS

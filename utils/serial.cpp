@@ -1,3 +1,5 @@
+#pragma once
+
 #include "serial.hpp"
 
 #include <cassert>
@@ -44,12 +46,12 @@ namespace GAS
 		Serial::Serial (int _serial) : m_serial { _serial }
 		{}
 
-		Serial::Serial (const Serial &_copy)
+		Serial::Serial (const Serial &/*_copy*/)
 		{
 			// Intercept and prevent serial copy
 		}
 
-		Serial &Serial::operator=(const Serial &_copy)
+		Serial &Serial::operator=(const Serial &/*_copy*/)
 		{
 			// Intercept and prevent serial assignment
 			return *this;

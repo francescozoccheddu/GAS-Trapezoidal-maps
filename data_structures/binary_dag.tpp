@@ -4,7 +4,6 @@
 
 #include <cassert>
 #include <unordered_map>
-#include <type_traits>
 #include <utility>
 #include <utils/parent_from_member.hpp>
 
@@ -192,9 +191,11 @@ namespace GAS
 		template<class Data>
 		Graph<Data>::Graph (Graph &&_moved) :
 			m_firstNode { _moved.m_firstNode }, m_lastNode { _moved.m_lastNode },
-			m_lastLeafNode { _moved.m_lastLeafNode }, m_lastLeafNode { _moved.m_lastLeafNode },
+			m_firstLeafNode { _moved.m_firstLeafNode }, m_lastLeafNode { _moved.m_lastLeafNode },
 			m_nodesCount { _moved.m_nodesCount }, m_leafNodesCount { _moved.m_leafNodesCount }
 		{
+			_moved.m_firstNode = _moved.m_lastNode = _moved.m_firstLeafNode = _moved.m_lastLeafNode = nullptr;
+			_moved.m_nodesCount = _moved.m_leafNodesCount = 0;
 			_moved.clear ();
 		}
 
@@ -248,6 +249,8 @@ namespace GAS
 			m_lastLeafNode = _moved.m_lastLeafNode;
 			m_nodesCount = _moved.m_nodesCount;
 			m_leafNodesCount = _moved.m_leafNodesCount;
+			_moved.m_firstNode = _moved.m_lastNode = _moved.m_firstLeafNode = _moved.m_lastLeafNode = nullptr;
+			_moved.m_nodesCount = _moved.m_leafNodesCount = 0;
 			_moved.clear ();
 		}
 
@@ -411,9 +414,9 @@ namespace GAS
 		}
 
 		template<class Data, class Walker>
-		Node<Data> &walk (Node<Data> &_root, Walker _walker)
+		const Node<Data> &walk (const Node<Data> &_root, Walker _walker)
 		{
-			Node<Data> *node { &_root };
+			const Node<Data> *node { &_root };
 			while (!node->isLeaf ())
 			{
 				switch (_walker (node->data ()))
@@ -432,10 +435,10 @@ namespace GAS
 		}
 
 		template<class Data, class Walker>
-		const Node<Data> &walk (const Node<Data> &_root, Walker _walker)
+		Node<Data> &walk (Node<Data> &_root, Walker _walker)
 		{
 			// Casting away constness is safe since _root is non-const
-			return const_cast<Node<Data> &>(walk (static_cast<Node<Data> &>(_root), _walker));
+			return const_cast<Node<Data> &>(walk (static_cast<const Node<Data> &>(_root), _walker));
 		}
 
 	}

@@ -1,9 +1,10 @@
 #pragma once
 
 #include "trapezoidal_map.hpp"
+
 #include <stdexcept>
 #include <cassert>
-#include <utils/geometry_utils.hpp>
+#include <utility>
 
 namespace GAS
 {
@@ -81,9 +82,20 @@ namespace GAS
 	}
 
 	template<class Scalar>
+	const TDAG::Node<Scalar> &TrapezoidalMap<Scalar>::root () const
+	{
+		return *m_graph.nodes ().begin ();
+	}
+
+	template<class Scalar>
+	TDAG::Node<Scalar> &TrapezoidalMap<Scalar>::root ()
+	{
+		return *m_graph.nodes ().begin ();
+	}
+
+	template<class Scalar>
 	void TrapezoidalMap<Scalar>::destroy ()
 	{
-		m_root = nullptr;
 		m_graph.clear ();
 		m_segments.clear ();
 	}
@@ -91,13 +103,13 @@ namespace GAS
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::initialize ()
 	{
-		assert (!m_root && m_segments.empty () && m_graph.isEmpty ());
+		assert (m_segments.empty () && m_graph.isEmpty ());
 		Trapezoid trapezoid;
 		trapezoid.left () = &bottomLeft ();
 		trapezoid.right () = &bottomRight ();
 		trapezoid.top () = &m_top;
 		trapezoid.bottom () = &m_bottom;
-		m_root = &getNode (createTrapezoid (trapezoid));
+		createTrapezoid (trapezoid);
 	}
 
 	template<class Scalar>
@@ -136,6 +148,24 @@ namespace GAS
 	}
 
 	template<class Scalar>
+	TrapezoidalMap<Scalar>::TrapezoidalMap (TrapezoidalMap &&_moved)
+		: m_bottom { _moved.m_bottom }, m_top { _moved.m_top }, m_graph { std::move (_moved.m_graph) }, m_segments { std::move (_moved.m_segments) }
+	{
+		_moved.clear ();
+	}
+
+	template<class Scalar>
+	TrapezoidalMap<Scalar> &TrapezoidalMap<Scalar>::operator=(TrapezoidalMap &&_moved)
+	{
+		clear ();
+		m_bottom = _moved.m_bottom;
+		m_top = _moved.m_top;
+		m_graph = std::move (_moved.m_graph);
+		m_segments = std::move (_moved.m_segments);
+		_moved.clear ();
+	}
+
+	template<class Scalar>
 	int TrapezoidalMap<Scalar>::trapezoidsCount () const
 	{
 		return m_graph.leafNodesCount ();
@@ -160,7 +190,7 @@ namespace GAS
 		{
 			throw std::invalid_argument ("Point is outside bounds");
 		}
-		return TDAG::query (*m_root, _point);
+		return TDAG::query (root (), _point);
 	}
 
 	template<class Scalar>
@@ -262,6 +292,5 @@ namespace GAS
 	{
 		return m_segments;
 	}
-
 
 }

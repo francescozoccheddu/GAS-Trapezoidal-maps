@@ -3,8 +3,6 @@
 #include "trapezoidal_dag.hpp"
 
 #include <cassert>
-#include <utils/parent_from_member.hpp>
-
 
 namespace GAS
 {
@@ -58,16 +56,11 @@ namespace GAS
 			m_segment = &_segment;
 		}
 
-		template<class Scalar>
-		EChild disambiguateAlwaysRight (const Split<Scalar> &_split, const Point<Scalar> &_point)
-		{
-			return EChild::Right;
-		}
 
 		template<class Scalar, class Disambiguator>
 		const Trapezoid<Scalar> &query (const Node<Scalar> &_root, const Point<Scalar> &_point, Disambiguator _disambiguator)
 		{
-			return BDAG::walk (_root, [](const NodeData<Scalar> &_node) {
+			return BDAG::walk (_root, [&](const NodeData<Scalar> &_node) {
 				return Utils::getPointQueryNextChild (_node.first (), _point, _disambiguator);
 			}).data ().second ();
 		}
@@ -83,17 +76,23 @@ namespace GAS
 		template<class Scalar>
 		const Trapezoid<Scalar> &query (const Node<Scalar> &_root, const Point<Scalar> &_point)
 		{
-			return query (_root, _point, disambiguateAlwaysRight<Scalar>);
+			return query (_root, _point, Utils::disambiguateAlwaysRight<Scalar>);
 		}
 
 		template<class Scalar>
 		Trapezoid<Scalar> &query (Node<Scalar> &_root, const Point<Scalar> &_point)
 		{
-			return query (_root, _point, disambiguateAlwaysRight<Scalar>);
+			return query (_root, _point, Utils::disambiguateAlwaysRight<Scalar>);
 		}
 
 		namespace Utils
 		{
+
+			template<class Scalar>
+			EChild disambiguateAlwaysRight (const Split<Scalar> &/*_split*/, const Point<Scalar> &/*_point*/)
+			{
+				return EChild::Right;
+			}
 
 			template<class Scalar>
 			Geometry::ESide getPointSide (const Split<Scalar> &_split, const Point<Scalar> &_point)

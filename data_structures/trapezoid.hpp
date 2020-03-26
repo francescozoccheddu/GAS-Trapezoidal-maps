@@ -1,7 +1,7 @@
 #pragma once
 
-#include "point.hpp"
-#include "segment.hpp"
+#include <data_structures/point.hpp>
+#include <data_structures/segment.hpp>
 
 // For debugging purposes
 #define GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL

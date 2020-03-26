@@ -1,12 +1,10 @@
 #pragma once
 
 #include "trapezoidal_map.hpp"
+
 #include <stdexcept>
 #include <cassert>
 #include <utils/geometry_utils.hpp>
-#ifndef NDEBUG
-#include <algorithm>
-#endif
 
 namespace GAS
 {
@@ -106,11 +104,11 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::findLeftmostIntersectedTrapezoid (const Segment &_segment) const
+	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::findLeftmostIntersectedTrapezoid (const Segment &_segment)
 	{
 		assert (Geometry::areSegmentPointsHorizzontallySorted (_segment));
 		const Point &left { _segment.p1 () }, &right { _segment.p2 () };
-		return BDAG::walk (*m_root, [&](const TDAG::NodeData<Scalar> &_data) {
+		return BDAG::walk (root (), [&](const TDAG::NodeData<Scalar> &_data) {
 			const TDAG::Split<Scalar> &split { _data.first () };
 			if (split.type () == TDAG::ESplitType::NonVertical)
 			{
@@ -138,7 +136,7 @@ namespace GAS
 					throw std::invalid_argument ("Points with the same x-coordinate are illegal");
 				}
 			}
-			return TDAG::Utils::getPointQueryNextChild (split, left, TDAG::disambiguateAlwaysRight<Scalar>);
+			return TDAG::Utils::getPointQueryNextChild (split, left, TDAG::Utils::disambiguateAlwaysRight<Scalar>);
 		}).data ().second ();
 	}
 
@@ -205,8 +203,7 @@ namespace GAS
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::addSegment (const Segment &_segment)
 	{
-		assert (m_root && !m_graph.isEmpty ());
-		assert (std::find (m_segments.begin (), m_segments.end (), Geometry::sortSegmentPointsHorizontally (_segment)) == m_segments.end ());
+		assert (!m_graph.isEmpty ());
 		if (_segment.p1 () == _segment.p2 ())
 		{
 			throw std::invalid_argument ("Degenerate segment");
@@ -223,18 +220,28 @@ namespace GAS
 			Trapezoid *current;
 			// Left vertical split
 			{
-				Trapezoid &leftmost { findLeftmostIntersectedTrapezoid (segment) };
-				const Point &left { segment.p1 () };
-				assert (left.x () >= leftmost.left ()->x ());
-				if (left.x () > leftmost.left ()->x ())
+				Trapezoid *leftmost;
+				try
 				{
-					Pair split { splitVertically (leftmost, left) };
+					leftmost = &findLeftmostIntersectedTrapezoid (segment);
+				}
+				catch (const std::invalid_argument &)
+				{
+					// Remove the invalid segment
+					m_segments.pop_front ();
+					throw;
+				}
+				const Point &left { segment.p1 () };
+				assert (left.x () >= leftmost->left ()->x ());
+				if (left.x () > leftmost->left ()->x ())
+				{
+					Pair split { splitVertically (*leftmost, left) };
 					current = &split.right ();
 				}
 				else
 				{
-					assert (left.y () == leftmost.left ()->y ());
-					current = &leftmost;
+					assert (left.y () == leftmost->left ()->y ());
+					current = leftmost;
 				}
 			}
 			// Horizontal split

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "point.hpp"
-#include "segment.hpp"
-#include "trapezoid.hpp"
-#include "trapezoidal_dag.hpp"
+#include <data_structures/point.hpp>
+#include <data_structures/segment.hpp>
+#include <data_structures/trapezoid.hpp>
+#include <data_structures/trapezoidal_dag.hpp>
 #include <forward_list>
 
 namespace GAS
@@ -66,13 +66,15 @@ namespace GAS
 		static void weld (Trapezoid &trapezoid, Pair neighbors, bool right);
 
 		std::forward_list<Segment> m_segments; // for stable references
-		Node *m_root {};
 		Graph m_graph;
 
 		/*
 			I could have used cg3::BoundingBox2 but i needed this two segments to be referenceable.
 		*/
 		Segment m_bottom, m_top;
+
+		const Node &root () const;
+		Node &root ();
 
 		void destroy ();
 		void initialize ();
@@ -82,7 +84,7 @@ namespace GAS
 		void splitTrapezoid (Trapezoid &trapezoid, const Scalar &x, Trapezoid &left, Trapezoid &right);
 		void splitTrapezoid (Trapezoid &trapezoid, const Segment &segment, Trapezoid &left, Trapezoid &right);
 
-		Trapezoid &findLeftmostIntersectedTrapezoid (const Segment &segment) const;
+		Trapezoid &findLeftmostIntersectedTrapezoid (const Segment &segment);
 
 		Pair splitVertically (Trapezoid &trapezoid, const Point &point);
 		Pair incrementalSplitHorizontally (Trapezoid &trapezoid, const Segment &segment, NullablePair previous);
@@ -90,6 +92,12 @@ namespace GAS
 	public:
 
 		TrapezoidalMap (const Point &bottomLeft, const Point &topRight);
+
+		TrapezoidalMap (const TrapezoidalMap &copy) = default;
+		TrapezoidalMap (TrapezoidalMap &&moved);
+
+		TrapezoidalMap &operator =(const TrapezoidalMap &copy) = default;
+		TrapezoidalMap &operator =(TrapezoidalMap &&moved);
 
 		// Trapezoids
 		int trapezoidsCount () const;

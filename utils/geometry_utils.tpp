@@ -1,7 +1,6 @@
 #pragma once
 
 #include "geometry_utils.hpp"
-#include <limits>
 
 namespace GAS
 {

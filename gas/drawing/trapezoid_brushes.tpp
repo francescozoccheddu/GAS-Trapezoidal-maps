@@ -188,11 +188,13 @@ namespace GAS
 #endif
 			}
 
+#ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
 			template<class Scalar>
 			QString Text<Scalar>::getTrapezoidSerial (const Trapezoid<Scalar> *_trapezoid)
 			{
 				return QString::fromStdString (_trapezoid ? _trapezoid->serial () : GAS::Utils::Serial::null);
 			}
+#endif
 
 			template<class Scalar>
 			bool Text<Scalar>::isRectInsideTrapezoid (const Point<Scalar> &_center, Scalar _halfWidth, Scalar _halfHeight, const Trapezoid<Scalar> &_trapezoid)
@@ -233,7 +235,7 @@ namespace GAS
 			}
 
 			template<class Scalar>
-			void Text<Scalar>::draw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/, int /*_index*/, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
+			void Text<Scalar>::draw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/, int _index, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
 			{
 				if (!m_canvas)
 				{
@@ -244,6 +246,7 @@ namespace GAS
 					glColor3f (_color.redF (), _color.greenF (), _color.blueF ());
 					const Point<Scalar> centroid { _trapezoid.centroid () };
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
+					(void)_index;
 					QString text { QString { "%1 (%2 %3 %4 %5)" }
 						.arg (getTrapezoidSerial (&_trapezoid))
 						.arg (getTrapezoidSerial (_trapezoid.lowerLeftNeighbor ()))

@@ -8,17 +8,12 @@
 namespace GAS
 {
 	template<class Scalar>
-	bool TrapezoidalMap<Scalar>::Pair::areAligned (const Pair &_left, const Pair &_right)
-	{
-		return (!_left.isSplit () || _left.isHorizontalSplit ())
-			&& (!_right.isSplit () || _right.isHorizontalSplit ())
-			&& *_left.bottom ().right () == *_right.bottom.left ();
-	}
+	TrapezoidalMap<Scalar>::Pair::Pair (Trapezoid *_leftOrBottom, Trapezoid *_rightOrTop) : m_a { _leftOrBottom }, m_b { _rightOrTop }
+	{}
 
 	template<class Scalar>
-	TrapezoidalMap<Scalar>::Pair::Pair (Trapezoid &_leftOrBottom, Trapezoid &_rightOrTop) : m_a { &_leftOrBottom }, m_b { &_rightOrTop }
-	{
-	}
+	TrapezoidalMap<Scalar>::Pair::Pair (Trapezoid &_leftOrBottom, Trapezoid &_rightOrTop) : Pair { &_leftOrBottom, &_rightOrTop }
+	{}
 
 	template<class Scalar>
 	bool TrapezoidalMap<Scalar>::Pair::isSplit () const
@@ -51,20 +46,19 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::Pair::compact () const
+	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::Pair::left () const
 	{
-		assert (!isSplit ());
 		return *m_a;
+	}
+
+	template<class Scalar>
+	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::Pair::right () const
+	{
+		return *m_b;
 	}
 
 	template<class Scalar>
 	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::Pair::bottom () const
-	{
-		return *m_a;
-	}
-
-	template<class Scalar>
-	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::Pair::left () const
 	{
 		return *m_a;
 	}
@@ -76,9 +70,26 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::Pair::right () const
+	const typename TrapezoidalMap<Scalar>::NullablePair TrapezoidalMap<Scalar>::NullablePair::null { nullptr, nullptr };
+
+	template<class Scalar>
+	typename TrapezoidalMap<Scalar>::NullablePair TrapezoidalMap<Scalar>::NullablePair::allOrNone (Trapezoid *_leftOrBottom, Trapezoid *_rightOrTop)
 	{
-		return *m_b;
+		assert (((bool) _leftOrBottom) == ((bool) _rightOrTop));
+		return { _leftOrBottom, _rightOrTop };
+	}
+
+	template<class Scalar>
+	typename TrapezoidalMap<Scalar>::NullablePair &TrapezoidalMap<Scalar>::NullablePair::operator=(const Pair &_copy)
+	{
+		Pair::operator=(_copy);
+		return *this;
+	}
+
+	template<class Scalar>
+	TrapezoidalMap<Scalar>::NullablePair::operator bool () const
+	{
+		return m_a;
 	}
 
 	template<class Scalar>
@@ -127,12 +138,6 @@ namespace GAS
 		Node &node { getNode (_trapezoid) };
 		m_graph.setInner (node, getNode (_left), getNode (_right));
 		node.data () = _segment;
-	}
-
-	template<class Scalar>
-	void TrapezoidalMap<Scalar>::destroyTrapezoid (Trapezoid &_trapezoid)
-	{
-		m_graph.destroyNode (getNode (_trapezoid));
 	}
 
 	template<class Scalar>
@@ -262,68 +267,6 @@ namespace GAS
 	{
 		destroy ();
 		initialize ();
-	}
-
-	template<class Scalar>
-	void TrapezoidalMap<Scalar>::addSegment (const Segment &_segment)
-	{
-		assert (m_root && !m_graph.isEmpty ());
-		if (_segment.p1 () == _segment.p2 ())
-		{
-			throw std::invalid_argument ("Degenerate segment");
-		}
-		if (!isSegmentInsideBounds (_segment))
-		{
-			throw std::invalid_argument ("Segment is not completely inside bounds");
-		}
-		// Store segment
-		m_segments.push_front (Geometry::sortSegmentPointsHorizontally (_segment));
-		const Segment &segment { m_segments.front () };
-		// Replace
-		{
-			Trapezoid *current;
-			// Left vertical split
-			{
-				Trapezoid &leftmost { findLeftmostIntersectedTrapezoid (segment) };
-				const Point &left { segment.p1 () };
-				assert (left.x () >= leftmost.left ()->x ());
-				if (left.x () > leftmost.left ()->x ())
-				{
-					Pair split { splitVertically (leftmost, left) };
-					current = &split.right ();
-				}
-				else
-				{
-					assert (left.y () == leftmost.left ()->y ());
-					current = &leftmost;
-				}
-			}
-			// Horizontal split
-			{
-				const Point &right { segment.p2 () };
-				Pair previous { *current->lowerLeftNeighbor (), *current->upperLeftNeighbor () };
-				while (right.x () > current->left ()->x ())
-				{
-					// Split vertically if segment ends inside current trapezoid
-					if (right.x () < current->right ()->x ())
-					{
-						Pair split { splitVertically (*current, right) };
-						current = &split.left ();
-					}
-					// Split horizontally, link trapezoids and find next trapezoid
-					{
-						// Decide whether to proceed splitting in the lower or the upper right neighbor before splitting
-						const bool segmentAboveRight { Geometry::evalLine (segment, current->right ()->x ()) > current->right ()->y () };
-						Trapezoid *next { segmentAboveRight ? current->upperRightNeighbor () : current->lowerRightNeighbor () };
-						// Split
-						previous = incrementalSplitHorizontally (*current, segment, previous);
-						current = next;
-					}
-				}
-				// Link last trapezoid
-				weld (previous, { *previous.bottom ().lowerRightNeighbor (), *previous.bottom ().upperRightNeighbor () });
-			}
-		}
 	}
 
 	template<class Scalar>

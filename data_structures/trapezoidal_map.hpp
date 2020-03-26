@@ -23,13 +23,13 @@ namespace GAS
 		class Pair
 		{
 
-		private:
+		protected:
 
 			Trapezoid *m_a, *m_b;
 
-		public:
+			Pair (Trapezoid *leftOrBottom, Trapezoid *rightOrTop);
 
-			static bool areAligned (const Pair &left, const Pair &right);
+		public:
 
 			Pair (Trapezoid &leftOrBottom, Trapezoid &rightOrTop);
 
@@ -39,35 +39,33 @@ namespace GAS
 			bool isVerticalSplit () const;
 			bool isHorizontalSplit () const;
 
-			Trapezoid &compact () const;
-			Trapezoid &bottom () const;
 			Trapezoid &left () const;
-			Trapezoid &top () const;
 			Trapezoid &right () const;
+			Trapezoid &bottom () const;
+			Trapezoid &top () const;
 
 		};
 
-		enum class ELeftWeldJointType
+		class NullablePair : public Pair
 		{
-			Compact, Split, JointBottom, JointTop
+
+		public:
+
+			static const NullablePair null;
+
+			static NullablePair allOrNone (Trapezoid *leftOrBottom, Trapezoid *rightOrTop);
+
+			using Pair::Pair;
+
+			NullablePair &operator=(const NullablePair &) = default;
+			NullablePair &operator=(const Pair &);
+
+			operator bool () const;
+
 		};
 
-		enum class ERightWeldFitness
-		{
-			Fit, Extended, Shrinked
-		};
-
-		struct RightWeldConfiguration
-		{
-			bool split;
-			ERightWeldFitness bottomFitness, topFitness;
-		};
-
-		static ELeftWeldJointType getLeftWeldJointType (Pair left);
-		static ERightWeldFitness getRightWeldBottomFitness (const Trapezoid &left, const Trapezoid &right);
-		static ERightWeldFitness getRightWeldTopFitness (const Trapezoid &left, const Trapezoid &right);
-		static RightWeldConfiguration getRightWeldConfiguration (Pair left, Pair right);
 		static void weld (Pair left, Pair right);
+		static void weld (Trapezoid &trapezoid, Pair neighbors, bool right);
 
 		std::forward_list<Segment> m_segments; // for stable references
 		Node *m_root {};
@@ -85,13 +83,11 @@ namespace GAS
 		Trapezoid &createTrapezoid (const Trapezoid &copy = {});
 		void splitTrapezoid (Trapezoid &trapezoid, const Scalar &x, Trapezoid &left, Trapezoid &right);
 		void splitTrapezoid (Trapezoid &trapezoid, const Segment &segment, Trapezoid &left, Trapezoid &right);
-		void destroyTrapezoid (Trapezoid &trapezoid);
 
 		Trapezoid &findLeftmostIntersectedTrapezoid (const Segment &segment) const;
 
 		Pair splitVertically (Trapezoid &trapezoid, const Point &point);
-		Pair incrementalSplitHorizontally (Trapezoid &trapezoid, const Segment &segment, Pair previous);
-		Trapezoid &mergeLeft (Trapezoid &trapezoid);
+		Pair incrementalSplitHorizontally (Trapezoid &trapezoid, const Segment &segment, NullablePair previous);
 
 	public:
 

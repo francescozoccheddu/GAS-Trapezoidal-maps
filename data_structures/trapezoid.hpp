@@ -14,6 +14,11 @@
 namespace GAS
 {
 
+	enum class ETrapezoidSideSource
+	{
+		Joint, Bottom, Top, External
+	};
+
 	template<class Scalar>
 	class Trapezoid final
 	{
@@ -69,6 +74,12 @@ namespace GAS
 		Point centroid () const;
 
 		bool contains (const Point &point) const;
+
+		bool isJointRight () const;
+		bool isJointLeft () const;
+
+		ETrapezoidSideSource leftSource () const;
+		ETrapezoidSideSource rightSource () const;
 
 		void setLeftNeighbors (Trapezoid *trapezoid);
 		void setRightNeighbors (Trapezoid *trapezoid);

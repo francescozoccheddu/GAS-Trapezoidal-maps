@@ -4,239 +4,106 @@
 #include <stdexcept>
 #include <cassert>
 #include <utils/geometry_utils.hpp>
+#ifndef NDEBUG
+#include <algorithm>
+#endif
 
 namespace GAS
 {
 
 	template<class Scalar>
-	typename TrapezoidalMap<Scalar>::ELeftWeldJointType TrapezoidalMap<Scalar>::getLeftWeldJointType (Pair _left)
-	{
-		assert (_left.isRightAligned ());
-		if (!_left.isSplit ())
-		{
-			return ELeftWeldJointType::Compact;
-		}
-		else
-		{
-			assert (_left.isHorizontalSplit ());
-			const Point &right { _left.bottom ().top ()->p2 () };
-			if (right == _left.bottom ().bottom ()->p2 ())
-			{
-				return ELeftWeldJointType::JointBottom;
-			}
-			else if (right == _left.top ().top ()->p2 ())
-			{
-				return ELeftWeldJointType::JointTop;
-			}
-			else
-			{
-				return ELeftWeldJointType::Split;
-			}
-		}
-	}
-
-	template<class Scalar>
-	typename TrapezoidalMap<Scalar>::ERightWeldFitness TrapezoidalMap<Scalar>::getRightWeldBottomFitness (const Trapezoid &_left, const Trapezoid &_right)
-	{
-		assert (_left.rightX () == _right.leftX ());
-		if (_left.bottom () == _right.bottom () || _left.bottom ()->p2 () == _right.bottom ()->p1 ())
-		{
-			return ERightWeldFitness::Fit;
-		}
-		else if (_left.lowerRightNeighbor ()->top () == _right.bottom ())
-		{
-			return ERightWeldFitness::Shrinked;
-		}
-		else
-		{
-			return ERightWeldFitness::Extended;
-		}
-	}
-
-	template<class Scalar>
-	typename TrapezoidalMap<Scalar>::ERightWeldFitness TrapezoidalMap<Scalar>::getRightWeldTopFitness (const Trapezoid &_left, const Trapezoid &_right)
-	{
-		assert (_left.rightX () == _right.leftX ());
-		if (_left.top () == _right.top () || _left.top ()->p2 () == _right.top ()->p1 ())
-		{
-			return ERightWeldFitness::Fit;
-		}
-		else if (_left.upperRightNeighbor ()->bottom () == _right.top ())
-		{
-			return ERightWeldFitness::Shrinked;
-		}
-		else
-		{
-			return ERightWeldFitness::Extended;
-		}
-	}
-
-	template<class Scalar>
-	typename TrapezoidalMap<Scalar>::RightWeldConfiguration TrapezoidalMap<Scalar>::getRightWeldConfiguration (Pair _left, Pair _right)
-	{
-		assert (_left.isRightAligned () && _right.isLeftAligned ());
-		RightWeldConfiguration configuration;
-		configuration.split = _right.isSplit ();
-		configuration.bottomFitness = getRightWeldBottomFitness (_left.bottom (), _right.bottom ());
-		configuration.topFitness = getRightWeldTopFitness (_left.top (), _right.top ());
-		return configuration;
-	}
-
-	template<class Scalar>
 	void TrapezoidalMap<Scalar>::weld (Pair _left, Pair _right)
 	{
-		const RightWeldConfiguration rightConfiguration { getRightWeldConfiguration (_left, _right) };
-		switch (getLeftWeldJointType (_left))
+		weld (_left.bottom (), _right, true);
+		weld (_right.bottom (), _left, false);
+		if (_left.isSplit ())
 		{
-			case ELeftWeldJointType::Compact:
+			weld (_left.top (), _right, true);
+		}
+		if (_right.isSplit ())
+		{
+			weld (_right.top (), _left, false);
+		}
+	}
+
+	template<class Scalar>
+	void TrapezoidalMap<Scalar>::weld (Trapezoid &_trapezoid, Pair _neighbors, bool _right)
+	{
+		assert (!_neighbors.isSplit () || _neighbors.isHorizontalSplit ());
+		if (_right)
+		{
+			assert (_neighbors.isLeftAligned ());
+			assert (_trapezoid.rightX () == _neighbors.bottom ().leftX ());
+		}
+		else
+		{
+			assert (_neighbors.isRightAligned ());
+			assert (_trapezoid.leftX () == _neighbors.bottom ().rightX ());
+		}
+		Trapezoid *&upper { _right ? _trapezoid.upperRightNeighbor () : _trapezoid.upperLeftNeighbor () };
+		Trapezoid *&lower { _right ? _trapezoid.lowerRightNeighbor () : _trapezoid.lowerLeftNeighbor () };
+		switch (_right ? _trapezoid.rightSource () : _trapezoid.leftSource ())
+		{
+			case ETrapezoidSideSource::Joint:
+				upper = lower = nullptr;
+				break;
+			case ETrapezoidSideSource::Bottom:
+				if (_trapezoid.top () == _neighbors.top ().top ())
+				{
+					upper = lower = &_neighbors.top ();
+				}
+				else if (_neighbors.isSplit () && _trapezoid.top () == _neighbors.bottom ().top ())
+				{
+					upper = lower = &_neighbors.bottom ();
+				}
+				break;
+			case ETrapezoidSideSource::Top:
+				if (_trapezoid.bottom () == _neighbors.bottom ().bottom ())
+				{
+					upper = lower = &_neighbors.bottom ();
+				}
+				else if (_neighbors.isSplit () && _trapezoid.bottom () == _neighbors.top ().bottom ())
+				{
+					upper = lower = &_neighbors.top ();
+				}
+				break;
+			case ETrapezoidSideSource::External:
 			{
-				if (rightConfiguration.split)
+				const Point &point { _right ? *_trapezoid.right () : *_trapezoid.left () };
+				const Point &(Segment:: * endpoint)() const { _right ? &Segment::p1 : &Segment::p2 };
+				bool (Trapezoid:: * isJoint)() const { _right ? &Trapezoid::isJointLeft : &Trapezoid::isJointRight };
+				if (point == (_neighbors.bottom ().bottom ()->*endpoint) ())
 				{
-					if (rightConfiguration.bottomFitness == ERightWeldFitness::Fit)
+					if (!(_neighbors.bottom ().*isJoint) ())
 					{
-						if (rightConfiguration.topFitness == ERightWeldFitness::Fit)
-						{
-							_left.compact ().setRightNeighbors (&_right.bottom (), &_right.top ());
-							_right.bottom ().setLeftNeighbors (&_left.compact ());
-							_right.top ().setLeftNeighbors (&_left.compact ());
-							return;
-						}
-						else if (rightConfiguration.topFitness == ERightWeldFitness::Extended)
-						{
-							_left.compact ().setRightNeighbors (&_right.bottom (), &_right.top ());
-							_right.bottom ().setLeftNeighbors (&_left.compact ());
-							_right.top ().setLeftNeighbors (&_left.compact ());
-							return;
-						}
+						upper = &_neighbors.bottom ();
 					}
-					else if (rightConfiguration.bottomFitness == ERightWeldFitness::Extended && rightConfiguration.topFitness == ERightWeldFitness::Fit)
+					else if (!(_neighbors.top ().*isJoint) ())
 					{
-						_left.compact ().setRightNeighbors (&_right.bottom (), &_right.top ());
-						_right.bottom ().upperLeftNeighbor () = &_left.compact ();
-						_right.top ().setLeftNeighbors (&_left.compact ());
-						return;
+						upper = &_neighbors.top ();
 					}
 				}
-				else
+				else if (_neighbors.isSplit () && point == (_neighbors.top ().bottom ()->*endpoint) ())
 				{
-					if (rightConfiguration.bottomFitness == ERightWeldFitness::Fit && rightConfiguration.topFitness == ERightWeldFitness::Extended)
+					if (!(_neighbors.bottom ().*isJoint) ())
 					{
-						_left.compact ().setRightNeighbors (&_right.compact ());
-						_right.compact ().lowerLeftNeighbor () = &_left.compact ();
-						return;
+						lower = &_neighbors.bottom ();
 					}
-					else if (rightConfiguration.bottomFitness == ERightWeldFitness::Extended && rightConfiguration.topFitness == ERightWeldFitness::Fit)
+					if (!(_neighbors.top ().*isJoint) ())
 					{
-						_left.compact ().setRightNeighbors (&_right.compact ());
-						_right.compact ().upperLeftNeighbor () = &_left.compact ();
-						return;
+						upper = &_neighbors.top ();
 					}
 				}
-			}
-			break;
-			case ELeftWeldJointType::Split:
-			{
-				if (rightConfiguration.split)
+				else if (point == (_neighbors.top ().top ()->*endpoint) ())
 				{
-					assert (_left.bottom ().top () == _right.bottom ().top () || _left.bottom ().right () == _right.bottom ().left ());
-					if (rightConfiguration.bottomFitness == ERightWeldFitness::Fit)
+					if (!(_neighbors.top ().*isJoint)())
 					{
-						if (rightConfiguration.topFitness == ERightWeldFitness::Fit)
-						{
-							Trapezoid::link (_left.bottom (), _right.bottom ());
-							Trapezoid::link (_left.top (), _right.top ());
-							return;
-						}
-						else if (rightConfiguration.topFitness == ERightWeldFitness::Shrinked)
-						{
-							Trapezoid::link (_left.bottom (), _right.bottom ());
-							_left.top ().lowerRightNeighbor () = &_right.top ();
-							_right.top ().setLeftNeighbors (&_left.top ());
-							return;
-						}
-						else if (rightConfiguration.topFitness == ERightWeldFitness::Extended)
-						{
-							Trapezoid::link (_left.bottom (), _right.bottom ());
-							_left.top ().setRightNeighbors (&_right.top ());
-							_right.top ().lowerLeftNeighbor () = &_left.top ();
-							return;
-						}
-					}
-					else if (rightConfiguration.topFitness == ERightWeldFitness::Fit)
-					{
-						if (rightConfiguration.bottomFitness == ERightWeldFitness::Shrinked)
-						{
-							Trapezoid::link (_left.top (), _right.top ());
-							_left.bottom ().upperRightNeighbor () = &_right.bottom ();
-							_right.bottom ().setLeftNeighbors (&_left.bottom ());
-							return;
-						}
-						else if (rightConfiguration.bottomFitness == ERightWeldFitness::Extended)
-						{
-							Trapezoid::link (_left.top (), _right.top ());
-							_left.bottom ().setRightNeighbors (&_right.bottom ());
-							_right.bottom ().upperLeftNeighbor () = &_left.bottom ();
-							return;
-						}
-					}
-				}
-				else if (rightConfiguration.bottomFitness == ERightWeldFitness::Fit && rightConfiguration.topFitness == ERightWeldFitness::Fit)
-				{
-					_right.compact ().setLeftNeighbors (&_left.bottom (), &_left.top ());
-					_left.bottom ().setRightNeighbors (&_right.compact ());
-					_left.top ().setRightNeighbors (&_right.compact ());
-					return;
-				}
-			}
-			break;
-			case ELeftWeldJointType::JointBottom:
-			{
-				if (!rightConfiguration.split && rightConfiguration.topFitness == ERightWeldFitness::Fit)
-				{
-					switch (rightConfiguration.bottomFitness)
-					{
-						case ERightWeldFitness::Fit:
-						{
-							_left.bottom ().setRightNeighbors (nullptr);
-							Trapezoid::link (_left.top (), _right.compact ());
-							return;
-						}
-						case ERightWeldFitness::Extended:
-						{
-							_left.bottom ().setRightNeighbors (nullptr);
-							_left.top ().setRightNeighbors (&_right.top ());
-							_right.compact ().upperLeftNeighbor () = &_left.top ();
-							return;
-						}
-					}
-				}
-			}
-			break;
-			case ELeftWeldJointType::JointTop:
-			{
-				if (!rightConfiguration.split && rightConfiguration.bottomFitness == ERightWeldFitness::Fit)
-				{
-					switch (rightConfiguration.topFitness)
-					{
-						case ERightWeldFitness::Fit:
-						{
-							_left.top ().setRightNeighbors (nullptr);
-							Trapezoid::link (_left.top (), _right.compact ());
-							return;
-						}
-						case ERightWeldFitness::Extended:
-						{
-							_left.bottom ().setRightNeighbors (&_right.top ());
-							_left.top ().setRightNeighbors (nullptr);
-							_right.compact ().lowerLeftNeighbor () = &_left.bottom ();
-							return;
-						}
+						lower = &_neighbors.top ();
 					}
 				}
 			}
 			break;
 		}
-		assert (false);
 	}
 
 	template<class Scalar>
@@ -279,6 +146,7 @@ namespace GAS
 	template<class Scalar>
 	typename TrapezoidalMap<Scalar>::Pair TrapezoidalMap<Scalar>::splitVertically (Trapezoid &_trapezoid, const Point &_point)
 	{
+		assert (_point.x () > _trapezoid.leftX () && _point.x () < _trapezoid.rightX ());
 		// Create new trapezoids
 		Trapezoid &left { createTrapezoid (_trapezoid) }, &right { createTrapezoid (_trapezoid) };
 		left.right () = right.left () = &_point;
@@ -292,41 +160,114 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	typename TrapezoidalMap<Scalar>::Pair TrapezoidalMap<Scalar>::incrementalSplitHorizontally (Trapezoid &_trapezoid, const Segment &_segment, Pair _previous)
+	typename TrapezoidalMap<Scalar>::Pair TrapezoidalMap<Scalar>::incrementalSplitHorizontally (Trapezoid &_trapezoid, const Segment &_segment, NullablePair _previous)
 	{
-		assert (_previous.isRightAligned ());
+		assert (!_previous || _previous.isRightAligned ());
 		assert (Geometry::areSegmentPointsHorizzontallySorted (_segment));
-		// Create new trapezoids
-		Trapezoid &bottom { createTrapezoid (_trapezoid) }, &top { createTrapezoid (_trapezoid) };
+		// Create new trapezoids or merge left
+		const bool mergeBottom { _previous && _trapezoid.bottom () == _previous.bottom ().bottom () && &_segment == _previous.bottom ().top () };
+		const bool mergeTop { _previous && _trapezoid.top () == _previous.top ().top () && &_segment == _previous.top ().bottom () };
+		Trapezoid &bottom { mergeBottom ? _previous.bottom () : createTrapezoid (_trapezoid) };
+		Trapezoid &top { mergeTop ? _previous.top () : createTrapezoid (_trapezoid) };
 		bottom.top () = top.bottom () = &_segment;
+		bottom.lowerRightNeighbor () = top.lowerRightNeighbor () = _trapezoid.lowerRightNeighbor ();
+		bottom.upperRightNeighbor () = top.upperRightNeighbor () = _trapezoid.upperRightNeighbor ();
+		bottom.right () = top.right () = _trapezoid.right ();
 		// Replace old trapezoid
-		_trapezoid.lowerLeftNeighbor ()->replaceRightNeighbor (&_trapezoid, &bottom);
-		_trapezoid.upperLeftNeighbor ()->replaceRightNeighbor (&_trapezoid, &top);
-		_trapezoid.lowerRightNeighbor ()->replaceLeftNeighbor (&_trapezoid, &bottom);
-		_trapezoid.upperRightNeighbor ()->replaceLeftNeighbor (&_trapezoid, &top);
-		weld (_previous, { bottom, top });
+		if (_trapezoid.lowerLeftNeighbor ())
+			_trapezoid.lowerLeftNeighbor ()->replaceRightNeighbor (&_trapezoid, &bottom);
+		if (_trapezoid.upperLeftNeighbor ())
+			_trapezoid.upperLeftNeighbor ()->replaceRightNeighbor (&_trapezoid, &top);
+		if (_trapezoid.lowerRightNeighbor ())
+			_trapezoid.lowerRightNeighbor ()->replaceLeftNeighbor (&_trapezoid, &bottom);
+		if (_trapezoid.upperRightNeighbor ())
+			_trapezoid.upperRightNeighbor ()->replaceLeftNeighbor (&_trapezoid, &top);
+		assert (!mergeBottom || !mergeTop);
+		if (!mergeBottom && !mergeTop)
+		{
+			if (_previous)
+			{
+				weld (_previous, { bottom, top });
+			}
+		}
+		else if (mergeTop)
+		{
+			weld ({ _previous.bottom (), _previous.bottom () }, { bottom, bottom });
+		}
+		else if (mergeBottom)
+		{
+			weld ({ _previous.top (), _previous.top () }, { top, top });
+		}
 		// Update DAG
-		Pair merged { mergeLeft (bottom), mergeLeft (top) };
-		splitTrapezoid (_trapezoid, _segment, merged.top (), merged.bottom ());
-		return merged;
+		splitTrapezoid (_trapezoid, _segment, top, bottom);
+		return { bottom, top };
 	}
 
 	template<class Scalar>
-	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::mergeLeft (Trapezoid &_trapezoid)
+	void TrapezoidalMap<Scalar>::addSegment (const Segment &_segment)
 	{
-		if (_trapezoid.lowerLeftNeighbor () == _trapezoid.upperLeftNeighbor ())
+		assert (m_root && !m_graph.isEmpty ());
+		assert (std::find (m_segments.begin (), m_segments.end (), Geometry::sortSegmentPointsHorizontally (_segment)) == m_segments.end ());
+		if (_segment.p1 () == _segment.p2 ())
 		{
-			Trapezoid &left { *_trapezoid.lowerLeftNeighbor () };
-			if (left.top () == _trapezoid.top () && left.bottom () == _trapezoid.bottom ())
+			throw std::invalid_argument ("Degenerate segment");
+		}
+		if (!isSegmentInsideBounds (_segment))
+		{
+			throw std::invalid_argument ("Segment is not completely inside bounds");
+		}
+		// Store segment
+		m_segments.push_front (Geometry::sortSegmentPointsHorizontally (_segment));
+		const Segment &segment { m_segments.front () };
+		// Replace
+		{
+			Trapezoid *current;
+			// Left vertical split
 			{
-				left.setRightNeighbors (_trapezoid.lowerRightNeighbor (), _trapezoid.upperRightNeighbor ());
-				left.right () = _trapezoid.right ();
-				_trapezoid.replaceInRightNeighbors (&left);
-				destroyTrapezoid (_trapezoid);
-				return left;
+				Trapezoid &leftmost { findLeftmostIntersectedTrapezoid (segment) };
+				const Point &left { segment.p1 () };
+				assert (left.x () >= leftmost.left ()->x ());
+				if (left.x () > leftmost.left ()->x ())
+				{
+					Pair split { splitVertically (leftmost, left) };
+					current = &split.right ();
+				}
+				else
+				{
+					assert (left.y () == leftmost.left ()->y ());
+					current = &leftmost;
+				}
+			}
+			// Horizontal split
+			{
+				const Point &right { segment.p2 () };
+				NullablePair previous { NullablePair::allOrNone (current->lowerLeftNeighbor (), current->upperLeftNeighbor ()) };
+				NullablePair next { NullablePair::allOrNone (current->lowerRightNeighbor (), current->upperRightNeighbor ()) };
+				while (current && right.x () > current->left ()->x ())
+				{
+					// Split vertically if segment ends inside current trapezoid
+					if (right.x () < current->right ()->x ())
+					{
+						Pair split { splitVertically (*current, right) };
+						current = &split.left ();
+					}
+					// Split horizontally, link trapezoids and find next trapezoid
+					{
+						// Decide whether to proceed splitting in the lower or the upper right neighbor before splitting
+						const bool segmentAboveRight { Geometry::evalLine (segment, current->right ()->x ()) > current->right ()->y () };
+						next = NullablePair::allOrNone (current->lowerRightNeighbor (), current->upperRightNeighbor ());
+						// Split
+						previous = incrementalSplitHorizontally (*current, segment, previous);
+						current = next ? segmentAboveRight ? &next.top () : &next.bottom () : nullptr;
+					}
+				}
+				// Link last trapezoid
+				if (next)
+				{
+					weld (previous, next);
+				}
 			}
 		}
-		return _trapezoid;
 	}
 
 }

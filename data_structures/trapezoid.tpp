@@ -171,6 +171,62 @@ namespace GAS
 	}
 
 	template<class Scalar>
+	bool Trapezoid<Scalar>::isJointRight () const
+	{
+		return m_bottom->p2 () == m_top->p2 ();
+	}
+
+	template<class Scalar>
+	bool Trapezoid<Scalar>::isJointLeft () const
+	{
+		return m_bottom->p1 () == m_top->p1 ();
+	}
+
+	template<class Scalar>
+	ETrapezoidSideSource Trapezoid<Scalar>::leftSource () const
+	{
+		if (isJointLeft ())
+		{
+			assert (*m_left == m_bottom->p1 ());
+			return ETrapezoidSideSource::Joint;
+		}
+		else if (*m_left == m_bottom->p1 ())
+		{
+			return ETrapezoidSideSource::Bottom;
+		}
+		else if (*m_left == m_top->p1 ())
+		{
+			return ETrapezoidSideSource::Top;
+		}
+		else
+		{
+			return ETrapezoidSideSource::External;
+		}
+	}
+
+	template<class Scalar>
+	ETrapezoidSideSource Trapezoid<Scalar>::rightSource () const
+	{
+		if (isJointRight ())
+		{
+			assert (*m_right == m_bottom->p2 ());
+			return ETrapezoidSideSource::Joint;
+		}
+		else if (*m_right == m_bottom->p2 ())
+		{
+			return ETrapezoidSideSource::Bottom;
+		}
+		else if (*m_right == m_top->p2 ())
+		{
+			return ETrapezoidSideSource::Top;
+		}
+		else
+		{
+			return ETrapezoidSideSource::External;
+		}
+	}
+
+	template<class Scalar>
 	void Trapezoid<Scalar>::setLeftNeighbors (Trapezoid *_trapezoid)
 	{
 		m_lowerLeftNeighbor = m_upperLeftNeighbor = _trapezoid;

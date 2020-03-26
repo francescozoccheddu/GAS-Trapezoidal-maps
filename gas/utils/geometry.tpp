@@ -2,7 +2,7 @@
 #define GAS_UTILS_GEOMETRY_IMPL_INCLUDED
 
 #ifndef GAS_UTILS_GEOMETRY_INCLUDED
-#error __FILE__ should not be directly included
+#error 'gas/utils/geometry.tpp' should not be directly included
 #endif
 
 #include "geometry.hpp"

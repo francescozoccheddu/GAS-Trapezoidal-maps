@@ -2,7 +2,7 @@
 #define GAS_DRAWING_TRAPEZOID_BRUSHES_IMPL_INCLUDED
 
 #ifndef GAS_DRAWING_TRAPEZOID_BRUSHES_INCLUDED
-#error __FILE__ should not be directly included
+#error 'gas/drawing/trapezoid_brushes.tpp' should not be directly included
 #endif
 
 

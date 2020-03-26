@@ -2,7 +2,7 @@
 #define GAS_DRAWING_TRAPEZOIDAL_MAP_DRAWER_IMPL_INCLUDED
 
 #ifndef GAS_DRAWING_TRAPEZOIDAL_MAP_DRAWER_INCLUDED
-#error __FILE__ should not be directly included
+#error 'gas/drawing/trapezoidal_map_drawer.tpp' should not be directly included
 #endif
 
 #include "trapezoidal_map_drawer.hpp"

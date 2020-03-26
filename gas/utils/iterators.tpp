@@ -2,7 +2,7 @@
 #define GAS_UTILS_ITERATORS_IMPL_INCLUDED
 
 #ifndef GAS_UTILS_ITERATORS_INCLUDED
-#error __FILE__ should not be directly included
+#error 'gas/utils/iterators.tpp' should not be directly included
 #endif
 
 #include "iterators.hpp"

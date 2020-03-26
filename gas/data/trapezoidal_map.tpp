@@ -2,7 +2,7 @@
 #define GAS_DATA_TRAPEZOIDAL_MAP_IMPL_INCLUDED
 
 #ifndef GAS_DATA_TRAPEZOIDAL_MAP_INCLUDED
-#error __FILE__ should not be directly included
+#error 'gas/data/trapezoidal_map.tpp' should not be directly included
 #endif
 
 #include "trapezoidal_map.hpp"

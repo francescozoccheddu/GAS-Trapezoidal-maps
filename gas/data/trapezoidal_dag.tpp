@@ -2,7 +2,7 @@
 #define GAS_DATA_TRAPEZOIDAL_DAG_IMPL_INCLUDED
 
 #ifndef GAS_DATA_TRAPEZOIDAL_DAG_INCLUDED
-#error __FILE__ should not be directly included
+#error 'gas/data/trapezoidal_dag.tpp' should not be directly included
 #endif
 
 #include "trapezoidal_dag.hpp"

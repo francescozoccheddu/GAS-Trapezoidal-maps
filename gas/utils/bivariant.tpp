@@ -2,7 +2,7 @@
 #define GAS_UTILS_BIVARIANT_IMPL_INCLUDED
 
 #ifndef GAS_UTILS_BIVARIANT_INCLUDED
-#error __FILE__ should not be directly included
+#error 'gas/utils/bivariant.tpp' should not be directly included
 #endif
 
 #include "bivariant.hpp"

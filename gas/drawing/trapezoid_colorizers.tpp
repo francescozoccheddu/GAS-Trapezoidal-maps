@@ -2,7 +2,7 @@
 #define GAS_DRAWING_TRAPEZOID_COLORIZERS_IMPL_INCLUDED
 
 #ifndef GAS_DRAWING_TRAPEZOID_COLORIZERS_INCLUDED
-#error __FILE__ should not be directly included
+#error 'gas/drawing/trapezoid_colorizers.tpp' should not be directly included
 #endif
 
 #include "trapezoid_colorizers.hpp"

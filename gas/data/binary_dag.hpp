@@ -1,3 +1,7 @@
+/// Binary directed acyclic graph data structures and utils.
+/// \file
+/// \author Francesco Zoccheddu
+ 
 #ifndef GAS_DATA_BINARY_DAG_INCLUDED
 #define GAS_DATA_BINARY_DAG_INCLUDED
 
@@ -6,25 +10,54 @@
 namespace GAS
 {
 
+	/// Binary directed acyclic graph data structures and utils.
 	namespace BDAG
 	{
 
 		template<class Data>
 		class Graph;
 
+		/// Binary directed acyclic graph node.
+		/// Can be a leaf or an inner node with two valid children nodes, the \e left child and the \e right child.
+		/// Can only be created by a \ref Graph "graph" object.
+		/// Should only be used with the \ref Graph "graph" object that created it.
+		/// Cannot be copied or assigned and should only be used through pointers or references.
+		/// \tparam Data 
+		/// The data type.
 		template<class Data>
 		class Node final
 		{
 
 			friend class Graph<Data>;
 
+			/// User data.
 			Data m_data {};
-			Node *m_previous {}, *m_next {}; // Intrusive linked list pointers
+
+			/// Intrusive linked list pointers for the other nodes in the parent \ref Graph "graph". 
+			Node *m_previous {}, *m_next {};
+
+			/// Flag indicating whether the node is a leaf.
 			bool m_leaf { true };
+
+			/// Pointers to the children nodes or intrusive linked list pointers to the other leaf nodes in the parent \ref Graph "graph" if the node is leaf node.
 			Node *m_left {}, *m_right {};
 
+			/// Construct a leaf node.
+			/// The user data is initialized by calling its default constructor.
+			/// \pre
+			/// \p Data type must be default constructible.
 			Node () = default;
+
+			/// Construct a leaf node with \p data as the user data.
+			/// The user data is copied by calling its copy constructor.
+			/// \pre
+			/// \p Data type must be copy constructible.
 			explicit Node (const Data &data);
+
+			/// Construct a leaf node with \p data as the user data.
+			/// The user data is moved by calling its move constructor.
+			/// \pre
+			/// \p Data type must be move constructible.
 			explicit Node (Data &&data);
 
 			~Node () = default;
@@ -37,87 +70,325 @@ namespace GAS
 
 		public:
 
+			/// Get the Node containing the specified user data \p data.
+			/// \pre 
+			/// \p Data type must be a standard layout type.
+			/// \param[in] data
+			/// An object obtained through \ref Node#data data() methods.
+			/// \return
+			/// The Node holding \p data.
 			static const Node &from (const Data &data);
+
+			/// \copydoc from 
 			static Node &from (Data &data);
 
+			/// \return 
+			/// \c true if the node is a leaf, \c false otherwise.
 			bool isLeaf () const;
+			
+			/// \return
+			/// The user data.
 			const Data &data () const;
+
+			/// \copydoc data
 			const Data &operator *() const;
+
+			/// \copydoc data
 			const Data *operator ->() const;
+			
+			/// \copydoc data
+			Data &data ();
+			
+			/// \copydoc data
+			Data &operator *();
+			
+			/// \copydoc data
+			Data *operator ->();
+
+			/// \pre 
+			/// The node must be an inner node.
+			/// \return 
+			/// The left children node.
 			const Node &left () const;
+
+			/// \copydoc left
+			Node &left ();
+
+			/// \pre
+			/// The node must be an inner node.
+			/// \return
+			/// The right children node.
 			const Node &right () const;
 
-			Data &data ();
-			Data &operator *();
-			Data *operator ->();
-			Node &left ();
+			/// \copydoc right
 			Node &right ();
 
 		};
 
+		
+		/// Binary directed acyclic graph.
+		/// Allows to create and modify leaf and inner \ref Node "nodes" and keeps track of them, 
+		/// providing easy copy, move, deletion and iteration through all nodes or through leaves.
+		/// \tparam Data 
+		/// The data type to store in the nodes.
 		template<class Data>
 		class Graph
 		{
 			using Node = Node<Data>;
 
+			/// Pointers to the active nodes, for iteration.
 			Node *m_firstNode {}, *m_lastNode {}, *m_firstLeafNode {}, *m_lastLeafNode {};
+
+			/// Number of active (created and not yet destroyed) nodes.
 			int m_nodesCount {}, m_leafNodesCount {};
 
+			/// Add \p node to the list of the active nodes.
+			/// \pre
+			/// \p node must not be already registered in the list of the active nodes.
+			/// \param[in] node	
+			/// The node to register.
 			void registerNode (Node &node);
+
+			/// Add \p node to the list of the active leaf nodes.
+			/// \pre 
+			/// \p node must not be already registered in the list of the active leaf nodes.
+			/// \pre 
+			/// \p node must be a leaf.
+			/// \param[in] node	
+			/// The node to register.
 			void registerLeaf (Node &node);
+
+			/// Remove \p node from the list of the active nodes.
+			/// \pre 
+			/// \p node must be registered in the list of the active nodes.
+			/// \param[in] node 
+			/// The node to unregister.
 			void unregisterNode (Node &node);
+
+			/// Remove \p node from the list of active nodes.
+			/// \pre 
+			/// \p node must be a leaf.
+			/// \pre 
+			/// \p node must be registered in the list of the active leaf nodes.
+			/// \param[in] node 
+			/// The node to unregister.
 			void unregisterLeaf (Node &node);
 
 		public:
 
+			/// Nodes iterator
 			using ConstNodeIterator = Utils::IntrusiveListIterator<const Node, &Node::m_previous, &Node::m_next>;
-			using NodeIterator = Utils::IntrusiveListIterator<Node, &Node::m_previous, &Node::m_next>;
-			using ConstLeafNodeIterator = Utils::IntrusiveListIterator<const Node, &Node::m_left, &Node::m_right>;
-			using LeafNodeIterator = Utils::IntrusiveListIterator<Node, &Node::m_left, &Node::m_right>;
 
+			/// \copydoc ConstNodeIterator
+			using NodeIterator = Utils::IntrusiveListIterator<Node, &Node::m_previous, &Node::m_next>;
+
+			/// Leaf nodes iterator
+			using ConstLeafNodeIterator = Utils::IntrusiveListIterator<const Node, &Node::m_left, &Node::m_right>;
+			
+			/// \copydoc ConstLeafNodeIterator
+			using LeafNodeIterator = Utils::IntrusiveListIterator<Node, &Node::m_left, &Node::m_right>;
+			
+			/// Construct an empty graph.
 			Graph () = default;
+
+			/// Clone an existing graph.
+			/// Each node data is copied by calling its copy constructor.
+			/// \pre 
+			/// \p Data type must be copy constructible.
+			/// \param[in] copy 
+			/// The graph to clone.
 			Graph (const Graph &copy);
+
+			/// Move an existing graph.
+			/// Each node data is moved by calling its move constructor.
+			/// After calling this constructor, \p moved is empty and valid.
+			/// \pre 
+			/// \p Data type must be move constructible.
+			/// \param[in] moved 
+			/// The graph to move and clear.
 			Graph (Graph &&moved);
 
+			/// \see 
+			/// Graph#clear.
 			~Graph ();
 
+			/// Clear the active nodes and clone an existing graph.
+			/// Each node data is copied by calling its copy assignment operator.
+			/// \pre 
+			/// \p Data type must be copy assignable.
+			/// \param[in] 
+			/// copy The graph to clone.
 			Graph &operator =(const Graph &copy);
+
+			/// Clear the active nodes and move an existing graph.
+			/// Each node data is moved by calling its move assignment operator.
+			/// After calling this constructor, \p moved is empty and valid.
+			/// \pre 
+			/// \p Data type must be move assignable.
+			/// \param[in] copy 
+			/// The graph to move and clear.
 			Graph &operator =(Graph &&moved);
 
+			/// \return 
+			/// \c true if the graph is empty, \c false otherwise.
 			bool isEmpty () const;
+			
+			/// \return 
+			/// The number of active (created and not yet destroyed) nodes.
 			int nodesCount () const;
+
+			/// \return 
+			/// The number of active (created and not yet destroyed) leaf nodes.
 			int leafNodesCount () const;
+
+			/// \return 
+			/// The number of active (created and not yet destroyed) inner nodes.
 			int innerNodesCount () const;
 
+			/// Create a leaf node.
+			/// The node data is initialized by calling its default constructor.
+			/// \pre 
+			/// \p Data type must be default constructible.
+			/// \return 
+			/// The created node.
 			Node &createLeaf ();
+
+			/// Create a leaf node with \p data as the user data.
+			/// The node data is initialized by calling its copy constructor.
+			/// \pre 
+			/// \p Data type must be copy constructible.
+			/// \params 
+			/// data The node data to clone.
+			/// \return 
+			/// The created node.
 			Node &createLeaf (const Data &data);
+
+			/// Create a leaf node with \p data as the user data.
+			/// The node data is initialized by calling its move constructor.
+			/// \pre 
+			/// \p Data type must be move constructible.
+			/// \params 
+			/// data The node data to move.
+			/// \return 
+			/// The created node.
 			Node &createLeaf (Data &&data);
+
+			/// Create an inner node.
+			/// The node data is initialized by calling its default constructor.
+			/// \pre 
+			/// \p Data type must be default constructible.
+			/// \pre 
+			/// \p left and \p right must have been created by this graph.
+			/// \param[in] left 
+			/// The left children node.
+			/// \param[in] right 
+			/// The right children node.
+			/// \return 
+			/// The created node.
 			Node &createInner (Node &left, Node &right);
+
+			/// Create an inner node with \p data as the user data.
+			/// The node data is initialized by calling its copy constructor.
+			/// \pre 
+			/// \p Data type must be copy constructible.
+			/// \pre 
+			/// \p left and \p right must have been created by this graph.
+			/// \param[in] data 
+			/// The node data to clone.
+			/// \param[in] left 
+			/// The left children node.
+			/// \param[in] right 
+			/// The right children node.
+			/// \return 
+			/// The created node.
 			Node &createInner (const Data &data, Node &left, Node &right);
+			
+			/// Create an inner node with \p data as the user data.
+			/// The node data is initialized by calling its move constructor.
+			/// \pre 
+			/// \p Data type must be move constructible.
+			/// \pre 
+			/// \p left and \p right must have been created by this graph.
+			/// \param[in] data 
+			/// The node data to move.
+			/// \param[in] left 
+			/// The left children node.
+			/// \param[in] right 
+			/// The right children node.
+			/// \return 
+			/// The created node.
 			Node &createInner (Data &&data, Node &left, Node &right);
 
+			/// Make \p node a leaf.
+			/// \remark 
+			/// Eventual \p node children will \e not be destroyed.
+			/// \param[in] node 
+			/// The node to set.
 			void setLeaf (Node &node);
+
+			/// Make \p node an inner node.
+ 			/// \pre 
+			/// \p left and \p right must have been created by this graph.
+			/// \param[in] left 
+			/// The left children node.
+			/// \param[in] right 
+			/// The right children node.
+			/// \param[in] node 
+			/// The node to set.
 			void setInner (Node &node, Node &left, Node &right);
 
+			/// Delete the node \p node making it unusable.
+			/// \remark 
+			/// Eventual inner nodes having \p node as children will \e not be automatically updated.
+			/// \param[in] node 
+			/// The node to destroy.
 			void destroyNode (Node &node);
-
+			
+			/// Deletes all the active nodes.
 			void clear ();
 
+			/// \remark 
+			/// The iteration follows the order of creation of the nodes.
+			/// \return 
+			/// An object that allows to iterate through all the active nodes.
 			typename ConstNodeIterator::Iterable nodes () const;
+			
+			/// \copydoc nodes
 			typename NodeIterator::Iterable nodes ();
+
+			/// \remark 
+			/// The iteration follows the order in which the nodes are created or became leaves for the last time.
+			/// \return 
+			/// An object that allows to iterate through all the active leaf nodes.
 			typename ConstLeafNodeIterator::Iterable leafNodes () const;
+
+			/// \copydoc leafNodes
 			typename LeafNodeIterator::Iterable leafNodes ();
 
 		};
 
+		/// Left or right children of a node.
 		enum class EChild
 		{
-			Left, Right
+			Left,	///< Left children 
+			Right  	///< Right children 
 		};
-
+		
+		/// Convenience function for walking from \p root to some leaf.
+		/// \tparam 
+		/// Data The node data type.
+		/// \tparam Walker 
+		/// Any type that can be called with a \p Data parameter and returns an \ref EChild.
+		/// \param[in] root 
+		/// The starting node.
+		/// \param[in] walker 
+		/// A callable object that decides whether to continue walking through the left or the right child.
+		/// \return 
+		/// The reached leaf node.
 		template<class Data, class Walker>
 		const Node<Data> &walk (const Node<Data> &root, Walker walker);
-
+		
+		/// \copydoc walk
 		template<class Data, class Walker>
 		Node<Data> &walk (Node<Data> &root, Walker walker);
 

@@ -63,20 +63,6 @@ namespace GAS
 		}
 
 		template<class Data>
-		const Node<Data> &Node<Data>::left () const
-		{
-			assert (!isLeaf ());
-			return *m_left;
-		}
-
-		template<class Data>
-		const Node<Data> &Node<Data>::right () const
-		{
-			assert (!isLeaf ());
-			return *m_right;
-		}
-
-		template<class Data>
 		Data &Node<Data>::data ()
 		{
 			return m_data;
@@ -95,10 +81,24 @@ namespace GAS
 		}
 
 		template<class Data>
+		const Node<Data> &Node<Data>::left () const
+		{
+			assert (!isLeaf ());
+			return *m_left;
+		}
+
+		template<class Data>
 		Node<Data> &Node<Data>::left ()
 		{
 			assert (!isLeaf ());
 			return *m_left;
+		}
+
+		template<class Data>
+		const Node<Data> &Node<Data>::right () const
+		{
+			assert (!isLeaf ());
+			return *m_right;
 		}
 
 		template<class Data>

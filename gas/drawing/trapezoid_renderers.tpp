@@ -8,7 +8,7 @@
 #include "trapezoid_renderers.hpp"
 
 #include <stdexcept>
-#include <qstring>
+#include <QString>
 #include <type_traits>
 
 /*

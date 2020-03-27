@@ -4,7 +4,9 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QString>
 
+#include <stdexcept>
 #include <ctime>
 #include <cg3/data_structures/arrays/arrays.h>
 #include <cg3/utilities/timer.h>
@@ -98,7 +100,20 @@ TrapezoidalMapManager::~TrapezoidalMapManager()
  */
 void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& segment)
 {
-	m_trapezoidalMap.addSegment (segment);
+	try
+	{
+		m_trapezoidalMap.addSegment (segment);
+	}
+	catch (const std::invalid_argument & exception)
+	{
+		QMessageBox::warning (this, "Cannot insert segment",
+			QString { "Exception while inserting segment ((%1, %2), (%3, %4)):\n\"%5\".\nSegment will be ignored." }
+			.arg (segment.p1 ().x ())
+			.arg (segment.p1 ().y ())
+			.arg (segment.p2 ().x ())
+			.arg (segment.p2 ().y ())
+			.arg (exception.what ()));
+	}
 }
 
 /**

@@ -126,6 +126,10 @@ namespace GAS
 					if (splitLeft.y () == left.y ())
 					{
 						// If two segments share the same left point
+						if (_segment == splitSegment)
+						{
+							throw std::invalid_argument ("Duplicate segments are illegal");
+						}
 						switch (Geometry::getPointSideWithSegment (splitSegment, right))
 						{
 							default:

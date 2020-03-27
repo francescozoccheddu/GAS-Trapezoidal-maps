@@ -74,7 +74,6 @@ namespace GAS
 		*/
 		Segment m_bottom, m_top;
 
-		const Node &root () const;
 		Node &root ();
 
 		void destroy ();
@@ -99,6 +98,8 @@ namespace GAS
 
 		TrapezoidalMap &operator =(const TrapezoidalMap &copy) = default;
 		TrapezoidalMap &operator =(TrapezoidalMap &&moved);
+
+		const Node &root () const;
 
 		// Trapezoids
 		int trapezoidsCount () const;

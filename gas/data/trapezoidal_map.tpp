@@ -87,12 +87,6 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	const TDAG::Node<Scalar> &TrapezoidalMap<Scalar>::root () const
-	{
-		return *m_graph.nodes ().begin ();
-	}
-
-	template<class Scalar>
 	TDAG::Node<Scalar> &TrapezoidalMap<Scalar>::root ()
 	{
 		return *m_graph.nodes ().begin ();
@@ -168,6 +162,12 @@ namespace GAS
 		m_graph = std::move (_moved.m_graph);
 		m_segments = std::move (_moved.m_segments);
 		_moved.clear ();
+	}
+
+	template<class Scalar>
+	const TDAG::Node<Scalar> &TrapezoidalMap<Scalar>::root () const
+	{
+		return *m_graph.nodes ().begin ();
 	}
 
 	template<class Scalar>

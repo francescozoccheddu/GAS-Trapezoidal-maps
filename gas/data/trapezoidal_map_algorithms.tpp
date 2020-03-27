@@ -210,77 +210,57 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::addSegment (const Segment &_segment)
+	void TrapezoidalMap<Scalar>::addValidSegment (const Segment &_segment)
 	{
-		assert (!m_graph.isEmpty ());
-		if (_segment.p1 () == _segment.p2 ())
-		{
-			throw std::invalid_argument ("Degenerate segment");
-		}
-		if (!isSegmentInsideBounds (_segment))
-		{
-			throw std::invalid_argument ("Segment is not completely inside bounds");
-		}
+		assert (Geometry::areSegmentPointsHorizzontallySorted (_segment));
+		Trapezoid &firstTrapezoid { findLeftmostIntersectedTrapezoid (_segment) };
 		// Store segment
-		m_segments.push_front (Geometry::sortSegmentPointsHorizontally (_segment));
+		m_segments.push_front (_segment);
 		const Segment &segment { m_segments.front () };
-		// Replace
+		// Split
+		Trapezoid *current;
+		// Left vertical split
 		{
-			Trapezoid *current;
-			// Left vertical split
+			const Point &left { segment.p1 () };
+			assert (left.x () >= firstTrapezoid.left ()->x ());
+			if (left.x () > firstTrapezoid.left ()->x ())
 			{
-				Trapezoid *leftmost;
-				try
+				Pair split { splitVertically (firstTrapezoid, left) };
+				current = &split.right ();
+			}
+			else
+			{
+				assert (left.y () == firstTrapezoid.left ()->y ());
+				current = &firstTrapezoid;
+			}
+		}
+		// Horizontal split
+		{
+			const Point &right { segment.p2 () };
+			NullablePair previous { NullablePair::allOrNone (current->lowerLeftNeighbor (), current->upperLeftNeighbor ()) };
+			NullablePair next { NullablePair::allOrNone (current->lowerRightNeighbor (), current->upperRightNeighbor ()) };
+			while (current && right.x () > current->left ()->x ())
+			{
+				// Split vertically if segment ends inside current trapezoid
+				if (right.x () < current->right ()->x ())
 				{
-					leftmost = &findLeftmostIntersectedTrapezoid (segment);
+					Pair split { splitVertically (*current, right) };
+					current = &split.left ();
 				}
-				catch (const std::invalid_argument &)
+				// Split horizontally and find the next trapezoid
 				{
-					// Remove the invalid segment
-					m_segments.pop_front ();
-					throw;
-				}
-				const Point &left { segment.p1 () };
-				assert (left.x () >= leftmost->left ()->x ());
-				if (left.x () > leftmost->left ()->x ())
-				{
-					Pair split { splitVertically (*leftmost, left) };
-					current = &split.right ();
-				}
-				else
-				{
-					assert (left.y () == leftmost->left ()->y ());
-					current = leftmost;
+					// Decide whether to proceed splitting in the lower or the upper right neighbor before splitting
+					const bool segmentAboveRight { Geometry::evalLine (segment, current->right ()->x ()) > current->right ()->y () };
+					next = NullablePair::allOrNone (current->lowerRightNeighbor (), current->upperRightNeighbor ());
+					// Split
+					previous = incrementalSplitHorizontally (*current, segment, previous);
+					current = next ? segmentAboveRight ? &next.top () : &next.bottom () : nullptr;
 				}
 			}
-			// Horizontal split
+			// Link last trapezoid
+			if (next)
 			{
-				const Point &right { segment.p2 () };
-				NullablePair previous { NullablePair::allOrNone (current->lowerLeftNeighbor (), current->upperLeftNeighbor ()) };
-				NullablePair next { NullablePair::allOrNone (current->lowerRightNeighbor (), current->upperRightNeighbor ()) };
-				while (current && right.x () > current->left ()->x ())
-				{
-					// Split vertically if segment ends inside current trapezoid
-					if (right.x () < current->right ()->x ())
-					{
-						Pair split { splitVertically (*current, right) };
-						current = &split.left ();
-					}
-					// Split horizontally, link trapezoids and find next trapezoid
-					{
-						// Decide whether to proceed splitting in the lower or the upper right neighbor before splitting
-						const bool segmentAboveRight { Geometry::evalLine (segment, current->right ()->x ()) > current->right ()->y () };
-						next = NullablePair::allOrNone (current->lowerRightNeighbor (), current->upperRightNeighbor ());
-						// Split
-						previous = incrementalSplitHorizontally (*current, segment, previous);
-						current = next ? segmentAboveRight ? &next.top () : &next.bottom () : nullptr;
-					}
-				}
-				// Link last trapezoid
-				if (next)
-				{
-					weld (previous, next);
-				}
+				weld (previous, next);
 			}
 		}
 	}

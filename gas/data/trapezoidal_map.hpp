@@ -88,6 +88,7 @@ namespace GAS
 
 		Pair splitVertically (Trapezoid &trapezoid, const Point &point);
 		Pair incrementalSplitHorizontally (Trapezoid &trapezoid, const Segment &segment, NullablePair previous);
+		void addValidSegment (const Segment &segment);
 
 	public:
 
@@ -123,9 +124,9 @@ namespace GAS
 		bool isPointInsideBounds (const Point &point) const;
 
 		// Segments
-		void clear ();
-		void addSegment (const Segment &segment);
 		const std::forward_list<Segment> &segments () const;
+		void addSegment (const Segment &segment);
+		void clear ();
 
 	};
 

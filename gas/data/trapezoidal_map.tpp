@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <cassert>
 #include <utility>
+#include <gas/utils/geometry.hpp>
 
 namespace GAS
 {
@@ -286,16 +287,38 @@ namespace GAS
 	}
 
 	template<class Scalar>
+	const std::forward_list<Segment<Scalar>> &TrapezoidalMap<Scalar>::segments () const
+	{
+		return m_segments;
+	}
+
+	template<class Scalar>
+	void TrapezoidalMap<Scalar>::addSegment (const Segment &_segment)
+	{
+		assert (!m_graph.isEmpty ());
+		if (_segment.p1 ().x () == _segment.p2 ().x ())
+		{
+			if (_segment.p1 ().y () == _segment.p2 ().y ())
+			{
+				throw std::invalid_argument ("Degenerate segments are illegal");
+			}
+			else
+			{
+				throw std::invalid_argument ("Vertical segments are illegal");
+			}
+		}
+		if (!isSegmentInsideBounds (_segment))
+		{
+			throw std::invalid_argument ("Segment is not completely inside bounds");
+		}
+		addValidSegment (Geometry::sortSegmentPointsHorizontally (_segment));
+	}
+
+	template<class Scalar>
 	void TrapezoidalMap<Scalar>::clear ()
 	{
 		destroy ();
 		initialize ();
-	}
-
-	template<class Scalar>
-	const std::forward_list<Segment<Scalar>> &TrapezoidalMap<Scalar>::segments () const
-	{
-		return m_segments;
 	}
 
 }

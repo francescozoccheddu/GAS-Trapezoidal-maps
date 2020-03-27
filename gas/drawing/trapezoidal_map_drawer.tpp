@@ -34,16 +34,16 @@ namespace GAS
 			}
 
 			int i {};
-			m_brush->beforeDraw (*m_map);
+			m_renderer->beforeDraw (*m_map);
 
 			for (const Trapezoid<Scalar> &t : *m_map)
 			{
 				Color color { m_colorizer->provideColor (*m_map, i, t) };
-				m_brush->draw (*m_map, i, t, color);
+				m_renderer->draw (*m_map, i, t, color);
 				i++;
 			}
 
-			m_brush->afterDraw (*m_map);
+			m_renderer->afterDraw (*m_map);
 
 #ifdef GAS_DRAWING_RESTORE_GL_STATE
 			glPopAttrib ();
@@ -70,7 +70,7 @@ namespace GAS
 		void TrapezoidalMapDrawer<Scalar>::ensureValid () const
 		{
 			ensureValidMap ();
-			if (!m_brush)
+			if (!m_renderer)
 			{
 				throw std::domain_error ("Painter cannot be null");
 			}
@@ -90,8 +90,8 @@ namespace GAS
 		}
 
 		template<class Scalar>
-		TrapezoidalMapDrawer<Scalar>::TrapezoidalMapDrawer (const TrapezoidalMap<Scalar> &_map, TrapezoidColorizer<Scalar> &_colorizer, TrapezoidBrush<Scalar> &_brush)
-			: m_map { &_map }, m_colorizer { &_colorizer }, m_brush { &_brush }
+		TrapezoidalMapDrawer<Scalar>::TrapezoidalMapDrawer (const TrapezoidalMap<Scalar> &_map, TrapezoidColorizer<Scalar> &_colorizer, TrapezoidRenderer<Scalar> &_renderer)
+			: m_map { &_map }, m_colorizer { &_colorizer }, m_renderer { &_renderer }
 		{}
 
 		template<class Scalar>
@@ -119,15 +119,15 @@ namespace GAS
 		}
 
 		template<class Scalar>
-		const typename TrapezoidBrush<Scalar> *TrapezoidalMapDrawer<Scalar>::brush () const
+		const typename TrapezoidRenderer<Scalar> *TrapezoidalMapDrawer<Scalar>::renderer () const
 		{
-			return m_brush;
+			return m_renderer;
 		}
 
 		template<class Scalar>
-		typename TrapezoidBrush<Scalar> *&TrapezoidalMapDrawer<Scalar>::brush ()
+		typename TrapezoidRenderer<Scalar> *&TrapezoidalMapDrawer<Scalar>::renderer ()
 		{
-			return m_brush;
+			return m_renderer;
 		}
 
 	}

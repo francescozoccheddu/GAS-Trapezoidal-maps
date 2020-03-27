@@ -7,7 +7,7 @@
 #include <cg3/geometry/point3.h>
 #include <gas/drawing/color.hpp>
 #include <gas/drawing/trapezoid_colorizers.hpp>
-#include <gas/drawing/trapezoid_brushes.hpp>
+#include <gas/drawing/trapezoid_renderers.hpp>
 
 namespace GAS
 {
@@ -21,7 +21,7 @@ namespace GAS
 
 			const TrapezoidalMap<Scalar> *m_map {};
 			TrapezoidColorizer<Scalar> *m_colorizer {};
-			TrapezoidBrush<Scalar> *m_brush {};
+			TrapezoidRenderer<Scalar> *m_renderer {};
 
 		protected:
 
@@ -35,7 +35,7 @@ namespace GAS
 		public:
 
 			TrapezoidalMapDrawer () = default;
-			TrapezoidalMapDrawer (const TrapezoidalMap<Scalar> &map, TrapezoidColorizer<Scalar> &colorizer, TrapezoidBrush<Scalar> &brush);
+			TrapezoidalMapDrawer (const TrapezoidalMap<Scalar> &map, TrapezoidColorizer<Scalar> &colorizer, TrapezoidRenderer<Scalar> &renderer);
 
 			virtual ~TrapezoidalMapDrawer () = default;
 
@@ -43,8 +43,8 @@ namespace GAS
 			const TrapezoidalMap<Scalar> *&trapezoidalMap ();
 			const TrapezoidColorizer<Scalar> *colorizer () const;
 			TrapezoidColorizer<Scalar> *&colorizer ();
-			const TrapezoidBrush<Scalar> *brush () const;
-			TrapezoidBrush<Scalar> *&brush ();
+			const TrapezoidRenderer<Scalar> *renderer () const;
+			TrapezoidRenderer<Scalar> *&renderer ();
 
 		};
 

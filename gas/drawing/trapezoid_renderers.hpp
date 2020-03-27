@@ -1,5 +1,5 @@
-#ifndef GAS_DRAWING_TRAPEZOID_BRUSHES_INCLUDED
-#define GAS_DRAWING_TRAPEZOID_BRUSHES_INCLUDED
+#ifndef GAS_DRAWING_TRAPEZOID_RENDERERS_INCLUDED
+#define GAS_DRAWING_TRAPEZOID_RENDERERS_INCLUDED
 
 #include <gas/data/trapezoidal_map.hpp>
 #include <gas/data/trapezoid.hpp>
@@ -18,7 +18,7 @@ namespace GAS
 		class TrapezoidalMapDrawer;
 
 		template<class Scalar>
-		class TrapezoidBrush
+		class TrapezoidRenderer
 		{
 
 			friend class TrapezoidalMapDrawer<Scalar>;
@@ -31,15 +31,15 @@ namespace GAS
 
 		public:
 
-			virtual ~TrapezoidBrush () = default;
+			virtual ~TrapezoidRenderer () = default;
 
 		};
 
-		namespace TrapezoidBrushes
+		namespace TrapezoidRenderers
 		{
 
 			template<class Scalar>
-			class Stroke final : public TrapezoidBrush<Scalar>
+			class Stroke final : public TrapezoidRenderer<Scalar>
 			{
 
 			private:
@@ -63,7 +63,7 @@ namespace GAS
 			};
 
 			template<class Scalar>
-			class Fill final : public TrapezoidBrush<Scalar>
+			class Fill final : public TrapezoidRenderer<Scalar>
 			{
 
 			protected:
@@ -75,7 +75,7 @@ namespace GAS
 			};
 
 			template<class Scalar>
-			class Text final : public TrapezoidBrush<Scalar>
+			class Text final : public TrapezoidRenderer<Scalar>
 			{
 
 			private:
@@ -120,6 +120,6 @@ namespace GAS
 
 }
 
-#include "trapezoid_brushes.tpp"
+#include "trapezoid_renderers.tpp"
 
 #endif

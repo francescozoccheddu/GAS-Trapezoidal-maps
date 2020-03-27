@@ -1,12 +1,11 @@
-#ifndef GAS_DRAWING_TRAPEZOID_BRUSHES_IMPL_INCLUDED
-#define GAS_DRAWING_TRAPEZOID_BRUSHES_IMPL_INCLUDED
+#ifndef GAS_DRAWING_TRAPEZOID_RENDERERS_IMPL_INCLUDED
+#define GAS_DRAWING_TRAPEZOID_RENDERERS_IMPL_INCLUDED
 
-#ifndef GAS_DRAWING_TRAPEZOID_BRUSHES_INCLUDED
-#error 'gas/drawing/trapezoid_brushes.tpp' should not be directly included
+#ifndef GAS_DRAWING_TRAPEZOID_RENDERERS_INCLUDED
+#error 'gas/drawing/trapezoid_renderers.tpp' should not be directly included
 #endif
 
-
-#include "trapezoid_brushes.hpp"
+#include "trapezoid_renderers.hpp"
 
 #include <stdexcept>
 #include <qstring>
@@ -71,14 +70,14 @@ namespace GAS
 		}
 
 		template<class Scalar>
-		void TrapezoidBrush<Scalar>::beforeDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
+		void TrapezoidRenderer<Scalar>::beforeDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 		{}
 
 		template<class Scalar>
-		void TrapezoidBrush<Scalar>::afterDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
+		void TrapezoidRenderer<Scalar>::afterDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 		{}
 
-		namespace TrapezoidBrushes
+		namespace TrapezoidRenderers
 		{
 
 			template<class Scalar>

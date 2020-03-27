@@ -71,14 +71,14 @@ private:
 	GAS::Drawing::TrapezoidColorizers::Rainbow<Scalar> m_trapezoidSelectionFillColorizer { 1.0f, 1.0f, 0.25f };
 	GAS::Drawing::TrapezoidColorizers::Rainbow<Scalar> m_trapezoidTextColorizer { 0.9f, 0.5f };
 	GAS::Drawing::TrapezoidColorizers::Selector<Scalar> m_trapezoidSelectorFillColorizer { m_trapezoidNormalFillColorizer, m_trapezoidSelectionFillColorizer };
-	// Brushes
-	GAS::Drawing::TrapezoidBrushes::Stroke<Scalar> m_trapezoidStrokeBrush { 2 };
-	GAS::Drawing::TrapezoidBrushes::Fill<Scalar> m_trapezoidFillBrush {};
-	GAS::Drawing::TrapezoidBrushes::Text<Scalar> m_trapezoidTextBrush { mainWindow.canvas };
+	// Renderers
+	GAS::Drawing::TrapezoidRenderers::Stroke<Scalar> m_trapezoidStrokeRenderer { 2 };
+	GAS::Drawing::TrapezoidRenderers::Fill<Scalar> m_trapezoidFillRenderer {};
+	GAS::Drawing::TrapezoidRenderers::Text<Scalar> m_trapezoidTextRenderer { mainWindow.canvas };
 	// Drawers
-	GAS::Drawing::TrapezoidalMapDrawer<Scalar> m_trapezoidalMapStrokeDrawer { m_trapezoidalMap, m_trapezoidStrokeColorizer, m_trapezoidStrokeBrush };
-	GAS::Drawing::TrapezoidalMapDrawer<Scalar> m_trapezoidalMapFillDrawer { m_trapezoidalMap, m_trapezoidSelectorFillColorizer, m_trapezoidFillBrush };
-	GAS::Drawing::TrapezoidalMapDrawer<Scalar> m_trapezoidalMapTextDrawer { m_trapezoidalMap, m_trapezoidTextColorizer, m_trapezoidTextBrush };
+	GAS::Drawing::TrapezoidalMapDrawer<Scalar> m_trapezoidalMapStrokeDrawer { m_trapezoidalMap, m_trapezoidStrokeColorizer, m_trapezoidStrokeRenderer };
+	GAS::Drawing::TrapezoidalMapDrawer<Scalar> m_trapezoidalMapFillDrawer { m_trapezoidalMap, m_trapezoidSelectorFillColorizer, m_trapezoidFillRenderer };
+	GAS::Drawing::TrapezoidalMapDrawer<Scalar> m_trapezoidalMapTextDrawer { m_trapezoidalMap, m_trapezoidTextColorizer, m_trapezoidTextRenderer };
 	// Drawable object
 	cg3::DrawableContainer m_trapezoidalMapDrawableContainer {};
 

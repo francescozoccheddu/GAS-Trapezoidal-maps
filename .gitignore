@@ -50,3 +50,7 @@ desktop.ini
 Build/
 x64/
 *.natvis
+
+# Visual Studio Code
+
+.vscode/

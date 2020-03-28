@@ -53,6 +53,20 @@ namespace GAS
 			return areSegmentPointsHorizzontallySorted (_segment) ? _segment : Segment<Scalar> { _segment.p2 (), _segment.p1 () };
 		}
 
+		template<class Scalar>
+		bool isPointInsideBox (const Point<Scalar> &point, const Point<Scalar> &_bottomLeft, const Point<Scalar> &_topRight)
+		{
+			return point.x () > _bottomLeft.x () && point.x () < _topRight.x ()
+				&& point.y () > _bottomLeft.y () && point.y () < _topRight.y ();
+		}
+
+		template<class Scalar>
+		bool isSegmentInsideBox (const Segment<Scalar> &_segment, const Point<Scalar> &_bottomLeft, const Point<Scalar> &_topRight)
+		{
+			return isPointInsideBox (_segment.p1 (), _bottomLeft, _topRight)
+				&& isPointInsideBox (_segment.p2 (), _bottomLeft, _topRight);
+		}
+
 	}
 
 }

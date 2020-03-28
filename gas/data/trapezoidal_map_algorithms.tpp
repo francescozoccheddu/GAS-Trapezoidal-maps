@@ -15,21 +15,6 @@ namespace GAS
 {
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::weld (Pair _left, Pair _right)
-	{
-		weld (_left.bottom (), _right, true);
-		weld (_right.bottom (), _left, false);
-		if (_left.isSplit ())
-		{
-			weld (_left.top (), _right, true);
-		}
-		if (_right.isSplit ())
-		{
-			weld (_right.top (), _left, false);
-		}
-	}
-
-	template<class Scalar>
 	void TrapezoidalMap<Scalar>::weld (Trapezoid &_trapezoid, Pair _neighbors, bool _right)
 	{
 		if (_right)
@@ -46,10 +31,10 @@ namespace GAS
 		Trapezoid *&lower { _right ? _trapezoid.lowerRightNeighbor () : _trapezoid.lowerLeftNeighbor () };
 		switch (_right ? _trapezoid.rightSource () : _trapezoid.leftSource ())
 		{
-			case ETrapezoidSideSource::Joint:
+			case ETrapezoidPointSource::Joint:
 				upper = lower = nullptr;
 				break;
-			case ETrapezoidSideSource::Bottom:
+			case ETrapezoidPointSource::Bottom:
 				if (_trapezoid.top () == _neighbors.top ().top ())
 				{
 					upper = lower = &_neighbors.top ();
@@ -59,7 +44,7 @@ namespace GAS
 					upper = lower = &_neighbors.bottom ();
 				}
 				break;
-			case ETrapezoidSideSource::Top:
+			case ETrapezoidPointSource::Top:
 				if (_trapezoid.bottom () == _neighbors.bottom ().bottom ())
 				{
 					upper = lower = &_neighbors.bottom ();
@@ -69,7 +54,7 @@ namespace GAS
 					upper = lower = &_neighbors.top ();
 				}
 				break;
-			case ETrapezoidSideSource::External:
+			case ETrapezoidPointSource::External:
 			{
 				const Point &point { _right ? *_trapezoid.right () : *_trapezoid.left () };
 				const Point &(Segment:: * endpoint)() const { _right ? &Segment::p1 : &Segment::p2 };
@@ -105,6 +90,21 @@ namespace GAS
 				}
 			}
 			break;
+		}
+	}
+
+	template<class Scalar>
+	void TrapezoidalMap<Scalar>::weld (Pair _left, Pair _right)
+	{
+		weld (_left.bottom (), _right, true);
+		weld (_right.bottom (), _left, false);
+		if (_left.isSplit ())
+		{
+			weld (_left.top (), _right, true);
+		}
+		if (_right.isSplit ())
+		{
+			weld (_right.top (), _left, false);
 		}
 	}
 

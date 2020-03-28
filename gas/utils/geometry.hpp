@@ -36,6 +36,12 @@ namespace GAS
 		template<class Scalar>
 		Segment<Scalar> sortSegmentPointsHorizontally (const Segment<Scalar> &segment);
 
+		template<class Scalar>
+		bool isPointInsideBox (const Point<Scalar> &point, const Point<Scalar> &bottomLeft, const Point<Scalar> &topRight);
+
+		template<class Scalar>
+		bool isSegmentInsideBox (const Segment<Scalar> &segment, const Point<Scalar> &bottomLeft, const Point<Scalar> &topRight);
+
 	}
 
 }

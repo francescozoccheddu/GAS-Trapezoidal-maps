@@ -103,7 +103,7 @@ namespace GAS
 	template<class Scalar>
 	void TrapezoidalMap<Scalar>::initialize ()
 	{
-		assert (m_segments.empty () && m_graph.isEmpty ());
+		assert (m_graph.isEmpty ());
 		Trapezoid trapezoid;
 		trapezoid.left () = &bottomLeft ();
 		trapezoid.right () = &bottomRight ();
@@ -224,18 +224,6 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	const Segment<Scalar> &TrapezoidalMap<Scalar>::top () const
-	{
-		return m_top;
-	}
-
-	template<class Scalar>
-	const Segment<Scalar> &TrapezoidalMap<Scalar>::bottom () const
-	{
-		return m_bottom;
-	}
-
-	template<class Scalar>
 	Scalar TrapezoidalMap<Scalar>::leftX () const
 	{
 		return m_bottom.p1 ().x ();
@@ -264,11 +252,18 @@ namespace GAS
 	{
 		if (_topRight.x () <= _bottomLeft.x ())
 		{
-			throw std::domain_error ("Right x must be greater than left x");
+			throw std::invalid_argument ("Right x must be greater than left x");
 		}
 		if (_topRight.y () <= _bottomLeft.y ())
 		{
-			throw std::domain_error ("Top y must be greater than bottom y");
+			throw std::invalid_argument ("Top y must be greater than bottom y");
+		}
+		for (const Segment &segment : segments ())
+		{
+			if (!Geometry::isSegmentInsideBox (segment, _bottomLeft, _topRight))
+			{
+				throw std::invalid_argument ("Not all segments are inside the new bounds");
+			}
 		}
 		m_bottom.set (_bottomLeft, { _topRight.x (), _bottomLeft.y () });
 		m_top.set ({ _bottomLeft.x (), _topRight.y () }, _topRight);
@@ -277,13 +272,13 @@ namespace GAS
 	template<class Scalar>
 	bool TrapezoidalMap<Scalar>::isSegmentInsideBounds (const Segment &_segment) const
 	{
-		return isPointInsideBounds (_segment.p1 ()) && isPointInsideBounds (_segment.p2 ());
+		return Geometry::isSegmentInsideBox (_segment, bottomLeft (), topRight ());
 	}
 
 	template<class Scalar>
 	bool TrapezoidalMap<Scalar>::isPointInsideBounds (const Point &_point) const
 	{
-		return _point.x () > leftX () && _point.x () < rightX () && _point.y () < topY () && _point.y () > bottomY ();
+		return Geometry::isPointInsideBox (_point, bottomLeft (), topRight ());
 	}
 
 	template<class Scalar>

@@ -177,56 +177,56 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	bool Trapezoid<Scalar>::isJointRight () const
-	{
-		return m_bottom->p2 () == m_top->p2 () && m_bottom->p2 () == *m_right;
-	}
-
-	template<class Scalar>
 	bool Trapezoid<Scalar>::isJointLeft () const
 	{
 		return m_bottom->p1 () == m_top->p1 () && m_bottom->p1 () == *m_left;
 	}
 
 	template<class Scalar>
-	ETrapezoidSideSource Trapezoid<Scalar>::leftSource () const
+	bool Trapezoid<Scalar>::isJointRight () const
+	{
+		return m_bottom->p2 () == m_top->p2 () && m_bottom->p2 () == *m_right;
+	}
+
+	template<class Scalar>
+	ETrapezoidPointSource Trapezoid<Scalar>::leftSource () const
 	{
 		if (isJointLeft ())
 		{
-			return ETrapezoidSideSource::Joint;
+			return ETrapezoidPointSource::Joint;
 		}
 		else if (*m_left == m_bottom->p1 ())
 		{
-			return ETrapezoidSideSource::Bottom;
+			return ETrapezoidPointSource::Bottom;
 		}
 		else if (*m_left == m_top->p1 ())
 		{
-			return ETrapezoidSideSource::Top;
+			return ETrapezoidPointSource::Top;
 		}
 		else
 		{
-			return ETrapezoidSideSource::External;
+			return ETrapezoidPointSource::External;
 		}
 	}
 
 	template<class Scalar>
-	ETrapezoidSideSource Trapezoid<Scalar>::rightSource () const
+	ETrapezoidPointSource Trapezoid<Scalar>::rightSource () const
 	{
 		if (isJointRight ())
 		{
-			return ETrapezoidSideSource::Joint;
+			return ETrapezoidPointSource::Joint;
 		}
 		else if (*m_right == m_bottom->p2 ())
 		{
-			return ETrapezoidSideSource::Bottom;
+			return ETrapezoidPointSource::Bottom;
 		}
 		else if (*m_right == m_top->p2 ())
 		{
-			return ETrapezoidSideSource::Top;
+			return ETrapezoidPointSource::Top;
 		}
 		else
 		{
-			return ETrapezoidSideSource::External;
+			return ETrapezoidPointSource::External;
 		}
 	}
 
@@ -257,13 +257,6 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	void Trapezoid<Scalar>::replaceInNeighbors (Trapezoid *_replacement)
-	{
-		replaceInLeftNeighbors (_replacement);
-		replaceInRightNeighbors (_replacement);
-	}
-
-	template<class Scalar>
 	void Trapezoid<Scalar>::replaceInLeftNeighbors (Trapezoid *_replacement)
 	{
 		if (m_lowerLeftNeighbor)
@@ -287,6 +280,14 @@ namespace GAS
 		{
 			m_upperRightNeighbor->replaceLeftNeighbor (this, _replacement);
 		}
+	}
+
+	
+	template<class Scalar>
+	void Trapezoid<Scalar>::replaceInNeighbors (Trapezoid *_replacement)
+	{
+		replaceInLeftNeighbors (_replacement);
+		replaceInRightNeighbors (_replacement);
 	}
 
 	template<class Scalar>

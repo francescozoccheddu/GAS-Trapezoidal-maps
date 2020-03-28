@@ -1,3 +1,7 @@
+/// Color data structure.
+/// \file
+/// \author Francesco Zoccheddu
+
 #ifndef GAS_DRAWING_COLOR_INCLUDED
 #define GAS_DRAWING_COLOR_INCLUDED
 
@@ -9,6 +13,7 @@ namespace GAS
 	namespace Drawing
 	{
 
+		/// RGBA Color.
 		using Color = cg3::Color;
 
 	}

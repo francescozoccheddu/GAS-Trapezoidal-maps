@@ -210,38 +210,33 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::addValidSegment (const Segment &_segment)
+	void TrapezoidalMap<Scalar>::updateForNewSegment (const Segment &_segment, Trapezoid &_leftmost)
 	{
 		assert (Geometry::areSegmentPointsHorizzontallySorted (_segment));
-		Trapezoid &firstTrapezoid { findLeftmostIntersectedTrapezoid (_segment) };
-		// Store segment
-		m_segments.push_front (_segment);
-		const Segment &segment { m_segments.front () };
-		// Split
 		Trapezoid *current;
 		// Left vertical split
 		{
-			const Point &left { segment.p1 () };
-			assert (left.x () >= firstTrapezoid.left ()->x ());
-			if (left.x () > firstTrapezoid.left ()->x ())
+			const Point &left { _segment.p1 () };
+			assert (left.x () >= _leftmost.left ()->x ());
+			if (left.x () > _leftmost.left ()->x ())
 			{
-				Pair split { splitVertically (firstTrapezoid, left) };
+				Pair split { splitVertically (_leftmost, left) };
 				current = &split.right ();
 			}
 			else
 			{
-				assert (left.y () == firstTrapezoid.left ()->y ());
-				current = &firstTrapezoid;
+				assert (left.y () == _leftmost.left ()->y ());
+				current = &_leftmost;
 			}
 		}
 		// Horizontal split
 		{
-			const Point &right { segment.p2 () };
+			const Point &right { _segment.p2 () };
 			NullablePair previous { NullablePair::allOrNone (current->lowerLeftNeighbor (), current->upperLeftNeighbor ()) };
 			NullablePair next { NullablePair::allOrNone (current->lowerRightNeighbor (), current->upperRightNeighbor ()) };
 			while (current && right.x () > current->left ()->x ())
 			{
-				// Split vertically if segment ends inside current trapezoid
+				// Split vertically if _segment ends inside current trapezoid
 				if (right.x () < current->right ()->x ())
 				{
 					Pair split { splitVertically (*current, right) };
@@ -250,10 +245,10 @@ namespace GAS
 				// Split horizontally and find the next trapezoid
 				{
 					// Decide whether to proceed splitting in the lower or the upper right neighbor before splitting
-					const bool segmentAboveRight { Geometry::evalLine (segment, current->right ()->x ()) > current->right ()->y () };
+					const bool segmentAboveRight { Geometry::evalLine (_segment, current->rightX ()) > current->right ()->y () };
 					next = NullablePair::allOrNone (current->lowerRightNeighbor (), current->upperRightNeighbor ());
 					// Split
-					previous = incrementalSplitHorizontally (*current, segment, previous);
+					previous = incrementalSplitHorizontally (*current, _segment, previous);
 					current = next ? segmentAboveRight ? &next.top () : &next.bottom () : nullptr;
 				}
 			}
@@ -263,6 +258,40 @@ namespace GAS
 				weld (previous, next);
 			}
 		}
+	}
+
+	template<class Scalar>
+	bool TrapezoidalMap<Scalar>::doesSegmentIntersect (const Segment &_segment, const Trapezoid &_leftmost) const
+	{
+		assert (Geometry::areSegmentPointsHorizzontallySorted (_segment));
+		assert (isSegmentInsideBounds (_segment));
+		const Point &right { _segment.p2 () };
+		const Trapezoid *current { &_leftmost };
+		while (right.x () > current->rightX ())
+		{
+			const Scalar y { Geometry::evalLine (_segment, current->rightX ()) };
+			if (y <= current->bottomRight ().y () ||
+				y == current->right ()->y () ||
+				y >= current->topRight ().y ())
+			{
+				return true;
+			}
+			current = y > current->right ()->y () ? current->upperRightNeighbor () : current->lowerRightNeighbor ();
+		}
+		if (right.x () < current->rightX ())
+		{
+			if (!current->contains (right))
+			{
+				return true;
+			}
+		}
+		else if (right != current->bottom ()->p2 () &&
+			right != current->top ()->p2 () &&
+			right.y () != current->right ()->y ())
+		{
+			throw std::invalid_argument ("Points with the same x-coordinate are illegal");
+		}
+		return false;
 	}
 
 }

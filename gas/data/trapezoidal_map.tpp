@@ -306,7 +306,20 @@ namespace GAS
 		{
 			throw std::invalid_argument ("Segment is not completely inside bounds");
 		}
-		addValidSegment (Geometry::sortSegmentPointsHorizontally (_segment));
+		// Sort segment endpoints
+		Segment sortedSegment { Geometry::sortSegmentPointsHorizontally (_segment) };
+		// Find the first trapezoid to replace
+		Trapezoid &firstTrapezoid { findLeftmostIntersectedTrapezoid (sortedSegment) };
+		// Check if there are intersections
+		if (doesSegmentIntersect (sortedSegment, firstTrapezoid))
+		{
+			throw std::invalid_argument ("Segment intersects some other segment in the map");
+		}
+		// Store segment
+		m_segments.push_front (sortedSegment);
+		const Segment &segment { m_segments.front () };
+		// Update map
+		updateForNewSegment (segment, firstTrapezoid);
 	}
 
 	template<class Scalar>

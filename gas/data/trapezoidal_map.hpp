@@ -197,7 +197,7 @@ namespace GAS
 		/// \return
 		/// The leftmost trapezoid intersecting with \p segment.
 		/// \exception std::invalid_argument
-		/// If \p segment is duplicated, overlapping or shares the x-coordinate (but not the y-coordinate) of an endpoint with another segment.
+		/// If \p segment is duplicated, overlapping or shares the x-coordinate (but not the y-coordinate) of the left endpoint with another segment.
 		Trapezoid &findLeftmostIntersectedTrapezoid (const Segment &segment);
 
 		/// Split a trapezoid along a vertical line.
@@ -234,14 +234,34 @@ namespace GAS
 		/// A pair of vertically stacked trapezoids.
 		Pair incrementalSplitHorizontally (Trapezoid &trapezoid, const Segment &segment, NullablePair previous);
 
-		/// Add a segment to the list of segments and update the map accordingly.
+		/// Update the trapezoidal map after a segment has been added to the list of segments.
+		/// Split the trapezoids intersected by \p segment, starting from \p leftmost.
 		/// \param[in] segment
-		/// The segment to add.
+		/// The new segment in the list.
+		/// \param[in] leftmost
+		/// The leftmost intersected trapezoid by \p segment.
 		/// \pre
 		/// The segment endpoints must be sorted on their x-coordinates.
 		/// \remark
-		/// The segment will be cloned, so its address does not need to remain valid.
-		void addValidSegment (const Segment &segment);
+		/// The segment reference will be stored in the intersected trapezoids, so its address must be stable.
+		/// \remark
+		/// No checks for the segment validity will be made.
+		void updateForNewSegment (const Segment &segment, Trapezoid &leftmost);
+
+		/// Check if a segment intersects some other segment in the map.
+		/// \param[in] segment
+		/// The segment to test.
+		/// \param[in] leftmost
+		/// The leftmost intersected trapezoid by \p segment.
+		/// \pre
+		/// The segment endpoints must be sorted on their x-coordinates.
+		/// \pre
+		/// The segment must be contained inside the map bounds.
+		/// \return
+		/// \c true if \p segment intersects some other segment in the map, \c false otherwise.
+		/// \exception std::invalid_argument
+		/// If \p segment shares the x-coordinate (but not the y-coordinate) of the right endpoint with another segment.
+		bool doesSegmentIntersect (const Segment &segment, const Trapezoid &leftmost) const;
 
 	public:
 
@@ -376,10 +396,8 @@ namespace GAS
 		/// Add a segment to the list of the segments and update the map accordingly.
 		/// \param[in] segment
 		/// The segment to add.
-		/// \pre
-		/// \p segment must not intersect other segments in the map.
 		/// \exception std::invalid_argument
-		/// If \p segment is not inside the bounds, degenerate, duplicate, vertical, overlapping or shares 
+		/// If \p segment is not inside the bounds, degenerate, duplicate, vertical, overlapping, intersecting or shares 
 		/// the x-coordinate (but not the y-coordinate) of one of its endpoints with another segment in the map.
 		void addSegment (const Segment &segment);
 

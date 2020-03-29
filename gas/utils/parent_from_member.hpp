@@ -1,4 +1,4 @@
-/// Utilities for retrieving an object through a member pointer.
+/// Utility macro for retrieving an object through a member pointer.
 /// \file
 /// \author Francesco Zoccheddu
 
@@ -37,7 +37,7 @@ namespace GAS
 			/// \tparam Type
 			/// The type of the parent object.
 			/// \tparam MemberOffset
-			/// The offset of the member in the parent structure obtainable through \c offsetof macro.
+			/// The offset of the member in the parent structure (obtainable through the \c offsetof macro).
 			/// \tparam MemberType
 			/// The member object type.
 			/// \param[in] _member

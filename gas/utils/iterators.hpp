@@ -1,4 +1,4 @@
-/// Utility classes for iteration.
+/// GAS::Utils::IteratorAdapter and GAS::Utils::Iterable utility classes for iteration.
 /// \file
 /// \author Francesco Zoccheddu
 
@@ -11,9 +11,6 @@ namespace GAS
 	namespace Utils
 	{
 
-		/*
-			I could have \c used boost::iterator_adaptor but it seems that external libraries are not allowed by the project specifications.
-		*/
 		/// Iterator adapter to map the output of a bidirectional iterator using a custom function.
 		/// \tparam Iterator
 		/// The type of the iterator.
@@ -21,6 +18,8 @@ namespace GAS
 		/// The adapted item type.
 		/// \tparam Function
 		/// The map function
+		/// \note
+		/// I could have used \c boost::iterator_adaptor but it seems that external libraries are not allowed by the project specifications.
 		template<class Iterator, class Output, Output & (*Function)(const Iterator &)>
 		class IteratorAdapter final
 		{
@@ -30,19 +29,19 @@ namespace GAS
 		public:
 
 			/// Construct an adapter for the empty iterator.
-			/// The undelying iterator is constructed by calling its default constructor.
+			/// The underlying iterator is constructed by calling its default constructor.
 			/// \pre
 			/// \c Iterator type must be default constructible.
 			IteratorAdapter () = default;
 
 			/// Construct an adapter for the specified iterator.
-			/// The undelying iterator is constructed by calling its copy constructor.
+			/// The underlying iterator is constructed by calling its copy constructor.
 			/// \pre
 			/// \c Iterator type must be copy constructible.
 			IteratorAdapter (const Iterator &iterator);
 
 			/// Construct an adapter for the specified iterator.
-			/// The undelying iterator is constructed by calling its move constructor.
+			/// The underlying iterator is constructed by calling its move constructor.
 			/// \pre
 			/// \c Iterator type must be move constructible.
 			IteratorAdapter (Iterator &&iterator);

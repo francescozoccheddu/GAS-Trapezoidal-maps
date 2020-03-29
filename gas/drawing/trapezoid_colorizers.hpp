@@ -1,4 +1,4 @@
-/// Trapezoid colorizer interface and implementations.
+/// GAS::Drawing::TrapezoidColorizer interface and implementations.
 /// \file
 /// \author Francesco Zoccheddu
 
@@ -26,7 +26,7 @@ namespace GAS
 
 		/// Component for providing drawing colors when drawing trapezoidal maps through TrapezoidalMapDrawer.
 		/// \tparam Scalar
-		/// The scalar type for TrapezoidalMap.
+		/// The scalar type.
 		template<class Scalar>
 		class TrapezoidColorizer
 		{
@@ -65,7 +65,7 @@ namespace GAS
 
 			/// Colorizer that provides the same constant color for all the trapezoids.
 			/// \tparam Scalar
-			/// The scalar type for TrapezoidalMap.
+			/// The scalar type.
 			template<class Scalar>
 			class Constant final : public TrapezoidColorizer<Scalar>
 			{
@@ -104,7 +104,7 @@ namespace GAS
 
 			/// Colorizer that distributes the hue color scale along all trapezoids in a map.
 			/// \tparam Scalar
-			/// The scalar type for TrapezoidalMap.
+			/// The scalar type.
 			template<class Scalar>
 			class Rainbow final : public TrapezoidColorizer<Scalar>
 			{
@@ -129,7 +129,7 @@ namespace GAS
 				/// \param[in] saturation
 				/// The HSB saturation in range [0,1].
 				/// \param[in] value
-				/// The HSB saturation in range [0,1].
+				/// The HSB value in range [0,1].
 				/// \param[in] alpha
 				/// The opacity in range [0,1].
 				/// \exception std::invalid_argument
@@ -173,7 +173,7 @@ namespace GAS
 
 			/// Colorizer selector that chooses the right colorizer depending on whether the trapezoid to draw is selected.
 			/// \tparam Scalar
-			/// The scalar type for TrapezoidalMap.
+			/// The scalar type.
 			template<class Scalar>
 			class Selector final : public TrapezoidColorizer<Scalar>
 			{

@@ -1,4 +1,4 @@
-/// Serial class.
+/// GAS::Utils::Serial class for debugging purposes.
 /// \file
 /// \author Francesco Zoccheddu
 

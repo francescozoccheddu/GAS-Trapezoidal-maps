@@ -1,4 +1,4 @@
-/// Segment data structure.
+/// GAS::Segment data structure.
 /// \file
 /// \author Francesco Zoccheddu
 

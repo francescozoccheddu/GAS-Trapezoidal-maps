@@ -1,4 +1,4 @@
-/// Point data structure.
+/// GAS::Point data structure.
 /// \file
 /// \author Francesco Zoccheddu
 

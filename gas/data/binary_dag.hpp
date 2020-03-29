@@ -1,4 +1,4 @@
-/// Binary directed acyclic graph data structures and utils.
+/// GAS::BDAG data structures and utility functions.
 /// \file
 /// \author Francesco Zoccheddu
 
@@ -18,7 +18,7 @@ namespace GAS
 		class Graph;
 
 		/// Binary directed acyclic graph node.
-		/// Can be a leaf or an inner node with two valid children nodes, the \e left child and the \e right child.
+		/// Can be a leaf or an inner node with two valid child nodes, the \e left child and the \e right child.
 		/// Can only be created by a Graph object.
 		/// Should only be used with the Graph object that created it.
 		/// Cannot be copied or assigned and should only be used through pointers or references.
@@ -34,7 +34,7 @@ namespace GAS
 			/// Intrusive linked list pointers for the other nodes in the parent Graph. 
 			Node *m_previous {}, *m_next {};
 			bool m_leaf { true };
-			/// Pointers to the children nodes or intrusive linked list pointers to the other leaf nodes in the parent Graph if the node is a leaf.
+			/// Pointers to the child nodes or intrusive linked list pointers to the other leaf nodes in the parent Graph if the node is a leaf.
 			Node *m_left {}, *m_right {};
 
 			/// Construct a leaf node.
@@ -103,7 +103,7 @@ namespace GAS
 			/// \pre 
 			/// The node must be an inner node.
 			/// \return 
-			/// The left children node.
+			/// The left child node.
 			const Node &left () const;
 
 			/// \copydoc left
@@ -112,7 +112,7 @@ namespace GAS
 			/// \pre
 			/// The node must be an inner node.
 			/// \return
-			/// The right children node.
+			/// The right child node.
 			const Node &right () const;
 
 			/// \copydoc right
@@ -156,7 +156,7 @@ namespace GAS
 			Graph () = default;
 
 			/// Clone an existing graph.
-			/// Each node data is copied by calling its copy constructor.
+			/// Each Node data is copied by calling its copy constructor.
 			/// \pre 
 			/// \p Data type must be copy constructible.
 			/// \param[in] copy 
@@ -164,7 +164,7 @@ namespace GAS
 			Graph (const Graph &copy);
 
 			/// Move an existing graph.
-			/// Each node data is moved by calling its move constructor.
+			/// Each Node data is moved by calling its move constructor.
 			/// After calling this constructor, \p moved is empty and valid.
 			/// \pre 
 			/// \p Data type must be move constructible.
@@ -176,7 +176,7 @@ namespace GAS
 			~Graph ();
 
 			/// Clear the active nodes and clone an existing graph.
-			/// Each node data is copied by calling its copy assignment operator.
+			/// Each Node data is copied by calling its copy assignment operator.
 			/// \pre 
 			/// \p Data type must be copy assignable.
 			/// \param[in] copy
@@ -184,7 +184,7 @@ namespace GAS
 			Graph &operator =(const Graph &copy);
 
 			/// Clear the active nodes and move an existing graph.
-			/// Each node data is moved by calling its move assignment operator.
+			/// Each Node data is moved by calling its move assignment operator.
 			/// After calling this constructor, \p moved is empty and valid.
 			/// \pre 
 			/// \p Data type must be move assignable.
@@ -209,7 +209,7 @@ namespace GAS
 			int innerNodesCount () const;
 
 			/// Create a leaf node.
-			/// The node data is initialized by calling its default constructor.
+			/// The Node data is initialized by calling its default constructor.
 			/// \pre 
 			/// \p Data type must be default constructible.
 			/// \return 
@@ -217,7 +217,7 @@ namespace GAS
 			Node &createLeaf ();
 
 			/// Create a leaf node with \p data as the user data.
-			/// The node data is initialized by calling its copy constructor.
+			/// The Node data is initialized by calling its copy constructor.
 			/// \pre 
 			/// \p Data type must be copy constructible.
 			/// \param[in] data
@@ -227,7 +227,7 @@ namespace GAS
 			Node &createLeaf (const Data &data);
 
 			/// Create a leaf node with \p data as the user data.
-			/// The node data is initialized by calling its move constructor.
+			/// The Node data is initialized by calling its move constructor.
 			/// \pre 
 			/// \p Data type must be move constructible.
 			/// \param[in] data
@@ -237,21 +237,21 @@ namespace GAS
 			Node &createLeaf (Data &&data);
 
 			/// Create an inner node.
-			/// The node data is initialized by calling its default constructor.
+			/// The Node data is initialized by calling its default constructor.
 			/// \pre 
 			/// \p Data type must be default constructible.
 			/// \pre 
 			/// \p left and \p right must have been created by this graph.
 			/// \param[in] left 
-			/// The left children node.
+			/// The left child node.
 			/// \param[in] right 
-			/// The right children node.
+			/// The right child node.
 			/// \return 
 			/// The created node.
 			Node &createInner (Node &left, Node &right);
 
 			/// Create an inner node with \p data as the user data.
-			/// The node data is initialized by calling its copy constructor.
+			/// The Node data is initialized by calling its copy constructor.
 			/// \pre 
 			/// \p Data type must be copy constructible.
 			/// \pre 
@@ -259,15 +259,15 @@ namespace GAS
 			/// \param[in] data 
 			/// The node data to clone.
 			/// \param[in] left 
-			/// The left children node.
+			/// The left child node.
 			/// \param[in] right 
-			/// The right children node.
+			/// The right child node.
 			/// \return 
 			/// The created node.
 			Node &createInner (const Data &data, Node &left, Node &right);
 
 			/// Create an inner node with \p data as the user data.
-			/// The node data is initialized by calling its move constructor.
+			/// The Node data is initialized by calling its move constructor.
 			/// \pre 
 			/// \p Data type must be move constructible.
 			/// \pre 
@@ -275,9 +275,9 @@ namespace GAS
 			/// \param[in] data 
 			/// The node data to move.
 			/// \param[in] left 
-			/// The left children node.
+			/// The left child node.
 			/// \param[in] right 
-			/// The right children node.
+			/// The right child node.
 			/// \return 
 			/// The created node.
 			Node &createInner (Data &&data, Node &left, Node &right);
@@ -292,17 +292,17 @@ namespace GAS
 			/// Make \p node an inner node.
 			/// \pre 
 			/// \p left and \p right must have been created by this graph.
-			/// \param[in] left 
-			/// The left children node.
-			/// \param[in] right 
-			/// The right children node.
 			/// \param[in] node 
 			/// The node to set.
+			/// \param[in] left 
+			/// The left child node.
+			/// \param[in] right 
+			/// The right child node.
 			void setInner (Node &node, Node &left, Node &right);
 
 			/// Delete the node \p node making it unusable.
 			/// \remark 
-			/// Eventual inner nodes having \p node as children will \e not be automatically updated.
+			/// Eventual inner nodes having \p node as child will \e not be automatically updated.
 			/// \param[in] node 
 			/// The node to destroy.
 			void destroyNode (Node &node);
@@ -312,6 +312,7 @@ namespace GAS
 			/// All the references to nodes created by this graph will be invalidated.
 			void clear ();
 
+			/// Iterable object for iterating through the nodes.
 			/// \remark 
 			/// The iteration follows the order of creation of the nodes.
 			/// \return 
@@ -321,6 +322,7 @@ namespace GAS
 			/// \copydoc nodes
 			typename NodeIterator::Iterable nodes ();
 
+			/// Iterable object for iterating through the leaf nodes.
 			/// \remark 
 			/// The iteration follows the order in which the nodes were created or became leaves for the last time.
 			/// \return 
@@ -332,11 +334,11 @@ namespace GAS
 
 		};
 
-		/// Left or right children of a Node.
+		/// Left or right child of a Node.
 		enum class EChild
 		{
-			Left,	///< Left children.
-			Right  	///< Right children. 
+			Left,	///< Left child.
+			Right  	///< Right child. 
 		};
 
 		/// Convenience function for walking from \p root to some leaf.
@@ -345,11 +347,11 @@ namespace GAS
 		/// \tparam Walker 
 		/// Any type that can be called with a \p Data argument and returns an #EChild.
 		/// \param[in] root 
-		/// The starting Node.
+		/// The starting node.
 		/// \param[in] walker 
 		/// A callable object that decides whether to continue walking through the left or the right child.
 		/// \return 
-		/// The reached leaf Node.
+		/// The reached leaf.
 		template<class Data, class Walker>
 		const Node<Data> &walk (const Node<Data> &root, Walker walker);
 

@@ -1,4 +1,4 @@
-/// GAS::TrapezoidalMap search structure based on GAS::BDAG.
+/// GAS::TDAG search structure for GAS::TrapezoidalMap.
 /// \file
 /// \author Francesco Zoccheddu
 
@@ -16,20 +16,20 @@
 namespace GAS
 {
 
-	/// TrapezoidalMap search structure based on BDAG.
+	/// Search structure for TrapezoidalMap based on BDAG.
 	namespace TDAG
 	{
 
-		/// %Split Node type.
+		/// %Split node type.
 		enum class ESplitType
 		{
 			Vertical, 		///< Vertical split (x-node).
 			NonVertical		///< Non-vertical split (y-node).
 		};
 
-		/// %Split Node information.
+		/// %Split node information.
 		/// \tparam Scalar
-		/// The scalar type for the split information.
+		/// The scalar type.
 		template<class Scalar>
 		class Split
 		{
@@ -93,31 +93,31 @@ namespace GAS
 
 		/// User data type to be used with BDAG::Node.
 		/// \tparam Scalar
-		/// The scalar type for the Split information and the Trapezoid.
+		/// The scalar type.
 		template<class Scalar>
 		using NodeData = GAS::Utils::BiVariant<Split<Scalar>, Trapezoid<Scalar>>;
 
 		/// Trapezoidal DAG's node.
 		/// Type alias for BDAG::Node (can be safely used with BDAG functions). 
 		/// \tparam Scalar
-		/// The scalar type for the Split information and the Trapezoid.
+		/// The scalar type.
 		template<class Scalar>
 		using Node = BDAG::Node<NodeData<Scalar>>;
 
 		/// Trapezoidal DAG.
 		/// Type alias for BDAG::Graph (can be safely used with BDAG functions). 
 		/// \tparam Scalar
-		/// The scalar type for the Split information and the Trapezoid.
+		/// The scalar type.
 		template<class Scalar>
 		using Graph = BDAG::Graph<NodeData<Scalar>>;
 
-		/// Left or right children of a node.
+		/// Left or right child of a node.
 		/// Type alias for BDAG::EChild (can be safely used with BDAG functions). 
 		using EChild = BDAG::EChild;
 
 		/// Find the trapezoid on which \p point lies.
 		/// \tparam Scalar
-		/// The scalar type for the TDAG.
+		/// The scalar type.
 		/// \tparam Disambigutor
 		/// Any type that can be called with a Split argument and returns an #EChild.
 		/// \param[in] root
@@ -137,7 +137,7 @@ namespace GAS
 
 		/// \copybrief query
 		/// \tparam Scalar
-		/// The scalar type for the TDAG.
+		/// The scalar type.
 		/// \param[in] root
 		/// The root node of the search structure.
 		/// \param[in] point
@@ -159,19 +159,19 @@ namespace GAS
 
 			/// Convenience \c Disambiguator for query() functions that continues always on the right child.
 			/// \tparam Scalar
-			/// The scalar type for TDAG.
+			/// The scalar type.
 			/// \param[in] split
 			/// The split information.
 			/// \param[in] point
 			/// The query point that lies on the split line of \p split.
 			/// \return
-			/// Always EChild::Right.
+			/// Always BDAG::EChild::Right.
 			template<class Scalar>
 			EChild disambiguateAlwaysRight (const Split<Scalar> &split, const Point<Scalar> &point);
 
 			/// Get the side of a point with respect to a split line.
 			/// \tparam Scalar
-			/// The scalar type for the Split information and the Point.
+			/// The scalar type.
 			/// \param[in] split
 			/// The split information.
 			/// \param[in] point
@@ -183,7 +183,7 @@ namespace GAS
 
 			/// Decide whether a point query should continue through the left or the right child of a split node.
 			/// \tparam Scalar
-			/// The scalar type for the TDAG.
+			/// The scalar type.
 			/// \tparam Disambigutor
 			/// Any type that can be called with a Split argument and returns an #EChild.
 			/// \param[in] split
@@ -197,9 +197,9 @@ namespace GAS
 			template<class Scalar, class Disambiguator>
 			inline EChild getPointQueryNextChild (const Split<Scalar> &split, const Point<Scalar> &point, Disambiguator disambiguator);
 
-			/// Convenience function for getting the Trapezoid from a Graph::ConstLeafNodeIterator.
+			/// Convenience function for retrieving the Trapezoid referenced by a Graph::ConstLeafNodeIterator.
 			/// \tparam Scalar
-			/// The scalar type for the TDAG.
+			/// The scalar type.
 			/// \param[in] iterator
 			/// The iterator.
 			/// \return
@@ -207,9 +207,9 @@ namespace GAS
 			template<class Scalar>
 			const Trapezoid<Scalar> &getTrapezoid (const typename Graph<Scalar>::ConstLeafNodeIterator &iterator);
 
-			/// Convenience GAS::Utils::IteratorAdapter for iterating through all the Trapezoid in a TDAG::Graph.
+			/// Convenience Utils::IteratorAdapter for iterating through all the Trapezoid in a TDAG::Graph.
 			/// \tparam Scalar
-			/// The scalar type for the TDAG.
+			/// The scalar type.
 			template<class Scalar>
 			using ConstTrapezoidIterator = GAS::Utils::IteratorAdapter <typename Graph<Scalar>::ConstLeafNodeIterator, const Trapezoid<Scalar>, getTrapezoid<Scalar>>;
 

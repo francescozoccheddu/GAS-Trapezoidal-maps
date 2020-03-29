@@ -1,4 +1,4 @@
-/// Bivariant class.
+/// GAS::Utils::BiVariant utility class.
 /// \file
 /// \author Francesco Zoccheddu
 
@@ -8,16 +8,16 @@
 namespace GAS
 {
 
-	/// Generic utils.
+	/// Generic utility classes and functions.
 	namespace Utils
 	{
 
 		/// Union-like structure with two members.
 		/// Keeps track of the active member and automatically handles its lifecycle.
 		/// \tparam First
-		/// Type of the first member.
+		/// The type of the first member.
 		/// \tparam Second
-		/// Type of the second member.
+		/// The type of the second member.
 		/// \pre
 		/// \c First must be different from \c Second.
 		/// \note
@@ -58,22 +58,22 @@ namespace GAS
 
 		public:
 
-			/// Get the bivariant containing the specified \p first member.
+			/// Get the bivariant having \p first as the first active member.
 			/// \pre 
 			/// \p First type must be a standard layout type.
 			/// \param[in] first
 			/// An object returned by the first() method.
 			/// \return
-			/// The bivariant having \p first as member.
+			/// The bivariant holding \p first.
 			static const BiVariant &from (const First &first);
 
-			/// Get the bivariant containing the specified \p second member.
+			/// Get the bivariant having \p second as the second active member.
 			/// \pre 
-			/// \p First type must be a standard layout type.
+			/// \p Second type must be a standard layout type.
 			/// \param[in] second
 			/// An object returned by the second() method.
 			/// \return
-			/// The bivariant having \p second as member.
+			/// The bivariant holding \p second.
 			static const BiVariant &from (const Second &second);
 
 			/// \copydoc from(const First&)
@@ -82,7 +82,7 @@ namespace GAS
 			/// \copydoc from(const Second&)
 			static BiVariant &from (Second &second);
 
-			/// Construct a bivariant with the clone of \p copy as first active member.
+			/// Construct a bivariant by cloning \p copy and making it the first active member.
 			/// The first member is constructed by calling its copy constructor.
 			/// \param[in] copy
 			/// The object to clone.
@@ -98,7 +98,7 @@ namespace GAS
 			/// \c First type must be move constructible.
 			BiVariant (First &&moved);
 
-			/// Construct a bivariant with the clone of \p copy as second active member.
+			/// Construct a bivariant by cloning \p copy and making it the second active member.
 			/// The second member is constructed by calling its copy constructor.
 			/// \param[in] copy
 			/// The object to clone.
@@ -166,11 +166,11 @@ namespace GAS
 			BiVariant &operator=(Second &&moved);
 
 			/// \return
-			/// \c true if \p other has the same active member and they compare equal, \c false otherwise.
+			/// \c true if the bivariant has the same active member of \p other and they compare equal, \c false otherwise.
 			bool operator==(const BiVariant &other) const;
 
 			/// \return
-			/// \c true if \p other has not the same active member or they do not compare equal, \c false otherwise.
+			/// \c true if the bivariant has not the same active member of \p other or if they do not compare equal, \c false otherwise.
 			bool operator!=(const BiVariant &other) const;
 
 			/// \return
@@ -181,7 +181,7 @@ namespace GAS
 			/// \c true if the second member is active, \c false otherwise.
 			bool isSecondType () const;
 
-			/// Destroy the active member and set the clone of \p copy as the first active member.
+			/// Destroy the current active member and set the first active member by cloning \p copy.
 			/// The first member is constructed by calling its copy constructor.
 			/// \param[in] copy
 			/// The object to clone.
@@ -189,7 +189,7 @@ namespace GAS
 			/// \c First type must be copy constructible.
 			void set (const First &copy);
 
-			/// Destroy the active member and set the first active member by moving \p moved.
+			/// Destroy the current active member and set the first active member by moving \p moved.
 			/// The first member is constructed by calling its move constructor.
 			/// \param[in] moved
 			/// The object to move.
@@ -197,7 +197,7 @@ namespace GAS
 			/// \c First type must be move constructible.
 			void set (First &&moved);
 
-			/// Destroy the active member and set the clone of \p copy as the second active member.
+			/// Destroy the current active member and set the second active member by cloning \p copy.
 			/// The second member is constructed by calling its copy constructor.
 			/// \param[in] copy
 			/// The object to clone.
@@ -205,7 +205,7 @@ namespace GAS
 			/// \c Second type must be copy constructible.
 			void set (const Second &copy);
 
-			/// Destroy the active member and set the second active member by moving \p moved.
+			/// Destroy the current active member and set the second active member by moving \p moved.
 			/// The second member is constructed by calling its move constructor.
 			/// \param[in] moved
 			/// The object to move.

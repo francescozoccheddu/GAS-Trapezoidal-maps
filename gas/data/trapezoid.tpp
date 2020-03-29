@@ -288,7 +288,6 @@ namespace GAS
 		}
 	}
 
-
 	template<class Scalar>
 	void Trapezoid<Scalar>::replaceInNeighbors (Trapezoid *_replacement)
 	{

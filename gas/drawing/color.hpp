@@ -1,4 +1,4 @@
-/// Color data structure.
+/// GAS::Drawing::Color data structure.
 /// \file
 /// \author Francesco Zoccheddu
 

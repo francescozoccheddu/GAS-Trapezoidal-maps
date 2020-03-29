@@ -1,4 +1,4 @@
-/// Trapezoid renderer interface and implementations.
+/// GAS::Drawing::TrapezoidRenderer interface and implementations.
 /// \file
 /// \author Francesco Zoccheddu
 
@@ -25,7 +25,7 @@ namespace GAS
 
 		/// Component for rendering trapezoids through TrapezoidalMapDrawer.
 		/// \tparam Scalar
-		/// The scalar type for TrapezoidalMap.
+		/// The scalar type.
 		template<class Scalar>
 		class TrapezoidRenderer
 		{
@@ -67,7 +67,7 @@ namespace GAS
 
 			/// Renderer that draws the edge lines of the trapezoids.
 			/// \tparam Scalar
-			/// The scalar type for TrapezoidalMap.
+			/// The scalar type.
 			template<class Scalar>
 			class Stroke final : public TrapezoidRenderer<Scalar>
 			{
@@ -91,7 +91,7 @@ namespace GAS
 				/// \param[in] thickness
 				/// The stroke thickness in pixels.
 				/// \exception std::invalid_argument
-				/// If thickness is negative.
+				/// If \p thickness is negative.
 				Stroke (int thickness);
 
 				/// \return
@@ -102,14 +102,14 @@ namespace GAS
 				/// \param[in] thickness
 				/// The stroke thickness in pixels.
 				/// \exception std::invalid_argument
-				/// If thickness is negative.
+				/// If \p thickness is negative.
 				void setThickness (int thickness);
 
 			};
 
 			/// Renderer that fills the interior of the trapezoids.
 			/// \tparam Scalar
-			/// The scalar type for TrapezoidalMap.
+			/// The scalar type.
 			template<class Scalar>
 			class Fill final : public TrapezoidRenderer<Scalar>
 			{
@@ -122,9 +122,9 @@ namespace GAS
 
 			};
 
-			/// Renderer that draws an unique number inside each trapezoid.
+			/// Renderer that draws an unique code inside each trapezoid.
 			/// \tparam Scalar
-			/// The scalar type for TrapezoidalMap.
+			/// The scalar type.
 			template<class Scalar>
 			class Text final : public TrapezoidRenderer<Scalar>
 			{

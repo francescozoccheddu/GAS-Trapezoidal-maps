@@ -1,4 +1,4 @@
-/// Trapezoidal map renderer.
+/// GAS::Drawing::TrapezoidalMapDrawer class for GAS::TrapezoidalMap rendering.
 /// \file
 /// \author Francesco Zoccheddu
 
@@ -16,14 +16,14 @@
 namespace GAS
 {
 
-	/// Data structures and utils for trapezoidal map rendering.
+	/// TrapezoidalMap rendering system.
 	namespace Drawing
 	{
 
-		/// cg3::DrawableObject implementation that draws trapezoidal maps.
-		/// The render style is defined through a TrapezoidalRenderer component and the trapezoids color through a TrapezoidalColorizer component.
+		/// \c cg3::DrawableObject implementation that draws TrapezoidalMap objects.
+		/// The render style is defined through a TrapezoidRenderer component and the trapezoids color through a TrapezoidColorizer component.
 		/// \tparam Scalar
-		/// The scalar type for TrapezoidalMap.
+		/// The scalar type.
 		template<class Scalar>
 		class TrapezoidalMapDrawer : public cg3::DrawableObject
 		{

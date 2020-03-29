@@ -1,4 +1,4 @@
-/// Instrusive list iterator class.
+/// GAS::Utils::IntrusiveListIterator utility class.
 /// \file
 /// \author Francesco Zoccheddu
 
@@ -14,10 +14,6 @@ namespace GAS
 	namespace Utils
 	{
 
-		/*
-			I could have used \c boost::intrusive::list but it seems that external libraries are not allowed by the project specifications.
-			Anyway boost's \c list_member_hook would have required me to redesign part of the BDAG.
-		*/
 		/// Iterator for generic intrusive list implementations.
 		/// \tparam Node
 		/// The node type.
@@ -25,6 +21,9 @@ namespace GAS
 		/// Member pointer to the previous node pointer member in the \c Node type.
 		///	\tparam Next
 		/// Member pointer to the next node pointer member in the \c Node type.
+		/// \note
+		/// I could have used \c boost::intrusive::list but it seems that external libraries are not allowed by the project specifications.
+		///	Anyway boost's \c list_member_hook would have required me to redesign part of the BDAG.
 		template<typename Node,
 			typename std::remove_const<Node>::type * std::remove_const<Node>::type:: * Previous,
 			typename std::remove_const<Node>::type * std::remove_const<Node>::type:: * Next>
@@ -83,11 +82,11 @@ namespace GAS
 			IntrusiveListIterator operator--(int);
 
 			///	\return
-			/// \c true if the iterator refers to the same node of \p other, \c false otherwise.
+			/// \c true if the iterator refers to the same node as \p other, \c false otherwise.
 			bool operator==(const IntrusiveListIterator &other) const;
 
 			///	\return
-			/// \c true if the iterator does not refer to the same node of \p other, \c false otherwise.
+			/// \c true if the iterator does not refer to the same node as \p other, \c false otherwise.
 			bool operator!=(const IntrusiveListIterator &other) const;
 
 			/// \pre

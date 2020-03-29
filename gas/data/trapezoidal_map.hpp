@@ -1,4 +1,4 @@
-/// Trapezoidal map data structure for efficient point location querying.
+/// GAS::TrapezoidalMap data structure for efficient point location querying.
 /// \file
 /// \author Francesco Zoccheddu
 
@@ -16,7 +16,7 @@ namespace GAS
 
 	/// Trapezoidal map data structure for efficient point location querying.
 	/// \tparam Scalar
-	/// The scalar type for Segment and Point.
+	/// The scalar type.
 	template<class Scalar>
 	class TrapezoidalMap final
 	{

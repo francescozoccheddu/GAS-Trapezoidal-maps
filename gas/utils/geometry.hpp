@@ -1,4 +1,4 @@
-/// Geometry utils.
+/// GAS::Geometry utility functions.
 /// \file
 /// \author Francesco Zoccheddu
 
@@ -11,7 +11,7 @@
 namespace GAS
 {
 
-	/// Geometry utility functions.
+	/// %Geometry utility functions.
 	namespace Geometry
 	{
 

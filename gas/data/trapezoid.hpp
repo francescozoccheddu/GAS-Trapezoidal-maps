@@ -1,4 +1,4 @@
-/// GAS::TrapezoidalMap trapezoid data structure.
+/// GAS::Trapezoid data structure for GAS::TrapezoidalMap.
 /// \file
 /// \author Francesco Zoccheddu
 
@@ -8,8 +8,8 @@
 #include <gas/data/point.hpp>
 #include <gas/data/segment.hpp>
 
-/// Enable an unique trapezoid identifier for debugging purposes.
-/// If defined, an unique GAS::Utils::Serial member is added to each trapezoid.
+/// Enable an unique GAS::Trapezoid identifier for debugging purposes.
+/// If defined, an unique GAS::Utils::Serial member is added to each GAS::Trapezoid object.
 #define GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
 
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
@@ -20,7 +20,7 @@
 namespace GAS
 {
 
-	/// Source of the left or right points of a Trapezoid.
+	/// Source of the left or right point of a Trapezoid.
 	enum class ETrapezoidPointSource
 	{
 		Bottom, 	///< The point is an endpoint of the bottom segment.
@@ -29,10 +29,10 @@ namespace GAS
 		External	///< The point is not an endpoint of either segment.
 	};
 
-	/// Trapezoid data structure to be used in a TrapezoidalMap.
+	/// %Trapezoid data structure to be used in a TrapezoidalMap.
 	/// Stores pointers to the left and right points, bottom and top segments and the eventual four neighbors.
 	/// \tparam Scalar
-	/// The scalar type for Point and Segment.
+	/// The scalar type.
 	template<class Scalar>
 	class Trapezoid final
 	{
@@ -57,7 +57,7 @@ namespace GAS
 
 	public:
 
-		/// Set the \p left to be the only left neighbor of \p right and vice versa.
+		/// Set \p left to be the only left neighbor of \p right and vice versa.
 		/// \param[in] left
 		/// The left trapezoid.
 		/// \param[in] right
@@ -211,15 +211,15 @@ namespace GAS
 		/// The replacement.
 		void replaceInLeftNeighbors (Trapezoid *replacement);
 
-		/// Replace the references to this trapezoid in the neighbors with \p replacement.
-		/// \param[in] replacement
-		/// The replacement.
-		void replaceInNeighbors (Trapezoid *replacement);
-
 		/// Replace the references to this trapezoid in the right neighbors with \p replacement.
 		/// \param[in] replacement
 		/// The replacement.
 		void replaceInRightNeighbors (Trapezoid *replacement);
+
+		/// Replace the references to this trapezoid in the neighbors with \p replacement.
+		/// \param[in] replacement
+		/// The replacement.
+		void replaceInNeighbors (Trapezoid *replacement);
 
 		/// Replace the references to some left neighbor \p replaced with \p replacement.
 		/// \param[in] replaced

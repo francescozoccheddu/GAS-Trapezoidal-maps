@@ -121,7 +121,7 @@ namespace GAS
 
 		/// Bounding box segments.
 		/// \note
-		/// I could have used cg3::BoundingBox2 but I needed this two segments to be referenceable.
+		/// I could have used \c cg3::BoundingBox2 but I needed this two segments to be referenceable.
 		Segment m_bottom, m_top;
 
 		/// \remark
@@ -287,6 +287,9 @@ namespace GAS
 		/// \remark
 		/// After calling this constructor \p moved will be empty and valid.
 		TrapezoidalMap (TrapezoidalMap &&moved);
+
+		/// \see clear()
+		~TrapezoidalMap () = default;
 
 		/// Clear the map and clone \p copy.
 		/// \param[in] copy

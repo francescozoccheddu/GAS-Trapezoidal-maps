@@ -6,6 +6,7 @@
 #endif
 
 #include "geometry.hpp"
+#include <cassert>
 
 namespace GAS
 {
@@ -44,6 +45,7 @@ namespace GAS
 		template<class Scalar>
 		bool isSegmentVertical (const Segment<Scalar> &_segment)
 		{
+			assert (_segment.p1 () != _segment.p2 ());
 			return _segment.p1 ().x () == _segment.p2 ().x ();
 		}
 
@@ -56,6 +58,7 @@ namespace GAS
 		template<class Scalar>
 		bool isPointInsideBox (const Point<Scalar> &point, const Point<Scalar> &_bottomLeft, const Point<Scalar> &_topRight)
 		{
+			assert (_bottomLeft.x () <= _topRight.x () && _bottomLeft.y () <= _topRight.y ());
 			return point.x () > _bottomLeft.x () && point.x () < _topRight.x ()
 				&& point.y () > _bottomLeft.y () && point.y () < _topRight.y ();
 		}

@@ -17,112 +17,112 @@ namespace GAS
 
 	namespace Utils
 	{
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::Union::Union () : monostate {}
+		template<class First, class Second>
+		BiVariant<First, Second>::Union::Union () : monostate {}
 		{}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::Union::Union (const TypeA &_copy) : a { _copy }
+		template<class First, class Second>
+		BiVariant<First, Second>::Union::Union (const First &_copy) : first { _copy }
 		{}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::Union::Union (TypeA &&_moved) : a { std::move (_moved) }
+		template<class First, class Second>
+		BiVariant<First, Second>::Union::Union (First &&_moved) : first { std::move (_moved) }
 		{}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::Union::Union (const TypeB &_copy) : b { _copy }
+		template<class First, class Second>
+		BiVariant<First, Second>::Union::Union (const Second &_copy) : second { _copy }
 		{}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::Union::Union (TypeB &&_moved) : b { std::move (_moved) }
+		template<class First, class Second>
+		BiVariant<First, Second>::Union::Union (Second &&_moved) : second { std::move (_moved) }
 		{}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::Union::~Union ()
+		template<class First, class Second>
+		BiVariant<First, Second>::Union::~Union ()
 		{}
 
-		template<class TypeA, class TypeB>
-		void BiVariant<TypeA, TypeB>::destroy ()
+		template<class First, class Second>
+		void BiVariant<First, Second>::destroy ()
 		{
 			switch (m_type)
 			{
 				case EType::EFirst:
-					m_data.a.~TypeA ();
+					m_data.first.~First ();
 					break;
 				case EType::ESecond:
-					m_data.b.~TypeB ();
+					m_data.second.~Second ();
 					break;
 			}
 			m_type = EType::EDestroyed;
 		}
 
-		template<class TypeA, class TypeB>
-		const BiVariant<TypeA, TypeB> &BiVariant<TypeA, TypeB>::from (const TypeA &_copy)
+		template<class First, class Second>
+		const BiVariant<First, Second> &BiVariant<First, Second>::from (const First &_first)
 		{
-			return GAS_UTILS_PARENT_FROM_MEMBER (_copy, BiVariant, m_data);
+			return GAS_UTILS_PARENT_FROM_MEMBER (_first, BiVariant, m_data);
 		}
 
-		template<class TypeA, class TypeB>
-		const BiVariant<TypeA, TypeB> &BiVariant<TypeA, TypeB>::from (const TypeB &_copy)
+		template<class First, class Second>
+		const BiVariant<First, Second> &BiVariant<First, Second>::from (const Second &_second)
 		{
-			return GAS_UTILS_PARENT_FROM_MEMBER (_copy, BiVariant, m_data);
+			return GAS_UTILS_PARENT_FROM_MEMBER (_second, BiVariant, m_data);
 		}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB> &BiVariant<TypeA, TypeB>::from (TypeA &_copy)
+		template<class First, class Second>
+		BiVariant<First, Second> &BiVariant<First, Second>::from (First &_first)
 		{
-			return GAS_UTILS_PARENT_FROM_MEMBER (_copy, BiVariant, m_data);
+			return GAS_UTILS_PARENT_FROM_MEMBER (_first, BiVariant, m_data);
 		}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB> &BiVariant<TypeA, TypeB>::from (TypeB &_copy)
+		template<class First, class Second>
+		BiVariant<First, Second> &BiVariant<First, Second>::from (Second &_second)
 		{
-			return GAS_UTILS_PARENT_FROM_MEMBER (_copy, BiVariant, m_data);
+			return GAS_UTILS_PARENT_FROM_MEMBER (_second, BiVariant, m_data);
 		}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::BiVariant (const TypeA &_copy) : m_data { _copy }, m_type { EType::EFirst }
+		template<class First, class Second>
+		BiVariant<First, Second>::BiVariant (const First &_copy) : m_data { _copy }, m_type { EType::EFirst }
 		{}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::BiVariant (TypeA &&_moved) : m_data { std::move (_moved) }, m_type { EType::EFirst }
+		template<class First, class Second>
+		BiVariant<First, Second>::BiVariant (First &&_moved) : m_data { std::move (_moved) }, m_type { EType::EFirst }
 		{}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::BiVariant (const TypeB &_copy) : m_data { _copy }, m_type { EType::ESecond }
+		template<class First, class Second>
+		BiVariant<First, Second>::BiVariant (const Second &_copy) : m_data { _copy }, m_type { EType::ESecond }
 		{}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::BiVariant (TypeB &&_moved) : m_data { std::move (_moved) }, m_type { EType::ESecond }
+		template<class First, class Second>
+		BiVariant<First, Second>::BiVariant (Second &&_moved) : m_data { std::move (_moved) }, m_type { EType::ESecond }
 		{}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::BiVariant (const BiVariant &_copy)
+		template<class First, class Second>
+		BiVariant<First, Second>::BiVariant (const BiVariant &_copy)
 		{
 			*this = _copy;
 		}
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::BiVariant (BiVariant &&_moved)
+		template<class First, class Second>
+		BiVariant<First, Second>::BiVariant (BiVariant &&_moved)
 		{
 			*this = std::move (_moved);
 		}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB>::~BiVariant ()
+		template<class First, class Second>
+		BiVariant<First, Second>::~BiVariant ()
 		{
 			destroy ();
 		}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB> &BiVariant<TypeA, TypeB>::operator=(const BiVariant &_copy)
+		template<class First, class Second>
+		BiVariant<First, Second> &BiVariant<First, Second>::operator=(const BiVariant &_copy)
 		{
 			switch (_copy.m_type)
 			{
 				case EType::EFirst:
-					set (_copy.m_data.a);
+					set (_copy.m_data.first);
 					break;
 				case EType::ESecond:
-					set (_copy.m_data.b);
+					set (_copy.m_data.second);
 					break;
 				default:
 					assert (false);
@@ -130,16 +130,16 @@ namespace GAS
 			return *this;
 		}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB> &BiVariant<TypeA, TypeB>::operator=(BiVariant &&_moved)
+		template<class First, class Second>
+		BiVariant<First, Second> &BiVariant<First, Second>::operator=(BiVariant &&_moved)
 		{
 			switch (_moved.m_type)
 			{
 				case EType::EFirst:
-					set (std::move (_moved.m_data.a));
+					set (std::move (_moved.m_data.first));
 					break;
 				case EType::ESecond:
-					set (std::move (_moved.m_data.b));
+					set (std::move (_moved.m_data.second));
 					break;
 				default:
 					assert (false);
@@ -148,126 +148,126 @@ namespace GAS
 			return *this;
 		}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB> &BiVariant<TypeA, TypeB>::operator=(const TypeA &_copy)
+		template<class First, class Second>
+		BiVariant<First, Second> &BiVariant<First, Second>::operator=(const First &_copy)
 		{
 			set (_copy);
 			return *this;
 		}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB> &BiVariant<TypeA, TypeB>::operator=(TypeA &&_moved)
+		template<class First, class Second>
+		BiVariant<First, Second> &BiVariant<First, Second>::operator=(First &&_moved)
 		{
 			set (std::move (_moved));
 			return *this;
 		}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB> &BiVariant<TypeA, TypeB>::operator=(const TypeB &_copy)
+		template<class First, class Second>
+		BiVariant<First, Second> &BiVariant<First, Second>::operator=(const Second &_copy)
 		{
 			set (_copy);
 			return *this;
 		}
 
-		template<class TypeA, class TypeB>
-		BiVariant<TypeA, TypeB> &BiVariant<TypeA, TypeB>::operator=(TypeB &&_moved)
+		template<class First, class Second>
+		BiVariant<First, Second> &BiVariant<First, Second>::operator=(Second &&_moved)
 		{
 			set (std::move (_moved));
 			return *this;
 		}
 
-		template<class TypeA, class TypeB>
-		bool BiVariant<TypeA, TypeB>::operator==(const BiVariant &_other) const
+		template<class First, class Second>
+		bool BiVariant<First, Second>::operator==(const BiVariant &_other) const
 		{
 			if (m_type == _other.m_type)
 			{
 				switch (m_type)
 				{
 					case EType::EFirst:
-						return m_data.a == _other.m_data.a;
+						return m_data.first == _other.m_data.first;
 					case EType::ESecond:
-						return m_data.b == _other.m_data.b;
+						return m_data.second == _other.m_data.second;
 				}
 			}
 			return false;
 		}
 
-		template<class TypeA, class TypeB>
-		bool BiVariant<TypeA, TypeB>::operator!=(const BiVariant &_other) const
+		template<class First, class Second>
+		bool BiVariant<First, Second>::operator!=(const BiVariant &_other) const
 		{
 			return !(*this == _other);
 		}
 
-		template<class TypeA, class TypeB>
-		bool BiVariant<TypeA, TypeB>::isFirstType () const
+		template<class First, class Second>
+		bool BiVariant<First, Second>::isFirstType () const
 		{
 			return m_type == EType::EFirst;
 		}
 
-		template<class TypeA, class TypeB>
-		bool BiVariant<TypeA, TypeB>::isSecondType () const
+		template<class First, class Second>
+		bool BiVariant<First, Second>::isSecondType () const
 		{
 			return m_type == EType::ESecond;
 		}
 
-		template<class TypeA, class TypeB>
-		void BiVariant<TypeA, TypeB>::set (const TypeA &_copy)
+		template<class First, class Second>
+		void BiVariant<First, Second>::set (const First &_copy)
 		{
 			destroy ();
-			new (&m_data.a) TypeA { _copy };
+			new (&m_data.first) First { _copy };
 			m_type = EType::EFirst;
 		}
 
-		template<class TypeA, class TypeB>
-		void BiVariant<TypeA, TypeB>::set (TypeA &&_moved)
+		template<class First, class Second>
+		void BiVariant<First, Second>::set (First &&_moved)
 		{
 			destroy ();
-			new (&m_data.a) TypeA { std::move (_moved) };
+			new (&m_data.first) First { std::move (_moved) };
 			m_type = EType::EFirst;
 		}
 
-		template<class TypeA, class TypeB>
-		void BiVariant<TypeA, TypeB>::set (const TypeB &_copy)
+		template<class First, class Second>
+		void BiVariant<First, Second>::set (const Second &_copy)
 		{
 			destroy ();
-			new (&m_data.b) TypeB { _copy };
+			new (&m_data.second) Second { _copy };
 			m_type = EType::ESecond;
 		}
 
-		template<class TypeA, class TypeB>
-		void BiVariant<TypeA, TypeB>::set (TypeB &&_moved)
+		template<class First, class Second>
+		void BiVariant<First, Second>::set (Second &&_moved)
 		{
 			destroy ();
-			new (&m_data.b) TypeB { std::move (_moved) };
+			new (&m_data.second) Second { std::move (_moved) };
 			m_type = EType::ESecond;
 		}
 
-		template<class TypeA, class TypeB>
-		const TypeA &BiVariant<TypeA, TypeB>::first () const
+		template<class First, class Second>
+		const First &BiVariant<First, Second>::first () const
 		{
 			assert (isFirstType ());
-			return m_data.a;
+			return m_data.first;
 		}
 
-		template<class TypeA, class TypeB>
-		const TypeB &BiVariant<TypeA, TypeB>::second () const
+		template<class First, class Second>
+		const Second &BiVariant<First, Second>::second () const
 		{
 			assert (isSecondType ());
-			return m_data.b;
+			return m_data.second;
 		}
 
-		template<class TypeA, class TypeB>
-		TypeA &BiVariant<TypeA, TypeB>::first ()
+		template<class First, class Second>
+		First &BiVariant<First, Second>::first ()
 		{
 			assert (isFirstType ());
-			return m_data.a;
+			return m_data.first;
 		}
 
-		template<class TypeA, class TypeB>
-		TypeB &BiVariant<TypeA, TypeB>::second ()
+		template<class First, class Second>
+		Second &BiVariant<First, Second>::second ()
 		{
 			assert (isSecondType ());
-			return m_data.b;
+			return m_data.second;
 		}
 
 	}

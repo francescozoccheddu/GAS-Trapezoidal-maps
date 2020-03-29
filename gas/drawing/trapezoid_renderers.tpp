@@ -12,7 +12,7 @@
 #include <type_traits>
 
 /*
-	I could have used cg3::opengl::draw* functions but they don't support transparency and
+	I could have used \c cg3::opengl::draw* functions but they don't support transparency and
 	they don't allow drawing quads with zero width strokes as glLineWidth(0) is illegal by OpenGL specs.
 */
 

@@ -11,7 +11,7 @@
 #include <gas/drawing/color.hpp>
 
 /// Backup and restore the OpenGL server state after drawing.
-/// If defined, the OpenGL server state is 
+/// If defined, the OpenGL server state is left untouched after drawing is finished.
 #define GAS_DRAWING_RESTORE_GL_STATE
 
 namespace GAS

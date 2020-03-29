@@ -157,6 +157,10 @@ namespace GAS
 		Point centroid () const;
 
 		/// \return
+		/// The width.
+		Scalar width () const;
+
+		/// \return
 		/// \c true if the trapezoid contains \p point, \c false otherwise.
 		bool contains (const Point &point) const;
 

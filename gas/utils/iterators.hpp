@@ -1,3 +1,7 @@
+/// Utility classes for iteration.
+/// \file
+/// \author Francesco Zoccheddu
+
 #ifndef GAS_UTILS_ITERATORS_INCLUDED
 #define GAS_UTILS_ITERATORS_INCLUDED
 
@@ -8,8 +12,15 @@ namespace GAS
 	{
 
 		/*
-			I could have used boost::iterator_adaptor but it seems that external libraries are not allowed by the project specifications.
+			I could have \c used boost::iterator_adaptor but it seems that external libraries are not allowed by the project specifications.
 		*/
+		/// Iterator adapter to map the output of a bidirectional iterator using a custom function.
+		/// \tparam Iterator
+		/// The type of the iterator.
+		/// \tparam Output
+		/// The adapted item type.
+		/// \tparam Function
+		/// The map function
 		template<class Iterator, class Output, Output & (*Function)(const Iterator &)>
 		class IteratorAdapter final
 		{
@@ -18,8 +29,22 @@ namespace GAS
 
 		public:
 
+			/// Construct an adapter for the empty iterator.
+			/// The undelying iterator is constructed by calling its default constructor.
+			/// \pre
+			/// \c Iterator type must be default constructible.
 			IteratorAdapter () = default;
+
+			/// Construct an adapter for the specified iterator.
+			/// The undelying iterator is constructed by calling its copy constructor.
+			/// \pre
+			/// \c Iterator type must be copy constructible.
 			IteratorAdapter (const Iterator &iterator);
+
+			/// Construct an adapter for the specified iterator.
+			/// The undelying iterator is constructed by calling its move constructor.
+			/// \pre
+			/// \c Iterator type must be move constructible.
 			IteratorAdapter (Iterator &&iterator);
 
 			IteratorAdapter &operator++();
@@ -35,6 +60,9 @@ namespace GAS
 
 		};
 
+		/// Convenience class for providing iterators.
+		/// \tparam Iterator
+		/// The iterator type.
 		template<class Iterator>
 		class Iterable final
 		{

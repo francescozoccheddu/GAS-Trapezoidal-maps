@@ -169,6 +169,12 @@ namespace GAS
 	}
 
 	template<class Scalar>
+	Scalar Trapezoid<Scalar>::width () const
+	{
+		return rightX () - leftX ();
+	}
+
+	template<class Scalar>
 	bool Trapezoid<Scalar>::contains (const Point &_point) const
 	{
 		return _point.x () >= leftX () && _point.x () < rightX () &&
@@ -282,7 +288,7 @@ namespace GAS
 		}
 	}
 
-	
+
 	template<class Scalar>
 	void Trapezoid<Scalar>::replaceInNeighbors (Trapezoid *_replacement)
 	{

@@ -33,7 +33,7 @@ namespace GAS
 		template<class Scalar>
 		class Split
 		{
-			
+
 			ESplitType m_type;
 
 			union
@@ -149,14 +149,14 @@ namespace GAS
 		template<class Scalar>
 		inline const Trapezoid<Scalar> &query (const Node<Scalar> &root, const Point<Scalar> &point);
 
-		/// \copydoc query(const Node<Scalar> &root, const Point<Scalar> &point)
+		/// \copydoc query(const Node<Scalar> &, const Point<Scalar> &)
 		template<class Scalar>
 		inline Trapezoid<Scalar> &query (Node<Scalar> &root, const Point<Scalar> &point);
 
 		/// Utility functions for the TDAG.
 		namespace Utils
 		{
-			
+
 			/// Convenience \c Disambiguator for query() functions that continues always on the right child.
 			/// \tparam Scalar
 			/// The scalar type for TDAG.

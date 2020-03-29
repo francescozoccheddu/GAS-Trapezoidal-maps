@@ -32,10 +32,10 @@ namespace GAS
 
 			Data m_data {};
 			/// Intrusive linked list pointers for the other nodes in the parent Graph. 
-			Node *m_previous {}, *m_next {};	
+			Node *m_previous {}, *m_next {};
 			bool m_leaf { true };
 			/// Pointers to the children nodes or intrusive linked list pointers to the other leaf nodes in the parent Graph if the node is a leaf.
-			Node *m_left {}, *m_right {}; 		
+			Node *m_left {}, *m_right {};
 
 			/// Construct a leaf node.
 			/// The user data is initialized by calling its default constructor.
@@ -172,8 +172,7 @@ namespace GAS
 			/// The graph to move and clear.
 			Graph (Graph &&moved);
 
-			/// \see 
-			/// Graph#clear.
+			/// \see clear()
 			~Graph ();
 
 			/// Clear the active nodes and clone an existing graph.
@@ -309,6 +308,8 @@ namespace GAS
 			void destroyNode (Node &node);
 
 			/// Deletes all the active nodes.
+			/// \remark
+			/// All the references to nodes created by this graph will be invalidated.
 			void clear ();
 
 			/// \remark 

@@ -56,8 +56,8 @@ namespace GAS
 				break;
 			case ETrapezoidPointSource::External:
 			{
-				const Point &point { _right ? *_trapezoid.right () : *_trapezoid.left () };
-				const Point &(Segment:: * endpoint)() const { _right ? &Segment::p1 : &Segment::p2 };
+				const PointS &point { _right ? *_trapezoid.right () : *_trapezoid.left () };
+				const PointS &(SegmentS:: * endpoint)() const { _right ? &SegmentS::p1 : &SegmentS::p2 };
 				bool (Trapezoid:: * isJoint)() const { _right ? &Trapezoid::isJointLeft : &Trapezoid::isJointRight };
 				if (point == (_neighbors.bottom ().bottom ()->*endpoint) ())
 				{
@@ -109,17 +109,26 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::findLeftmostIntersectedTrapezoid (const Segment &_segment)
+	template<class ArithmeticScalar>
+	ArithmeticScalar TrapezoidalMap<Scalar>::evalLineOnRightEdge (const SegmentS &_line, const Trapezoid &_trapezoid)
+	{
+		const ArithmeticScalar &x { static_cast<ArithmeticScalar> (_trapezoid.rightX ()) };
+		return Geometry::evalLine (Geometry::cast<ArithmeticScalar> (_line), x);
+	}
+
+	template<class Scalar>
+	template<class ArithmeticScalar>
+	Trapezoid<Scalar> &TrapezoidalMap<Scalar>::findLeftmostIntersectedTrapezoid (const SegmentS &_segment)
 	{
 		assert (Geometry::areSegmentPointsHorizzontallySorted (_segment));
-		const Point &left { _segment.p1 () }, &right { _segment.p2 () };
+		const PointS &left { _segment.p1 () }, &right { _segment.p2 () };
 		return BDAG::walk (root (), [&](const TDAG::NodeData<Scalar> &_data) {
 			const TDAG::Split<Scalar> &split { _data.first () };
 			if (split.type () == TDAG::ESplitType::NonVertical)
 			{
-				const Segment &splitSegment { split.segment () };
+				const SegmentS &splitSegment { split.segment () };
 				assert (Geometry::areSegmentPointsHorizzontallySorted (splitSegment));
-				const Point &splitLeft { splitSegment.p1 () };
+				const PointS &splitLeft { splitSegment.p1 () };
 				// If two points share the same x-coordinate
 				if (splitLeft.x () == left.x ())
 				{
@@ -130,7 +139,7 @@ namespace GAS
 						{
 							throw std::invalid_argument ("Duplicate segments are illegal");
 						}
-						switch (Geometry::getPointSideWithSegment (splitSegment, right))
+						switch (Geometry::getPointSideWithSegment (Geometry::cast<ArithmeticScalar> (splitSegment), Geometry::cast<ArithmeticScalar> (right)))
 						{
 							default:
 								assert (false);
@@ -150,7 +159,7 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	typename TrapezoidalMap<Scalar>::Pair TrapezoidalMap<Scalar>::splitVertically (Trapezoid &_trapezoid, const Point &_point)
+	typename TrapezoidalMap<Scalar>::Pair TrapezoidalMap<Scalar>::splitVertically (Trapezoid &_trapezoid, const PointS &_point)
 	{
 		assert (_point.x () > _trapezoid.leftX () && _point.x () < _trapezoid.rightX ());
 		// Create new trapezoids
@@ -166,7 +175,7 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	typename TrapezoidalMap<Scalar>::Pair TrapezoidalMap<Scalar>::incrementalSplitHorizontally (Trapezoid &_trapezoid, const Segment &_segment, NullablePair _previous)
+	typename TrapezoidalMap<Scalar>::Pair TrapezoidalMap<Scalar>::incrementalSplitHorizontally (Trapezoid &_trapezoid, const SegmentS &_segment, NullablePair _previous)
 	{
 		assert (!_previous || _previous.isRightAligned ());
 		assert (Geometry::areSegmentPointsHorizzontallySorted (_segment));
@@ -210,13 +219,14 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::updateForNewSegment (const Segment &_segment, Trapezoid &_leftmost)
+	template<class ArithmeticScalar>
+	void TrapezoidalMap<Scalar>::updateForNewSegment (const SegmentS &_segment, Trapezoid &_leftmost)
 	{
 		assert (Geometry::areSegmentPointsHorizzontallySorted (_segment));
 		Trapezoid *current;
 		// Left vertical split
 		{
-			const Point &left { _segment.p1 () };
+			const PointS &left { _segment.p1 () };
 			assert (left.x () >= _leftmost.left ()->x ());
 			if (left.x () > _leftmost.left ()->x ())
 			{
@@ -231,7 +241,7 @@ namespace GAS
 		}
 		// Horizontal split
 		{
-			const Point &right { _segment.p2 () };
+			const PointS &right { _segment.p2 () };
 			NullablePair previous { NullablePair::allOrNone (current->lowerLeftNeighbor (), current->upperLeftNeighbor ()) };
 			NullablePair next { NullablePair::allOrNone (current->lowerRightNeighbor (), current->upperRightNeighbor ()) };
 			while (current && right.x () > current->left ()->x ())
@@ -245,7 +255,7 @@ namespace GAS
 				// Split horizontally and find the next trapezoid
 				{
 					// Decide whether to proceed splitting in the lower or the upper right neighbor before splitting
-					const bool segmentAboveRight { Geometry::evalLine (_segment, current->rightX ()) > current->right ()->y () };
+					const bool segmentAboveRight { evalLineOnRightEdge (_segment, *current) > static_cast<ArithmeticScalar>(current->right ()->y ()) };
 					next = NullablePair::allOrNone (current->lowerRightNeighbor (), current->upperRightNeighbor ());
 					// Split
 					previous = incrementalSplitHorizontally (*current, _segment, previous);
@@ -261,33 +271,35 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	bool TrapezoidalMap<Scalar>::doesSegmentIntersect (const Segment &_segment, const Trapezoid &_leftmost) const
+	template<class ArithmeticScalar>
+	bool TrapezoidalMap<Scalar>::doesSegmentIntersect (const SegmentS &_segment, const Trapezoid &_leftmost) const
 	{
 		assert (Geometry::areSegmentPointsHorizzontallySorted (_segment));
 		assert (isSegmentInsideBounds (_segment));
-		const Point &right { _segment.p2 () };
+		const PointS &right { _segment.p2 () };
 		const Trapezoid *current { &_leftmost };
 		while (right.x () > current->rightX ())
 		{
-			const Scalar y { Geometry::evalLine (_segment, current->rightX ()) };
-			if (y <= current->bottomRight ().y () ||
-				y == current->right ()->y () ||
-				y >= current->topRight ().y ())
+			const ArithmeticScalar y { evalLineOnRightEdge<ArithmeticScalar> (_segment, *current) };
+			if (y <= current->bottomRight<ArithmeticScalar> ().y () ||
+				y == static_cast<ArithmeticScalar> (current->right ()->y ()) ||
+				y >= current->topRight<ArithmeticScalar> ().y ())
 			{
 				return true;
 			}
-			current = y > current->right ()->y () ? current->upperRightNeighbor () : current->lowerRightNeighbor ();
+			const bool segmentAboveRight { y > static_cast<ArithmeticScalar>(current->right ()->y ()) };
+			current = segmentAboveRight ? current->upperRightNeighbor () : current->lowerRightNeighbor ();
 		}
 		if (right.x () < current->rightX ())
 		{
-			if (!current->contains (right))
+			if (!current->contains (Geometry::cast<ArithmeticScalar> (right)))
 			{
 				return true;
 			}
 		}
-		else if (right != current->bottom ()->p2 () &&
-			right != current->top ()->p2 () &&
-			right.y () != current->right ()->y ())
+		else if (right != current->bottom ()->p2 ()
+			&& right != current->top ()->p2 ()
+			&& right.y () != current->right ()->y ())
 		{
 			throw std::invalid_argument ("Points with the same x-coordinate are illegal");
 		}

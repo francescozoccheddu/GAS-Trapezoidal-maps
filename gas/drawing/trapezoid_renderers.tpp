@@ -11,11 +11,6 @@
 #include <QString>
 #include <type_traits>
 
-/*
-	I could have used \c cg3::opengl::draw* functions but they don't support transparency and
-	they don't allow drawing quads with zero width strokes as glLineWidth(0) is illegal by OpenGL specs.
-*/
-
 #ifdef WIN32
 #include "windows.h"
 #endif
@@ -32,8 +27,13 @@ namespace GAS
 	namespace Drawing
 	{
 
+		/// Internal functions not intended for direct usage.
+		/// \note
+		/// I could have used \c cg3::opengl::draw* functions but they don't support transparency and
+		/// they don't allow drawing quads with zero width strokes as glLineWidth(0) is illegal by OpenGL specs.
 		namespace Internals
 		{
+
 			inline void glColor (const Color &_color)
 			{
 				glColor4f (_color.redF (), _color.greenF (), _color.blueF (), _color.alphaF ());
@@ -58,14 +58,14 @@ namespace GAS
 			}
 
 			template<class Scalar>
-			inline typename std::enable_if<!std::is_integral<Scalar>::value && !std::is_same<Scalar, double>::value>::type
-				glVertex (const Point<Scalar> &_point) { glVertexf (_point); }
+			inline typename std::enable_if<!std::is_integral<Scalar>::value>::type
+				glVertex (const Point<Scalar> &_point) { glVertexd (_point); }
 
 			template<class Scalar>
 			inline typename std::enable_if<std::is_integral<Scalar>::value>::type
 				glVertex (const Point<Scalar> &_point) { glVertexi (_point); }
 
-			inline void glVertex (const Point<double> &_point) { glVertexd (_point); }
+			inline void glVertex (const Point<float> &_point) { glVertexf (_point); }
 
 		}
 
@@ -80,8 +80,8 @@ namespace GAS
 		namespace TrapezoidRenderers
 		{
 
-			template<class Scalar>
-			void Stroke<Scalar>::beforeDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
+			template<class Scalar, class RenderScalar>
+			void Stroke<Scalar, RenderScalar>::beforeDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 			{
 				if (m_thickness > 0)
 				{
@@ -95,17 +95,17 @@ namespace GAS
 				}
 			}
 
-			template<class Scalar>
-			void Stroke<Scalar>::draw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/, int /*_index*/, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
+			template<class Scalar, class RenderScalar>
+			void Stroke<Scalar, RenderScalar>::draw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/, int /*_index*/, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
 			{
 				if (m_thickness > 0 && _color.alpha () > 0)
 				{
 					Internals::glColor (_color);
-					const Point<Scalar>
-						&a { _trapezoid.bottomLeft () },
-						&b { _trapezoid.topLeft () },
-						&c { _trapezoid.topRight () },
-						&d { _trapezoid.bottomRight () };
+					const Point<RenderScalar>
+						&a { _trapezoid.bottomLeft<RenderScalar> () },
+						&b { _trapezoid.topLeft<RenderScalar> () },
+						&c { _trapezoid.topRight<RenderScalar> () },
+						&d { _trapezoid.bottomRight<RenderScalar> () };
 					Internals::glVertex (a);
 					Internals::glVertex (b);
 					Internals::glVertex (b);
@@ -117,8 +117,8 @@ namespace GAS
 				}
 			}
 
-			template<class Scalar>
-			void Stroke<Scalar>::afterDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
+			template<class Scalar, class RenderScalar>
+			void Stroke<Scalar, RenderScalar>::afterDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 			{
 				if (m_thickness > 0)
 				{
@@ -129,8 +129,8 @@ namespace GAS
 				}
 			}
 
-			template<class Scalar>
-			Stroke<Scalar>::Stroke (int _thickness) : m_thickness { _thickness }
+			template<class Scalar, class RenderScalar>
+			Stroke<Scalar, RenderScalar>::Stroke (int _thickness) : m_thickness { _thickness }
 			{
 				if (_thickness < 0)
 				{
@@ -138,14 +138,14 @@ namespace GAS
 				}
 			}
 
-			template<class Scalar>
-			int Stroke<Scalar>::thickness () const
+			template<class Scalar, class RenderScalar>
+			int Stroke<Scalar, RenderScalar>::thickness () const
 			{
 				return m_thickness;
 			}
 
-			template<class Scalar>
-			void Stroke<Scalar>::setThickness (int _thickness)
+			template<class Scalar, class RenderScalar>
+			void Stroke<Scalar, RenderScalar>::setThickness (int _thickness)
 			{
 				if (_thickness < 0)
 				{
@@ -154,8 +154,8 @@ namespace GAS
 				m_thickness = _thickness;
 			}
 
-			template<class Scalar>
-			void Fill<Scalar>::beforeDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
+			template<class Scalar, class RenderScalar>
+			void Fill<Scalar, RenderScalar>::beforeDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 			{
 #ifdef GAS_DRAWING_RESTORE_GL_STATE
 				glPushAttrib (GL_ENABLE_BIT);
@@ -165,21 +165,21 @@ namespace GAS
 				glBegin (GL_QUADS);
 			}
 
-			template<class Scalar>
-			void Fill<Scalar>::draw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/, int /*_index*/, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
+			template<class Scalar, class RenderScalar>
+			void Fill<Scalar, RenderScalar>::draw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/, int /*_index*/, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
 			{
 				if (_color.alpha () > 0)
 				{
 					Internals::glColor (_color);
-					Internals::glVertex (_trapezoid.bottomLeft ());
-					Internals::glVertex (_trapezoid.topLeft ());
-					Internals::glVertex (_trapezoid.topRight ());
-					Internals::glVertex (_trapezoid.bottomRight ());
+					Internals::glVertex (_trapezoid.bottomLeft<RenderScalar> ());
+					Internals::glVertex (_trapezoid.topLeft<RenderScalar> ());
+					Internals::glVertex (_trapezoid.topRight<RenderScalar> ());
+					Internals::glVertex (_trapezoid.bottomRight<RenderScalar> ());
 				}
 			}
 
-			template<class Scalar>
-			void Fill<Scalar>::afterDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
+			template<class Scalar, class RenderScalar>
+			void Fill<Scalar, RenderScalar>::afterDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 			{
 				glEnd ();
 #ifdef GAS_DRAWING_RESTORE_GL_STATE
@@ -188,43 +188,43 @@ namespace GAS
 			}
 
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
-			template<class Scalar>
-			QString Text<Scalar>::getTrapezoidSerial (const Trapezoid<Scalar> *_trapezoid)
+			template<class Scalar, class RenderScalar>
+			QString Text<Scalar, RenderScalar>::getTrapezoidSerial (const Trapezoid<Scalar> *_trapezoid)
 			{
 				return QString::fromStdString (_trapezoid ? _trapezoid->serial () : GAS::Utils::Serial::null);
 			}
 #endif
 
-			template<class Scalar>
-			bool Text<Scalar>::isRectInsideTrapezoid (const Point<Scalar> &_center, Scalar _halfWidth, Scalar _halfHeight, const Trapezoid<Scalar> &_trapezoid)
+			template<class Scalar, class RenderScalar>
+			bool Text<Scalar, RenderScalar>::isRectInsideTrapezoid (const Point<RenderScalar> &_center, RenderScalar _halfWidth, RenderScalar _halfHeight, const Trapezoid<Scalar> &_trapezoid)
 			{
-				return
-					_trapezoid.contains (_center + Point<Scalar>{-_halfWidth, -_halfHeight}) &&
-					_trapezoid.contains (_center + Point<Scalar>{-_halfWidth, _halfHeight}) &&
-					_trapezoid.contains (_center + Point<Scalar>{_halfWidth, _halfHeight}) &&
-					_trapezoid.contains (_center + Point<Scalar>{_halfWidth, -_halfHeight});
+				return _trapezoid.contains (_center + Point<RenderScalar>{-_halfWidth, -_halfHeight})
+					&& _trapezoid.contains (_center + Point<RenderScalar>{-_halfWidth, _halfHeight})
+					&& _trapezoid.contains (_center + Point<RenderScalar>{_halfWidth, _halfHeight})
+					&& _trapezoid.contains (_center + Point<RenderScalar>{_halfWidth, -_halfHeight});
 			}
 
-			template<class Scalar>
-			void Text<Scalar>::drawText (const QString &_text, const Trapezoid<Scalar> &_trapezoid) const
+			template<class Scalar, class RenderScalar>
+			void Text<Scalar, RenderScalar>::drawText (const QString &_text, const Trapezoid<Scalar> &_trapezoid) const
 			{
-				const int width { m_fontMetrics.width (_text) }, height { m_fontMetrics.height () };
-				const Point<Scalar> center { _trapezoid.centroid () };
-				const qglviewer::Vec screenCenter { m_canvas->camera ()->projectedCoordinatesOf ({ center.x (), center.y (), 0 }) };
+				const int projWidth { m_fontMetrics.width (_text) }, projHeight { m_fontMetrics.height () };
+				const Point<RenderScalar> centroid { _trapezoid.centroid<RenderScalar> () };
+				const qglviewer::Vec &qrealCentroid { static_cast<qreal>(centroid.x ()), static_cast<qreal>(centroid.y ()), 0 };
 				{
-					const qreal ratio { m_canvas->camera ()->pixelGLRatio ({ center.x (), center.y (), 0 }) };
-					Scalar halfWidth { static_cast<Scalar> (width * ratio / 2.0) };
-					Scalar halfHeight { static_cast<Scalar> (height * ratio / 2.0) };
-					if (!isRectInsideTrapezoid (center, halfWidth, halfHeight, _trapezoid))
+					const qreal ratio { m_canvas->camera ()->pixelGLRatio (qrealCentroid) };
+					RenderScalar halfWidth { static_cast<RenderScalar>(projWidth * ratio / qreal { 2 }) };
+					RenderScalar halfHeight { static_cast<RenderScalar>(projHeight *ratio / qreal { 2 }) };
+					if (!isRectInsideTrapezoid (centroid, halfWidth, halfHeight, _trapezoid))
 					{
 						return;
 					}
 				}
-				m_canvas->drawText (screenCenter.x - width / 2, screenCenter.y + height / 2, _text, m_font);
+				const qglviewer::Vec projCentroid { m_canvas->camera ()->projectedCoordinatesOf (qrealCentroid) };
+				m_canvas->drawText (projCentroid.x - projWidth / 2, projCentroid.y + projHeight / 2, _text, m_font);
 			}
 
-			template<class Scalar>
-			void Text<Scalar>::beforeDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
+			template<class Scalar, class RenderScalar>
+			void Text<Scalar, RenderScalar>::beforeDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 			{
 #ifdef GAS_DRAWING_RESTORE_GL_STATE
 				glPushAttrib (GL_ENABLE_BIT);
@@ -233,8 +233,8 @@ namespace GAS
 				glDisable (GL_LIGHTING);
 			}
 
-			template<class Scalar>
-			void Text<Scalar>::draw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/, int _index, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
+			template<class Scalar, class RenderScalar>
+			void Text<Scalar, RenderScalar>::draw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/, int _index, const Trapezoid<Scalar> &_trapezoid, const Color &_color) const
 			{
 				if (!m_canvas)
 				{
@@ -242,7 +242,7 @@ namespace GAS
 				}
 				if (_color.alpha () > 0)
 				{
-					glColor3f (_color.redF (), _color.greenF (), _color.blueF ());
+					Internals::glColor (_color);
 					const Point<Scalar> centroid { _trapezoid.centroid () };
 #ifdef GAS_DRAWING_ENABLE_TRAPEZOID_SERIAL
 					(void)_index;
@@ -260,42 +260,42 @@ namespace GAS
 				}
 			}
 
-			template<class Scalar>
-			void Text<Scalar>::afterDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
+			template<class Scalar, class RenderScalar>
+			void Text<Scalar, RenderScalar>::afterDraw (const TrapezoidalMap<Scalar> &/*_trapezoidalMap*/) const
 			{
 #ifdef GAS_DRAWING_RESTORE_GL_STATE
 				glPopAttrib ();
 #endif
 			}
 
-			template<class Scalar>
-			Text<Scalar>::Text (cg3::viewer::GLCanvas &_canvas, const QFont &_font) : m_canvas { &_canvas }, m_font { _font }
+			template<class Scalar, class RenderScalar>
+			Text<Scalar, RenderScalar>::Text (cg3::viewer::GLCanvas &_canvas, const QFont &_font) : m_canvas { &_canvas }, m_font { _font }
 			{}
 
-			template<class Scalar>
-			Text<Scalar>::Text (const QFont &_font) : m_font { _font }
+			template<class Scalar, class RenderScalar>
+			Text<Scalar, RenderScalar>::Text (const QFont &_font) : m_font { _font }
 			{}
 
-			template<class Scalar>
-			const QFont &Text<Scalar>::font () const
+			template<class Scalar, class RenderScalar>
+			const QFont &Text<Scalar, RenderScalar>::font () const
 			{
 				return m_font;
 			}
 
-			template<class Scalar>
-			const cg3::viewer::GLCanvas *Text<Scalar>::canvas () const
+			template<class Scalar, class RenderScalar>
+			const cg3::viewer::GLCanvas *Text<Scalar, RenderScalar>::canvas () const
 			{
 				return m_canvas;
 			}
 
-			template<class Scalar>
-			const cg3::viewer::GLCanvas *&Text<Scalar>::canvas ()
+			template<class Scalar, class RenderScalar>
+			const cg3::viewer::GLCanvas *&Text<Scalar, RenderScalar>::canvas ()
 			{
 				return m_canvas;
 			}
 
-			template<class Scalar>
-			void Text<Scalar>::setFont (const QFont &_font)
+			template<class Scalar, class RenderScalar>
+			void Text<Scalar, RenderScalar>::setFont (const QFont &_font)
 			{
 				m_font = _font;
 				m_fontMetrics = QFontMetrics (m_font);

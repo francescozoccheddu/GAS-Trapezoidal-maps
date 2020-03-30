@@ -40,6 +40,8 @@ namespace GAS
 		/// The segment.
 		/// \param[in] point
 		/// The point to test.
+		/// \pre
+		/// \c segment must not be degenerate.
 		/// \return
 		/// The side of the point with respect to the specified segment.
 		/// \note
@@ -54,6 +56,8 @@ namespace GAS
 		/// Any segment that lies on the line to evaluate.
 		/// \param[in] x
 		/// The x-coordinate of the point.
+		/// \pre
+		/// \c segment must not be degenerate or vertical.
 		/// \return
 		/// The y-coordinate of the line evaluated at \p x.
 		template<class Scalar>
@@ -72,8 +76,17 @@ namespace GAS
 		/// The scalar type.
 		/// \param[in] segment
 		/// The segment.
+		/// \return
+		/// \c true if the endpoints of \p segment are equal, \c false otherwise.
+		template<class Scalar>
+		bool isSegmentDegenerate (const Segment<Scalar> &segment);
+
+		/// \tparam Scalar
+		/// The scalar type.
+		/// \param[in] segment
+		/// The segment.
 		/// \pre
-		/// Segment must not be degenerate.
+		/// \p segment must not be degenerate.
 		/// \return
 		/// \c true if \p segment is vertical, \c false otherwise.
 		template<class Scalar>
@@ -113,6 +126,26 @@ namespace GAS
 		/// \c true if \p segment is completely inside the rectangle, \c false otherwise.
 		template<class Scalar>
 		bool isSegmentInsideBox (const Segment<Scalar> &segment, const Point<Scalar> &bottomLeft, const Point<Scalar> &topRight);
+
+		/// Convenience function for converting the scalar type of a point.
+		///	\tparam In
+		/// The input point scalar type.
+		/// \tparam Out
+		/// The output point scalar type.
+		/// \return
+		/// The converted point.
+		template<class Out, class In>
+		const Point<Out> cast (const Point<In> &in);
+
+		/// Convenience function for converting the scalar type of a segment.
+		///	\tparam In
+		/// The input segment scalar type.
+		/// \tparam Out
+		/// The output segment scalar type.
+		/// \return
+		/// The converted segment.
+		template<class Out, class In>
+		const Segment<Out> cast (const Segment<In> &in);
 
 	}
 

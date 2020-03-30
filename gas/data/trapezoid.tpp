@@ -139,33 +139,42 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	Point<Scalar> Trapezoid<Scalar>::bottomLeft () const
+	template<class OutputScalar>
+	Point<OutputScalar> Trapezoid<Scalar>::bottomLeft () const
 	{
-		return { m_left->x (), Geometry::evalLine (*m_bottom, m_left->x ()) };
+		const OutputScalar &x { static_cast<OutputScalar>(m_left->x ()) };
+		return { x, Geometry::evalLine (Geometry::cast<OutputScalar> (*m_bottom), x) };
 	}
 
 	template<class Scalar>
-	Point<Scalar> Trapezoid<Scalar>::bottomRight () const
+	template<class OutputScalar>
+	Point<OutputScalar> Trapezoid<Scalar>::bottomRight () const
 	{
-		return { m_right->x (), Geometry::evalLine (*m_bottom, m_right->x ()) };
+		const OutputScalar &x { static_cast<OutputScalar>(m_right->x ()) };
+		return { x, Geometry::evalLine (Geometry::cast<OutputScalar> (*m_bottom), x) };
 	}
 
 	template<class Scalar>
-	Point<Scalar> Trapezoid<Scalar>::topLeft () const
+	template<class OutputScalar>
+	Point<OutputScalar> Trapezoid<Scalar>::topLeft () const
 	{
-		return { m_left->x (), Geometry::evalLine (*m_top, m_left->x ()) };
+		const OutputScalar &x { static_cast<OutputScalar>(m_left->x ()) };
+		return { x, Geometry::evalLine (Geometry::cast<OutputScalar> (*m_top), x) };
 	}
 
 	template<class Scalar>
-	Point<Scalar> Trapezoid<Scalar>::topRight () const
+	template<class OutputScalar>
+	Point<OutputScalar> Trapezoid<Scalar>::topRight () const
 	{
-		return { m_right->x (), Geometry::evalLine (*m_top, m_right->x ()) };
+		const OutputScalar &x { static_cast<OutputScalar>(m_right->x ()) };
+		return { x, Geometry::evalLine (Geometry::cast<OutputScalar> (*m_top), x) };
 	}
 
 	template<class Scalar>
-	Point<Scalar> Trapezoid<Scalar>::centroid () const
+	template<class OutputScalar>
+	Point<OutputScalar> Trapezoid<Scalar>::centroid () const
 	{
-		return (bottomLeft () + bottomRight () + topLeft () + topRight ()) / 4;
+		return (bottomLeft<OutputScalar> () + bottomRight<OutputScalar> () + topLeft<OutputScalar> () + topRight<OutputScalar> ()) / OutputScalar { 4 };
 	}
 
 	template<class Scalar>
@@ -175,11 +184,13 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	bool Trapezoid<Scalar>::contains (const Point &_point) const
+	template<class InputScalar>
+	bool Trapezoid<Scalar>::contains (const Point<InputScalar> &_point) const
 	{
-		return _point.x () >= leftX () && _point.x () < rightX () &&
-			Geometry::getPointSideWithSegment (*m_top, _point) == Geometry::ESide::Right &&
-			Geometry::getPointSideWithSegment (*m_bottom, _point) == Geometry::ESide::Left;
+		return _point.x () > static_cast<InputScalar>(leftX ())
+			&& _point.x () < static_cast<InputScalar>(rightX ())
+			&& Geometry::getPointSideWithSegment (Geometry::cast<InputScalar> (*m_top), _point) == Geometry::ESide::Right
+			&& Geometry::getPointSideWithSegment (Geometry::cast<InputScalar> (*m_bottom), _point) == Geometry::ESide::Left;
 	}
 
 	template<class Scalar>

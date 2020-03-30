@@ -21,8 +21,8 @@ namespace GAS
 	class TrapezoidalMap final
 	{
 
-		using Point = Point<Scalar>;
-		using Segment = Segment<Scalar>;
+		using PointS = Point<Scalar>;
+		using SegmentS = Segment<Scalar>;
 		using Trapezoid = Trapezoid<Scalar>;
 		using Node = TDAG::Node<Scalar>;
 		using NodeData = TDAG::NodeData<Scalar>;
@@ -113,8 +113,19 @@ namespace GAS
 		/// \p left and \p right must be vertically stacked pairs or single trapezoids.
 		static void weld (Pair left, Pair right);
 
+		/// \tparam ArithmeticScalar
+		/// The scalar type to use to perform the arithmetic operations.
+		/// \param[in] line
+		/// Any non-degenerate segment the lies on the line to evaluate.
+		/// \param[in] trapezoid
+		/// The trapezoid.
+		/// \return
+		/// The y-coordinate of the intersection between \p line and the right edge of \p trapezoid.
+		template<class ArithmeticScalar = Scalar>
+		static ArithmeticScalar evalLineOnRightEdge (const SegmentS &line, const Trapezoid &trapezoid);
+
 		/// List of inserted segments providing stable references.
-		std::forward_list<Segment> m_segments;
+		std::forward_list<SegmentS> m_segments;
 
 		/// Trapezoid search structure.
 		Graph m_graph;
@@ -122,7 +133,7 @@ namespace GAS
 		/// Bounding box segments.
 		/// \note
 		/// I could have used \c cg3::BoundingBox2 but I needed this two segments to be referenceable.
-		Segment m_bottom, m_top;
+		SegmentS m_bottom, m_top;
 
 		/// \remark
 		/// The root node changes only if destroy() or initialize() are called.
@@ -187,9 +198,11 @@ namespace GAS
 		/// \p trapezoid will be invalidated.
 		/// \remark
 		/// A reference to \p segment will be stored, so its address must remain valid.
-		void splitTrapezoid (Trapezoid &trapezoid, const Segment &segment, Trapezoid &left, Trapezoid &right);
+		void splitTrapezoid (Trapezoid &trapezoid, const SegmentS &segment, Trapezoid &left, Trapezoid &right);
 
 		/// Find the leftmost trapezoid intersecting with a segment.
+		/// \tparam ArithmeticScalar
+		/// The scalar type to use to perform the arithmetic operations.
 		/// \param[in] segment
 		/// The test segment.
 		/// \pre
@@ -198,7 +211,8 @@ namespace GAS
 		/// The leftmost trapezoid intersecting with \p segment.
 		/// \exception std::invalid_argument
 		/// If \p segment is duplicated, overlapping or shares the x-coordinate (but not the y-coordinate) of the left endpoint with another segment.
-		Trapezoid &findLeftmostIntersectedTrapezoid (const Segment &segment);
+		template<class ArithmeticScalar = Scalar>
+		Trapezoid &findLeftmostIntersectedTrapezoid (const SegmentS &segment);
 
 		/// Split a trapezoid along a vertical line.
 		/// \param[in] trapezoid
@@ -213,7 +227,7 @@ namespace GAS
 		/// A reference to \p x will be stored, so its address must remain valid.
 		/// \return
 		/// A pair of horizontally stacked trapezoids.
-		Pair splitVertically (Trapezoid &trapezoid, const Point &point);
+		Pair splitVertically (Trapezoid &trapezoid, const PointS &point);
 
 		/// Split a trapezoid along a non-vertical segment.
 		/// \param[in] trapezoid
@@ -232,10 +246,12 @@ namespace GAS
 		/// A reference to \p segment will be stored, so its address must remain valid.
 		/// \return
 		/// A pair of vertically stacked trapezoids.
-		Pair incrementalSplitHorizontally (Trapezoid &trapezoid, const Segment &segment, NullablePair previous);
+		Pair incrementalSplitHorizontally (Trapezoid &trapezoid, const SegmentS &segment, NullablePair previous);
 
 		/// Update the trapezoidal map after a segment has been added to the list of segments.
 		/// Split the trapezoids intersected by \p segment, starting from \p leftmost.
+		/// \tparam ArithmeticScalar
+		/// The scalar type to use to perform the arithmetic operations.
 		/// \param[in] segment
 		/// The new segment in the list.
 		/// \param[in] leftmost
@@ -246,9 +262,12 @@ namespace GAS
 		/// The segment reference will be stored in the intersected trapezoids, so its address must be stable.
 		/// \remark
 		/// No checks for the segment validity will be made.
-		void updateForNewSegment (const Segment &segment, Trapezoid &leftmost);
+		template<class ArithmeticScalar = Scalar>
+		void updateForNewSegment (const SegmentS &segment, Trapezoid &leftmost);
 
 		/// Check if a segment intersects some other segment in the map.
+		/// \tparam ArithmeticScalar
+		/// The scalar type to use to perform the arithmetic operations.
 		/// \param[in] segment
 		/// The segment to test.
 		/// \param[in] leftmost
@@ -261,7 +280,8 @@ namespace GAS
 		/// \c true if \p segment intersects some other segment in the map, \c false otherwise.
 		/// \exception std::invalid_argument
 		/// If \p segment shares the x-coordinate (but not the y-coordinate) of the right endpoint with another segment.
-		bool doesSegmentIntersect (const Segment &segment, const Trapezoid &leftmost) const;
+		template<class ArithmeticScalar = Scalar>
+		bool doesSegmentIntersect (const SegmentS &segment, const Trapezoid &leftmost) const;
 
 	public:
 
@@ -274,7 +294,7 @@ namespace GAS
 		/// An empty trapezoidal map still has a single trapezoid.
 		/// \exception std::invalid_argument
 		/// If the two points are inverted or equal.
-		TrapezoidalMap (const Point &bottomLeft, const Point &topRight);
+		TrapezoidalMap (const PointS &bottomLeft, const PointS &topRight);
 
 		/// Construct a trapezoidal map by cloning \p copy.
 		/// \param[in] copy
@@ -337,23 +357,23 @@ namespace GAS
 		/// The trapezoid that contains \p point.
 		/// \exception std::invalid_argument
 		/// If \p point is outside the bounding box.
-		const Trapezoid &query (const Point &point) const;
+		const Trapezoid &query (const PointS &point) const;
 
 		/// \return
 		/// The bottom left point of the bounding box.
-		const Point &bottomLeft () const;
+		const PointS &bottomLeft () const;
 
 		/// \return
 		/// The bottom right point of the bounding box.
-		const Point &bottomRight () const;
+		const PointS &bottomRight () const;
 
 		/// \return
 		/// The top left point of the bounding box.
-		const Point &topLeft () const;
+		const PointS &topLeft () const;
 
 		/// \return
 		/// The top right point of the bounding box.
-		const Point &topRight () const;
+		const PointS &topRight () const;
 
 		/// \return
 		/// The x-coordinate of the left edge of the bounding box.
@@ -378,31 +398,34 @@ namespace GAS
 		/// The top right point of the bounding box.
 		/// \exception std::invalid_argument
 		/// If the two points are inverted or equal or if the new bounds do not contain all the segments in the map.
-		void setBounds (const Point &bottomLeft, const Point &topRight);
+		void setBounds (const PointS &bottomLeft, const PointS &topRight);
 
 		/// Check if a segment is inside the map bounds.
 		/// \return
 		/// \c true if \p segment is inside bounds, \c false otherwise.
-		bool isSegmentInsideBounds (const Segment &segment) const;
+		bool isSegmentInsideBounds (const SegmentS &segment) const;
 
 		/// Check if a point is inside the map bounds.
 		/// \return
 		/// \c true if \p point is inside bounds, \c false otherwise.
-		bool isPointInsideBounds (const Point &point) const;
+		bool isPointInsideBounds (const PointS &point) const;
 
 		/// Get the list of all the segments in the map.
 		/// The list follows the inverse order of insertion of the segments.
 		/// \return
 		/// The list of the segments.
-		const std::forward_list<Segment> &segments () const;
+		const std::forward_list<SegmentS> &segments () const;
 
 		/// Add a segment to the list of the segments and update the map accordingly.
+		/// \tparam ArithmeticScalar
+		/// The scalar type to use to perform the arithmetic operations.
 		/// \param[in] segment
 		/// The segment to add.
 		/// \exception std::invalid_argument
 		/// If \p segment is not inside the bounds, degenerate, duplicate, vertical, overlapping, intersecting or shares 
 		/// the x-coordinate (but not the y-coordinate) of one of its endpoints with another segment in the map.
-		void addSegment (const Segment &segment);
+		template<class ArithmeticScalar = Scalar>
+		void addSegment (const SegmentS &segment);
 
 		/// Clear the map.
 		/// \remark

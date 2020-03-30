@@ -37,8 +37,8 @@ namespace GAS
 	class Trapezoid final
 	{
 
-		using Point = Point<Scalar>;
-		using Segment = Segment<Scalar>;
+		using PointS = Point<Scalar>;
+		using SegmentS = Segment<Scalar>;
 
 	private:
 
@@ -51,8 +51,8 @@ namespace GAS
 	private:
 #endif
 
-		const Point *m_left {}, *m_right {};
-		const Segment *m_bottom {}, *m_top {};
+		const PointS *m_left {}, *m_right {};
+		const SegmentS *m_bottom {}, *m_top {};
 		Trapezoid *m_lowerLeftNeighbor {}, *m_upperLeftNeighbor {}, *m_lowerRightNeighbor {}, *m_upperRightNeighbor {};
 
 	public:
@@ -66,19 +66,19 @@ namespace GAS
 
 		/// \return
 		/// The left point.
-		const Point *left () const;
+		const PointS *left () const;
 
 		/// \return
 		/// The right point.
-		const Point *right () const;
+		const PointS *right () const;
 
 		/// \return
 		/// The bottom segment.
-		const Segment *bottom () const;
+		const SegmentS *bottom () const;
 
 		/// \return
 		/// The top segment.
-		const Segment *top () const;
+		const SegmentS *top () const;
 
 		/// \return
 		/// The x-coordinate of the left point.
@@ -113,16 +113,16 @@ namespace GAS
 		const Trapezoid *upperRightNeighbor () const;
 
 		/// \copydoc left
-		const Point *&left ();
+		const PointS *&left ();
 
 		/// \copydoc right
-		const Point *&right ();
+		const PointS *&right ();
 
 		/// \copydoc bottom
-		const Segment *&bottom ();
+		const SegmentS *&bottom ();
 
 		/// \copydoc top
-		const Segment *&top ();
+		const SegmentS *&top ();
 
 		/// \copydoc lowerLeftNeighbor
 		Trapezoid *&lowerLeftNeighbor ();
@@ -136,33 +136,51 @@ namespace GAS
 		/// \copydoc upperRightNeighbor
 		Trapezoid *&upperRightNeighbor ();
 
+		/// \tparam OutputScalar
+		/// The scalar type to use to perform the arithmetic operations.
 		/// \return
 		/// The bottom left point.
-		Point bottomLeft () const;
+		template<class OutputScalar = Scalar>
+		Point<OutputScalar> bottomLeft () const;
 
+		/// \tparam OutputScalar
+		/// The scalar type to use to perform the arithmetic operations.
 		/// \return
 		/// The bottom right point.
-		Point bottomRight () const;
+		template<class OutputScalar = Scalar>
+		Point<OutputScalar> bottomRight () const;
 
+		/// \tparam OutputScalar
+		/// The scalar type to use to perform the arithmetic operations.
 		/// \return
 		/// The top left point.
-		Point topLeft () const;
+		template<class OutputScalar = Scalar>
+		Point<OutputScalar> topLeft () const;
 
+		/// \tparam OutputScalar
+		/// The scalar type to use to perform the arithmetic operations.
 		/// \return
 		/// The top right point.
-		Point topRight () const;
+		template<class OutputScalar = Scalar>
+		Point<OutputScalar> topRight () const;
 
+		/// \tparam OutputScalar
+		/// The scalar type to use to perform the arithmetic operations.
 		/// \return
 		/// The centroid.
-		Point centroid () const;
+		template<class OutputScalar = Scalar>
+		Point<OutputScalar> centroid () const;
 
 		/// \return
 		/// The width.
 		Scalar width () const;
 
+		/// \tparam InputScalar
+		/// The scalar type to use to perform the arithmetic operations.
 		/// \return
 		/// \c true if the trapezoid contains \p point, \c false otherwise.
-		bool contains (const Point &point) const;
+		template<class InputScalar = Scalar>
+		bool contains (const Point<InputScalar> &point) const;
 
 		/// \return
 		/// \c true if bottomLeft() equals topLeft(), \c false otherwise.

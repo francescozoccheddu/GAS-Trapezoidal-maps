@@ -133,7 +133,7 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::splitTrapezoid (Trapezoid &_trapezoid, const Segment &_segment, Trapezoid &_left, Trapezoid &_right)
+	void TrapezoidalMap<Scalar>::splitTrapezoid (Trapezoid &_trapezoid, const SegmentS &_segment, Trapezoid &_left, Trapezoid &_right)
 	{
 		Node &node { getNode (_trapezoid) };
 		m_graph.setInner (node, getNode (_left), getNode (_right));
@@ -141,7 +141,7 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	TrapezoidalMap<Scalar>::TrapezoidalMap (const Point &_bottomLeft, const Point &_topRight)
+	TrapezoidalMap<Scalar>::TrapezoidalMap (const PointS &_bottomLeft, const PointS &_topRight)
 	{
 		setBounds (_bottomLeft, _topRight);
 		initialize ();
@@ -190,7 +190,7 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	const Trapezoid<Scalar> &TrapezoidalMap<Scalar>::query (const Point &_point) const
+	const Trapezoid<Scalar> &TrapezoidalMap<Scalar>::query (const PointS &_point) const
 	{
 		if (!isPointInsideBounds (_point))
 		{
@@ -248,7 +248,7 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::setBounds (const Point &_bottomLeft, const Point &_topRight)
+	void TrapezoidalMap<Scalar>::setBounds (const PointS &_bottomLeft, const PointS &_topRight)
 	{
 		if (_topRight.x () <= _bottomLeft.x ())
 		{
@@ -258,7 +258,7 @@ namespace GAS
 		{
 			throw std::invalid_argument ("Top y must be greater than bottom y");
 		}
-		for (const Segment &segment : segments ())
+		for (const SegmentS &segment : segments ())
 		{
 			if (!Geometry::isSegmentInsideBox (segment, _bottomLeft, _topRight))
 			{
@@ -270,13 +270,13 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	bool TrapezoidalMap<Scalar>::isSegmentInsideBounds (const Segment &_segment) const
+	bool TrapezoidalMap<Scalar>::isSegmentInsideBounds (const SegmentS &_segment) const
 	{
 		return Geometry::isSegmentInsideBox (_segment, bottomLeft (), topRight ());
 	}
 
 	template<class Scalar>
-	bool TrapezoidalMap<Scalar>::isPointInsideBounds (const Point &_point) const
+	bool TrapezoidalMap<Scalar>::isPointInsideBounds (const PointS &_point) const
 	{
 		return Geometry::isPointInsideBox (_point, bottomLeft (), topRight ());
 	}
@@ -288,38 +288,36 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	void TrapezoidalMap<Scalar>::addSegment (const Segment &_segment)
+	template<class ArithmeticScalar>
+	void TrapezoidalMap<Scalar>::addSegment (const SegmentS &_segment)
 	{
 		assert (!m_graph.isEmpty ());
-		if (_segment.p1 ().x () == _segment.p2 ().x ())
+		if (Geometry::isSegmentDegenerate (_segment))
 		{
-			if (_segment.p1 ().y () == _segment.p2 ().y ())
-			{
-				throw std::invalid_argument ("Degenerate segments are illegal");
-			}
-			else
-			{
-				throw std::invalid_argument ("Vertical segments are illegal");
-			}
+			throw std::invalid_argument ("Segment is degenerate");
+		}
+		if (Geometry::isSegmentVertical (_segment))
+		{
+			throw std::invalid_argument ("Segment is vertical");
 		}
 		if (!isSegmentInsideBounds (_segment))
 		{
 			throw std::invalid_argument ("Segment is not completely inside bounds");
 		}
 		// Sort segment endpoints
-		Segment sortedSegment { Geometry::sortSegmentPointsHorizontally (_segment) };
+		SegmentS sortedSegment { Geometry::sortSegmentPointsHorizontally (_segment) };
 		// Find the first trapezoid to replace
-		Trapezoid &firstTrapezoid { findLeftmostIntersectedTrapezoid (sortedSegment) };
+		Trapezoid &firstTrapezoid { findLeftmostIntersectedTrapezoid<ArithmeticScalar> (sortedSegment) };
 		// Check if there are intersections
-		if (doesSegmentIntersect (sortedSegment, firstTrapezoid))
+		if (doesSegmentIntersect<ArithmeticScalar> (sortedSegment, firstTrapezoid))
 		{
 			throw std::invalid_argument ("Segment intersects some other segment in the map");
 		}
 		// Store segment
 		m_segments.push_front (sortedSegment);
-		const Segment &segment { m_segments.front () };
+		const SegmentS &segment { m_segments.front () };
 		// Update map
-		updateForNewSegment (segment, firstTrapezoid);
+		updateForNewSegment<ArithmeticScalar> (segment, firstTrapezoid);
 	}
 
 	template<class Scalar>

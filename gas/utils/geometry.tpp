@@ -24,6 +24,7 @@ namespace GAS
 		template<class Scalar>
 		ESide getPointSideWithSegment (const Segment<Scalar> &_segment, const Point<Scalar> &_point)
 		{
+			assert (!isSegmentDegenerate (_segment));
 			const Point<Scalar> &a { _segment.p1 () }, &b { _segment.p2 () };
 			const Scalar det { (b.x () - a.x ()) * (_point.y () - a.y ()) - (b.y () - a.y ()) * (_point.x () - a.x ()) };
 			return det > 0 ? ESide::Left : det < 0 ? ESide::Right : ESide::Collinear;
@@ -32,6 +33,7 @@ namespace GAS
 		template<class Scalar>
 		Scalar evalLine (const Segment<Scalar> &_line, Scalar _x)
 		{
+			assert (!isSegmentVertical (_line));
 			const Point<Scalar> &a { _line.p1 () }, &b { _line.p2 () };
 			return (b.y () - a.y ()) * (_x - a.x ()) / (b.x () - a.x ()) + a.y ();
 		}
@@ -43,9 +45,15 @@ namespace GAS
 		}
 
 		template<class Scalar>
+		bool isSegmentDegenerate (const Segment<Scalar> &_segment)
+		{
+			return _segment.p1 () == _segment.p2 ();
+		}
+
+		template<class Scalar>
 		bool isSegmentVertical (const Segment<Scalar> &_segment)
 		{
-			assert (_segment.p1 () != _segment.p2 ());
+			assert (!isSegmentDegenerate (_segment));
 			return _segment.p1 ().x () == _segment.p2 ().x ();
 		}
 
@@ -68,6 +76,30 @@ namespace GAS
 		{
 			return isPointInsideBox (_segment.p1 (), _bottomLeft, _topRight)
 				&& isPointInsideBox (_segment.p2 (), _bottomLeft, _topRight);
+		}
+
+		template<class Out, class In>
+		const Point<Out> cast (const Point<In> &_in)
+		{
+			return { static_cast<Out>(_in.x ()), static_cast<Out>(_in.y ()) };
+		}
+
+		template<class Out, class In>
+		const Segment<Out> cast (const Segment<In> &_in)
+		{
+			return { cast<Out> (_in.p1 ()), cast<Out> (_in.p2 ()) };
+		}
+
+		template<class InOut, class In>
+		const Point<InOut> &cast (const Point<InOut> &_in)
+		{
+			return _in;
+		}
+
+		template<class InOut, class In>
+		const Segment<InOut> &cast (const Segment<InOut> &_in)
+		{
+			return _in;
 		}
 
 	}

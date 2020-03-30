@@ -67,8 +67,10 @@ namespace GAS
 
 			/// Renderer that draws the edge lines of the trapezoids.
 			/// \tparam Scalar
-			/// The scalar type.
-			template<class Scalar>
+			/// The scalar type of the input TrapezoidalMap.
+			/// \tparam RenderScalar
+			/// The scalar type to use when performing the arithmetic operations needed to provide the coordinates for rendering.
+			template<class Scalar, class RenderScalar = Scalar>
 			class Stroke final : public TrapezoidRenderer<Scalar>
 			{
 
@@ -109,8 +111,10 @@ namespace GAS
 
 			/// Renderer that fills the interior of the trapezoids.
 			/// \tparam Scalar
-			/// The scalar type.
-			template<class Scalar>
+			/// The scalar type of the input TrapezoidalMap.
+			/// \tparam RenderScalar
+			/// The scalar type to use when performing the arithmetic operations needed to provide the coordinates for rendering.
+			template<class Scalar, class RenderScalar = Scalar>
 			class Fill final : public TrapezoidRenderer<Scalar>
 			{
 
@@ -124,8 +128,10 @@ namespace GAS
 
 			/// Renderer that draws an unique code inside each trapezoid.
 			/// \tparam Scalar
-			/// The scalar type.
-			template<class Scalar>
+			/// The scalar type of the input TrapezoidalMap.
+			/// \tparam RenderScalar
+			/// The scalar type to use when performing the arithmetic operations needed to provide the coordinates for rendering.
+			template<class Scalar, class RenderScalar = Scalar>
 			class Text final : public TrapezoidRenderer<Scalar>
 			{
 
@@ -139,7 +145,7 @@ namespace GAS
 				static QString getTrapezoidSerial (const Trapezoid<Scalar> *trapezoid);
 #endif
 
-				static bool isRectInsideTrapezoid (const Point<Scalar> &center, Scalar halfWidth, Scalar halfHeight, const Trapezoid<Scalar> &trapezoid);
+				static bool isRectInsideTrapezoid (const Point<RenderScalar> &center, RenderScalar halfWidth, RenderScalar halfHeight, const Trapezoid<Scalar> &trapezoid);
 
 				void drawText (const QString &text, const Trapezoid<Scalar> &trapezoid) const;
 

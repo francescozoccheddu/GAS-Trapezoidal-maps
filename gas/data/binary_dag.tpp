@@ -395,27 +395,27 @@ namespace GAS
 		}
 
 		template<class Data>
-		typename Graph<Data>::ConstNodeIterator::Iterable Graph<Data>::nodes () const
+                typename Graph<Data>::ConstNodeIterator::Iterable Graph<Data>::nodes () const
 		{
-			return ConstNodeIterator::Iterable { *m_firstNode };
+			return typename ConstNodeIterator::Iterable { *m_firstNode };
 		}
 
 		template<class Data>
-		typename Graph<Data>::NodeIterator::Iterable Graph<Data>::nodes ()
+                typename Graph<Data>::NodeIterator::Iterable Graph<Data>::nodes ()
 		{
-			return NodeIterator::Iterable { *m_firstNode };
+			return typename NodeIterator::Iterable { *m_firstNode };
 		}
 
 		template<class Data>
-		typename Graph<Data>::ConstLeafNodeIterator::Iterable Graph<Data>::leafNodes () const
+                typename Graph<Data>::ConstLeafNodeIterator::Iterable Graph<Data>::leafNodes () const
 		{
-			return ConstLeafNodeIterator::Iterable { *m_firstLeafNode };
+			return typename ConstLeafNodeIterator::Iterable { *m_firstLeafNode };
 		}
 
 		template<class Data>
 		typename Graph<Data>::LeafNodeIterator::Iterable Graph<Data>::leafNodes ()
 		{
-			return LeafNodeIterator::Iterable { *m_firstLeafNode };
+			return typename LeafNodeIterator::Iterable { *m_firstLeafNode };
 		}
 
 		template<class Data, class Walker>

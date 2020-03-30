@@ -102,10 +102,10 @@ namespace GAS
 				{
 					Internals::glColor (_color);
 					const Point<RenderScalar>
-						&a { _trapezoid.bottomLeft<RenderScalar> () },
-						&b { _trapezoid.topLeft<RenderScalar> () },
-						&c { _trapezoid.topRight<RenderScalar> () },
-						&d { _trapezoid.bottomRight<RenderScalar> () };
+						&a { _trapezoid.template bottomLeft<RenderScalar> () },
+						&b { _trapezoid.template topLeft<RenderScalar> () },
+						&c { _trapezoid.template topRight<RenderScalar> () },
+						&d { _trapezoid.template bottomRight<RenderScalar> () };
 					Internals::glVertex (a);
 					Internals::glVertex (b);
 					Internals::glVertex (b);
@@ -171,10 +171,10 @@ namespace GAS
 				if (_color.alpha () > 0)
 				{
 					Internals::glColor (_color);
-					Internals::glVertex (_trapezoid.bottomLeft<RenderScalar> ());
-					Internals::glVertex (_trapezoid.topLeft<RenderScalar> ());
-					Internals::glVertex (_trapezoid.topRight<RenderScalar> ());
-					Internals::glVertex (_trapezoid.bottomRight<RenderScalar> ());
+					Internals::glVertex (_trapezoid.template bottomLeft<RenderScalar> ());
+					Internals::glVertex (_trapezoid.template topLeft<RenderScalar> ());
+					Internals::glVertex (_trapezoid.template topRight<RenderScalar> ());
+					Internals::glVertex (_trapezoid.template bottomRight<RenderScalar> ());
 				}
 			}
 
@@ -207,20 +207,20 @@ namespace GAS
 			template<class Scalar, class RenderScalar>
 			void Text<Scalar, RenderScalar>::drawText (const QString &_text, const Trapezoid<Scalar> &_trapezoid) const
 			{
-				const int projWidth { m_fontMetrics.width (_text) }, projHeight { m_fontMetrics.height () };
-				const Point<RenderScalar> centroid { _trapezoid.centroid<RenderScalar> () };
+				const QRect projRect { m_fontMetrics.boundingRect(_text) };
+				const Point<RenderScalar> centroid { _trapezoid.template centroid<RenderScalar> () };
 				const qglviewer::Vec &qrealCentroid { static_cast<qreal>(centroid.x ()), static_cast<qreal>(centroid.y ()), 0 };
 				{
 					const qreal ratio { m_canvas->camera ()->pixelGLRatio (qrealCentroid) };
-					RenderScalar halfWidth { static_cast<RenderScalar>(projWidth * ratio / qreal { 2 }) };
-					RenderScalar halfHeight { static_cast<RenderScalar>(projHeight *ratio / qreal { 2 }) };
+					RenderScalar halfWidth { static_cast<RenderScalar>(projRect.width() * ratio / qreal { 2 }) };
+					RenderScalar halfHeight { static_cast<RenderScalar>(projRect.height() *ratio / qreal { 2 }) };
 					if (!isRectInsideTrapezoid (centroid, halfWidth, halfHeight, _trapezoid))
 					{
 						return;
 					}
 				}
 				const qglviewer::Vec projCentroid { m_canvas->camera ()->projectedCoordinatesOf (qrealCentroid) };
-				m_canvas->drawText (projCentroid.x - projWidth / 2, projCentroid.y + projHeight / 2, _text, m_font);
+				m_canvas->drawText (projCentroid.x - projRect.width() / 2, projCentroid.y + projRect.height() / 2, _text, m_font);
 			}
 
 			template<class Scalar, class RenderScalar>

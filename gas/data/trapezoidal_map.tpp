@@ -82,9 +82,9 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	TrapezoidalMap<Scalar>::NullablePair::operator bool () const
+        TrapezoidalMap<Scalar>::NullablePair::operator bool () const
 	{
-		return m_a;
+		return Pair::m_a;
 	}
 
 	template<class Scalar>

@@ -180,7 +180,7 @@ namespace GAS
 
 			private:
 
-				TrapezoidColorizer *m_normal {}, *m_selection {};
+				TrapezoidColorizer<Scalar> *m_normal {}, *m_selection {};
 				const Trapezoid<Scalar> *m_selected {};
 
 			protected:
@@ -201,21 +201,21 @@ namespace GAS
 				/// The colorizer to use for unselected trapezoids.
 				/// \param[in] selection
 				/// The colorizer to use for selected trapezoids.
-				Selector (TrapezoidColorizer &normal, TrapezoidColorizer &selection);
+				Selector (TrapezoidColorizer<Scalar> &normal, TrapezoidColorizer<Scalar> &selection);
 
 				/// \return
 				/// The colorizer used for unselected trapezoids.
-				const TrapezoidColorizer *normal () const;
+				const TrapezoidColorizer<Scalar> *normal () const;
 
 				/// \return
 				/// The colorizer used for selected trapezoids.
-				const TrapezoidColorizer *selection () const;
+				const TrapezoidColorizer<Scalar> *selection () const;
 
 				/// \copydoc normal
-				TrapezoidColorizer *&normal ();
+				TrapezoidColorizer<Scalar> *&normal ();
 
 				/// \copydoc selection
-				TrapezoidColorizer *&selection ();
+				TrapezoidColorizer<Scalar> *&selection ();
 
 				/// \return
 				/// The selected trapezoid or \c nullptr if no trapezoid is selected.

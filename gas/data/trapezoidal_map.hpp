@@ -23,7 +23,7 @@ namespace GAS
 
 		using PointS = Point<Scalar>;
 		using SegmentS = Segment<Scalar>;
-		using Trapezoid = Trapezoid<Scalar>;
+		using Trapezoid = GAS::Trapezoid<Scalar>;
 		using Node = TDAG::Node<Scalar>;
 		using NodeData = TDAG::NodeData<Scalar>;
 		using Graph = TDAG::Graph<Scalar>;
@@ -87,7 +87,7 @@ namespace GAS
 
 			/// \return
 			/// \c true if the pair is not #null, \c false otherwise.
-			operator bool () const;
+                        operator bool () const;
 
 		};
 

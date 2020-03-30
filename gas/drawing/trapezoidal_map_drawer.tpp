@@ -97,35 +97,35 @@ namespace GAS
 		template<class Scalar>
 		const TrapezoidalMap<Scalar> *TrapezoidalMapDrawer<Scalar>::trapezoidalMap () const
 		{
-			return m_trapezoidalMap;
+			return m_map;
 		}
 
 		template<class Scalar>
 		const TrapezoidalMap<Scalar> *&TrapezoidalMapDrawer<Scalar>::trapezoidalMap ()
 		{
-			return m_trapezoidalMap;
+			return m_map;
 		}
 
 		template<class Scalar>
-		const typename TrapezoidColorizer<Scalar> *TrapezoidalMapDrawer<Scalar>::colorizer () const
+		const TrapezoidColorizer<Scalar> *TrapezoidalMapDrawer<Scalar>::colorizer () const
 		{
 			return m_colorizer;
 		}
 
 		template<class Scalar>
-		typename TrapezoidColorizer<Scalar> *&TrapezoidalMapDrawer<Scalar>::colorizer ()
+		TrapezoidColorizer<Scalar> *&TrapezoidalMapDrawer<Scalar>::colorizer ()
 		{
 			return m_colorizer;
 		}
 
 		template<class Scalar>
-		const typename TrapezoidRenderer<Scalar> *TrapezoidalMapDrawer<Scalar>::renderer () const
+		const TrapezoidRenderer<Scalar> *TrapezoidalMapDrawer<Scalar>::renderer () const
 		{
 			return m_renderer;
 		}
 
 		template<class Scalar>
-		typename TrapezoidRenderer<Scalar> *&TrapezoidalMapDrawer<Scalar>::renderer ()
+		TrapezoidRenderer<Scalar> *&TrapezoidalMapDrawer<Scalar>::renderer ()
 		{
 			return m_renderer;
 		}

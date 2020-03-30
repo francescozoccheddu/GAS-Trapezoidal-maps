@@ -281,9 +281,9 @@ namespace GAS
 		while (right.x () > current->rightX ())
 		{
 			const ArithmeticScalar y { evalLineOnRightEdge<ArithmeticScalar> (_segment, *current) };
-			if (y <= current->bottomRight<ArithmeticScalar> ().y () ||
+			if (y <= current->template bottomRight<ArithmeticScalar> ().y () ||
 				y == static_cast<ArithmeticScalar> (current->right ()->y ()) ||
-				y >= current->topRight<ArithmeticScalar> ().y ())
+				y >= current->template topRight<ArithmeticScalar> ().y ())
 			{
 				return true;
 			}

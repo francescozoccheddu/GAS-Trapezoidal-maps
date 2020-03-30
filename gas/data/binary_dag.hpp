@@ -128,7 +128,7 @@ namespace GAS
 		template<class Data>
 		class Graph
 		{
-			using Node = Node<Data>;
+			using Node = BDAG::Node<Data>;
 
 			Node *m_firstNode {}, *m_lastNode {}, *m_firstLeafNode {}, *m_lastLeafNode {};
 			int m_nodesCount {}, m_leafNodesCount {};

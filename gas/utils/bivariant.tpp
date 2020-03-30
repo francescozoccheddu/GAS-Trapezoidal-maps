@@ -52,6 +52,8 @@ namespace GAS
 				case EType::ESecond:
 					m_data.second.~Second ();
 					break;
+				default:
+					break;
 			}
 			m_type = EType::EDestroyed;
 		}

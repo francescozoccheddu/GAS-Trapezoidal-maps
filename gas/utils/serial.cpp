@@ -14,7 +14,6 @@ namespace GAS
 		char Serial::encodeDigit (int _digit)
 		{
 			assert (_digit >= 0 && _digit < 10 + 26);
-			const char offset { static_cast<char>(_digit) };
 			if (_digit < 10)
 			{
 				return _digit + '0';

@@ -35,7 +35,7 @@ namespace GAS
 		public:
 
 			/// Convenience type alias for Iterable.
-			using Iterable = Iterable<IntrusiveListIterator>;
+			using Iterable = Utils::Iterable<IntrusiveListIterator>;
 
 			/// The	\c end iterator.
 			/// \remark

@@ -43,6 +43,7 @@ SOURCES +=  \
     data_structures/segment_intersection_checker.cpp \
     data_structures/trapezoidalmap_dataset.cpp \
     drawables/drawable_trapezoidalmap_dataset.cpp \
+    gas/utils/serial.cpp \
     main.cpp \
     managers/trapezoidalmap_manager.cpp \
     utils/fileutils.cpp
@@ -54,6 +55,34 @@ HEADERS += \
     data_structures/segment_intersection_checker.h \
     data_structures/trapezoidalmap_dataset.h \
     drawables/drawable_trapezoidalmap_dataset.h \
+    gas/data/binary_dag.hpp \
+    gas/data/binary_dag.tpp \
+    gas/data/point.hpp \
+    gas/data/segment.hpp \
+    gas/data/trapezoid.hpp \
+    gas/data/trapezoid.tpp \
+    gas/data/trapezoidal_dag.hpp \
+    gas/data/trapezoidal_dag.tpp \
+    gas/data/trapezoidal_map.hpp \
+    gas/data/trapezoidal_map.tpp \
+    gas/data/trapezoidal_map_algorithms.tpp \
+    gas/drawing/color.hpp \
+    gas/drawing/trapezoid_colorizers.hpp \
+    gas/drawing/trapezoid_colorizers.tpp \
+    gas/drawing/trapezoid_renderers.hpp \
+    gas/drawing/trapezoid_renderers.tpp \
+    gas/drawing/trapezoidal_map_drawer.hpp \
+    gas/drawing/trapezoidal_map_drawer.tpp \
+    gas/utils/bivariant.hpp \
+    gas/utils/bivariant.tpp \
+    gas/utils/geometry.hpp \
+    gas/utils/geometry.tpp \
+    gas/utils/intrusive_list_iterator.hpp \
+    gas/utils/intrusive_list_iterator.tpp \
+    gas/utils/iterators.hpp \
+    gas/utils/iterators.tpp \
+    gas/utils/parent_from_member.hpp \
+    gas/utils/serial.hpp \
     managers/trapezoidalmap_manager.h \
     utils/fileutils.h
 

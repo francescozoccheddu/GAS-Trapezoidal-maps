@@ -47,7 +47,7 @@ namespace GAS
 
 			} m_data;
 
-			/// Enum remebering the active member.
+			/// Enum to keep track of the active member.
 			enum class EType
 			{
 				EFirst, ESecond, EDestroyed

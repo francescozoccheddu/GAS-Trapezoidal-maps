@@ -133,9 +133,36 @@ namespace GAS
 			Node *m_firstNode {}, *m_lastNode {}, *m_firstLeafNode {}, *m_lastLeafNode {};
 			int m_nodesCount {}, m_leafNodesCount {};
 
+			/// Add \p node to the list of the active nodes.
+			/// \pre
+			/// \p node must not be already registered in the list of the active nodes.
+			/// \param[in] node	
+			/// The node to register.
 			void registerNode (Node &node);
+
+			/// Add \p node to the list of the active leaf nodes.
+			/// \pre 
+			/// \p node must not be already registered in the list of the active leaf nodes.
+			/// \pre 
+			/// \p node must be a leaf.
+			/// \param[in] node	
+			/// The node to register.
 			void registerLeaf (Node &node);
+
+			/// Remove \p node from the list of the active nodes.
+			/// \pre 
+			/// \p node must be registered in the list of the active nodes.
+			/// \param[in] node 
+			/// The node to unregister.
 			void unregisterNode (Node &node);
+
+			/// Remove \p node from the list of active nodes.
+			/// \pre 
+			/// \p node must be registered in the list of the active leaf nodes.
+			/// \pre 
+			/// \p node must be a leaf.
+			/// \param[in] node 
+			/// The node to unregister.
 			void unregisterLeaf (Node &node);
 
 		public:

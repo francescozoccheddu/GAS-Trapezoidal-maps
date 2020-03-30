@@ -71,13 +71,13 @@ namespace GAS
 			static const NullablePair null;
 
 			/// \param[in] leftOrBottom
-			/// The left or the bottom Trapezoid.
+			/// The left or the bottom trapezoid.
 			/// \param[in] rightOrTop
-			/// The right or the top Trapezoid.
+			/// The right or the top trapezoid.
 			/// \pre
 			/// The arguments must both be non-null or null.
 			/// \return
-			/// A new pair if the arguments are non-null, ::null otherwise.
+			/// A new pair if the arguments are non-null, #null otherwise.
 			static NullablePair allOrNone (Trapezoid *leftOrBottom, Trapezoid *rightOrTop);
 
 			using Pair::Pair;
@@ -86,7 +86,7 @@ namespace GAS
 			NullablePair &operator=(const Pair &);
 
 			/// \return
-			/// \c true if the pair is not ::null, \c false otherwise.
+			/// \c true if the pair is not #null, \c false otherwise.
 			operator bool () const;
 
 		};
@@ -224,7 +224,7 @@ namespace GAS
 		/// \pre
 		/// \p point must be contained inside \p trapezoid.
 		/// \remark
-		/// A reference to \p x will be stored, so its address must remain valid.
+		/// A reference to \p point will be stored, so its address must remain valid.
 		/// \return
 		/// A pair of horizontally stacked trapezoids.
 		Pair splitVertically (Trapezoid &trapezoid, const PointS &point);
@@ -418,7 +418,7 @@ namespace GAS
 
 		/// Add a segment to the list of the segments and update the map accordingly.
 		/// \tparam ArithmeticScalar
-		/// The scalar type to use to perform the arithmetic operations.
+		/// The scalar type to use when performing the arithmetic operations needed to update the map.
 		/// \param[in] segment
 		/// The segment to add.
 		/// \exception std::invalid_argument
@@ -429,7 +429,7 @@ namespace GAS
 
 		/// Clear the map.
 		/// \remark
-		/// The root node obtained through root() and all the trapezoids in the map will be invalidated.
+		/// The root node obtained through root() const and all the trapezoids in the map will be invalidated.
 		void clear ();
 
 	};

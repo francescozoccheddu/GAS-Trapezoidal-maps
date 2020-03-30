@@ -12,6 +12,7 @@
 #include <gas/utils/geometry.hpp>
 #include <gas/utils/bivariant.hpp>
 #include <gas/utils/iterators.hpp>
+#include <gas/utils/ignore.hpp>
 
 namespace GAS
 {
@@ -118,8 +119,10 @@ namespace GAS
 		/// Find the trapezoid on which \p point lies.
 		/// \tparam Scalar
 		/// The scalar type.
+		/// \tparam QueryScalar
+		/// The scalar type to use to perform the arithmetic operations.
 		/// \tparam Disambigutor
-		/// Any type that can be called with a Split argument and returns an #EChild.
+		/// Any type that can be called with a Split and a Point argument and returns an #EChild.
 		/// \param[in] root
 		/// The root node of the search structure.
 		/// \param[in] point
@@ -128,16 +131,18 @@ namespace GAS
 		/// A callable object that decides whether to continue walking through the left or the right child when the query point lies exactly on a split line.
 		/// \return
 		/// The trapezoid on which \p point lies.
-		template<class Scalar, class Disambiguator>
-		inline const Trapezoid<Scalar> &query (const Node<Scalar> &root, const Point<Scalar> &point, Disambiguator disambiguator);
+		template<class Scalar, class QueryScalar, class Disambiguator>
+		inline const Trapezoid<Scalar> &query (const Node<Scalar> &root, const Point<QueryScalar> &point, Disambiguator disambiguator);
 
 		/// \copydoc query
-		template<class Scalar, class Disambiguator>
-		inline Trapezoid<Scalar> &query (Node<Scalar> &root, const Point<Scalar> &point, Disambiguator disambiguator);
+		template<class Scalar, class QueryScalar, class Disambiguator>
+		inline Trapezoid<Scalar> &query (Node<Scalar> &root, const Point<QueryScalar> &point, Disambiguator disambiguator);
 
 		/// \copybrief query
 		/// \tparam Scalar
 		/// The scalar type.
+		/// \tparam QueryScalar
+		/// The scalar type to use to perform the arithmetic operations.
 		/// \param[in] root
 		/// The root node of the search structure.
 		/// \param[in] point
@@ -146,44 +151,45 @@ namespace GAS
 		/// If \p point lies on a split line, the search will continue on its right side.
 		/// \return
 		/// The trapezoid on which \p point lies.
-		template<class Scalar>
-		inline const Trapezoid<Scalar> &query (const Node<Scalar> &root, const Point<Scalar> &point);
+		template<class Scalar, class QueryScalar = Scalar>
+		inline const Trapezoid<Scalar> &query (const Node<Scalar> &root, const Point<QueryScalar> &point);
 
 		/// \copydoc query(const Node<Scalar> &, const Point<Scalar> &)
-		template<class Scalar>
-		inline Trapezoid<Scalar> &query (Node<Scalar> &root, const Point<Scalar> &point);
+		template<class Scalar, class QueryScalar = Scalar>
+		inline Trapezoid<Scalar> &query (Node<Scalar> &root, const Point<QueryScalar> &point);
 
 		/// Utility functions for the TDAG.
 		namespace Utils
 		{
 
 			/// Convenience \c Disambiguator for query() functions that continues always on the right child.
-			/// \tparam Scalar
-			/// The scalar type.
 			/// \param[in] split
-			/// The split information.
+			/// Ignored.
 			/// \param[in] point
-			/// The query point that lies on the split line of \p split.
+			/// Ignored.
 			/// \return
 			/// Always BDAG::EChild::Right.
-			template<class Scalar>
-			EChild disambiguateAlwaysRight (const Split<Scalar> &split, const Point<Scalar> &point);
+			inline EChild disambiguateAlwaysRight (GAS::Utils::Ignore split, GAS::Utils::Ignore point);
 
 			/// Get the side of a point with respect to a split line.
 			/// \tparam Scalar
 			/// The scalar type.
+			/// \tparam QueryScalar
+			/// The scalar type to use to perform the arithmetic operations.
 			/// \param[in] split
 			/// The split information.
 			/// \param[in] point
 			/// The point.
 			/// \return
 			/// The side of \p point with respect to the split line of \p split.
-			template<class Scalar>
-			Geometry::ESide getPointSide (const Split<Scalar> &split, const Point<Scalar> &point);
+			template<class Scalar, class QueryScalar = Scalar>
+			Geometry::ESide getPointSide (const Split<Scalar> &split, const Point<QueryScalar> &point);
 
 			/// Decide whether a point query should continue through the left or the right child of a split node.
 			/// \tparam Scalar
 			/// The scalar type.
+			/// \tparam QueryScalar
+			/// The scalar type to use to perform the arithmetic operations.
 			/// \tparam Disambigutor
 			/// Any type that can be called with a Split argument and returns an #EChild.
 			/// \param[in] split
@@ -194,8 +200,8 @@ namespace GAS
 			/// A callable object that decides whether to continue walking through the left or the right child when the query point lies exactly on a split line.
 			/// \return
 			/// The child through which the query for \p point should continue.
-			template<class Scalar, class Disambiguator>
-			inline EChild getPointQueryNextChild (const Split<Scalar> &split, const Point<Scalar> &point, Disambiguator disambiguator);
+			template<class Scalar, class QueryScalar, class Disambiguator>
+			inline EChild getPointQueryNextChild (const Split<Scalar> &split, const Point<QueryScalar> &point, Disambiguator disambiguator);
 
 			/// Convenience function for retrieving the Trapezoid referenced by a Graph::ConstLeafNodeIterator.
 			/// \tparam Scalar

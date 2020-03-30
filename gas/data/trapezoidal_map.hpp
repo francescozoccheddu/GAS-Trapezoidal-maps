@@ -87,7 +87,7 @@ namespace GAS
 
 			/// \return
 			/// \c true if the pair is not #null, \c false otherwise.
-                        operator bool () const;
+			operator bool () const;
 
 		};
 
@@ -353,11 +353,14 @@ namespace GAS
 		TDAG::Utils::ConstTrapezoidIterator<Scalar> end () const;
 
 		/// Find the trapezoid in the map that contains the point \p point.
+		/// \tparam QueryScalar
+		/// The scalar type to use when performing the arithmetic operations needed to localize the point.
 		/// \return
 		/// The trapezoid that contains \p point.
 		/// \exception std::invalid_argument
 		/// If \p point is outside the bounding box.
-		const Trapezoid &query (const PointS &point) const;
+		template<class QueryScalar = Scalar>
+		const Trapezoid &query (const Point<QueryScalar> &point) const;
 
 		/// \return
 		/// The bottom left point of the bounding box.

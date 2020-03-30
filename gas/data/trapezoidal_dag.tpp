@@ -61,60 +61,57 @@ namespace GAS
 			m_segment = &_segment;
 		}
 
-
-		template<class Scalar, class Disambiguator>
-		const Trapezoid<Scalar> &query (const Node<Scalar> &_root, const Point<Scalar> &_point, Disambiguator _disambiguator)
+		template<class Scalar, class QueryScalar, class Disambiguator>
+		const Trapezoid<Scalar> &query (const Node<Scalar> &_root, const Point<QueryScalar> &_point, Disambiguator _disambiguator)
 		{
 			return BDAG::walk (_root, [&](const NodeData<Scalar> &_node) {
 				return Utils::getPointQueryNextChild (_node.first (), _point, _disambiguator);
 			}).data ().second ();
 		}
 
-		template<class Scalar, class Disambiguator>
-		Trapezoid<Scalar> &query (Node<Scalar> &_root, const Point<Scalar> &_point, Disambiguator _disambiguator)
+		template<class Scalar, class QueryScalar, class Disambiguator>
+		Trapezoid<Scalar> &query (Node<Scalar> &_root, const Point<QueryScalar> &_point, Disambiguator _disambiguator)
 		{
-			return BDAG::walk (_root, [&](const NodeData<Scalar> &_node) {
-				return Utils::getPointQueryNextChild (_node.first (), _point, _disambiguator);
-			}).data ().second ();
+			// Casting away constness is safe since _root is non-const
+			return const_cast<Trapezoid<Scalar> &>(query (static_cast<const Node<Scalar> &>(_root), _point, _disambiguator));
 		}
 
-		template<class Scalar>
-		const Trapezoid<Scalar> &query (const Node<Scalar> &_root, const Point<Scalar> &_point)
+		template<class Scalar, class QueryScalar>
+		const Trapezoid<Scalar> &query (const Node<Scalar> &_root, const Point<QueryScalar> &_point)
 		{
-			return query (_root, _point, Utils::disambiguateAlwaysRight<Scalar>);
+			return query (_root, _point, Utils::disambiguateAlwaysRight);
 		}
 
-		template<class Scalar>
-		Trapezoid<Scalar> &query (Node<Scalar> &_root, const Point<Scalar> &_point)
+		template<class Scalar, class QueryScalar>
+		Trapezoid<Scalar> &query (Node<Scalar> &_root, const Point<QueryScalar> &_point)
 		{
-			return query (_root, _point, Utils::disambiguateAlwaysRight<Scalar>);
+			return query (_root, _point, Utils::disambiguateAlwaysRight);
 		}
 
 		namespace Utils
 		{
 
-			template<class Scalar>
-			EChild disambiguateAlwaysRight (const Split<Scalar> &/*_split*/, const Point<Scalar> &/*_point*/)
+			EChild disambiguateAlwaysRight (GAS::Utils::Ignore, GAS::Utils::Ignore)
 			{
 				return EChild::Right;
 			}
 
-			template<class Scalar>
-			Geometry::ESide getPointSide (const Split<Scalar> &_split, const Point<Scalar> &_point)
+			template<class Scalar, class QueryScalar>
+			Geometry::ESide getPointSide (const Split<Scalar> &_split, const Point<QueryScalar> &_point)
 			{
 				switch (_split.type ())
 				{
 					default:
 						assert (false);
 					case ESplitType::Vertical:
-						return Geometry::getPointSideWithVerticalLine (_split.x (), _point);
+						return Geometry::getPointSideWithVerticalLine (static_cast<QueryScalar>(_split.x ()), _point);
 					case ESplitType::NonVertical:
-						return Geometry::getPointSideWithSegment (_split.segment (), _point);
+						return Geometry::getPointSideWithSegment (Geometry::cast<QueryScalar> (_split.segment ()), _point);
 				}
 			}
 
-			template<class Scalar, class Disambiguator>
-			EChild getPointQueryNextChild (const Split<Scalar> &_split, const Point<Scalar> &_point, Disambiguator _disambiguator)
+			template<class Scalar, class QueryScalar, class Disambiguator>
+			EChild getPointQueryNextChild (const Split<Scalar> &_split, const Point<QueryScalar> &_point, Disambiguator _disambiguator)
 			{
 				switch (getPointSide (_split, _point))
 				{

@@ -6,6 +6,7 @@
 #endif
 
 #include "trapezoidal_map_drawer.hpp"
+#include <gas/utils/geometry.hpp>
 #include <stdexcept>
 
 namespace GAS
@@ -55,7 +56,7 @@ namespace GAS
 		cg3::Point3d TrapezoidalMapDrawer<Scalar>::sceneCenter () const
 		{
 			ensureValidMap ();
-			const Point<Scalar> center { (m_map->bottomLeft () + m_map->topRight ()) / 2.0 };
+			const Point<double> center { Geometry::cast<double> (m_map->bottomLeft () + m_map->topRight ()) / 2.0 };
 			return { center.x (), center.y (), 0.0 };
 		}
 
@@ -63,7 +64,7 @@ namespace GAS
 		double TrapezoidalMapDrawer<Scalar>::sceneRadius () const
 		{
 			ensureValidMap ();
-			return m_map->bottomLeft ().dist (m_map->topRight ()) / 2.0;
+			return Geometry::cast<double> (m_map->bottomLeft ()).dist (Geometry::cast<double> (m_map->topRight ())) / 2.0;
 		}
 
 		template<class Scalar>

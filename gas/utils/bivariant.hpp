@@ -5,6 +5,8 @@
 #ifndef GAS_UTILS_BIVARIANT_INCLUDED
 #define GAS_UTILS_BIVARIANT_INCLUDED
 
+#include <gas/utils/ignore.hpp>
+
 namespace GAS
 {
 
@@ -27,13 +29,9 @@ namespace GAS
 		class BiVariant final
 		{
 
-			/// \note
-			/// \c std::monostate is not available prior to C++17.
-			struct Monostate {};
-
 			union Union
 			{
-				Monostate monostate {};
+				Ignore ignore {};
 				First first;
 				Second second;
 

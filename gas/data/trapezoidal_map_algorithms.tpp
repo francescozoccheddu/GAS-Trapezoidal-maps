@@ -154,7 +154,7 @@ namespace GAS
 					throw std::invalid_argument ("Points with the same x-coordinate are illegal");
 				}
 			}
-			return TDAG::Utils::getPointQueryNextChild (split, left, TDAG::Utils::disambiguateAlwaysRight<Scalar>);
+			return TDAG::Utils::getPointQueryNextChild (split, Geometry::cast<ArithmeticScalar> (left), TDAG::Utils::disambiguateAlwaysRight);
 		}).data ().second ();
 	}
 

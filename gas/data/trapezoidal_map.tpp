@@ -82,7 +82,7 @@ namespace GAS
 	}
 
 	template<class Scalar>
-        TrapezoidalMap<Scalar>::NullablePair::operator bool () const
+	TrapezoidalMap<Scalar>::NullablePair::operator bool () const
 	{
 		return Pair::m_a;
 	}
@@ -190,9 +190,10 @@ namespace GAS
 	}
 
 	template<class Scalar>
-	const Trapezoid<Scalar> &TrapezoidalMap<Scalar>::query (const PointS &_point) const
+	template<class QueryScalar>
+	const Trapezoid<Scalar> &TrapezoidalMap<Scalar>::query (const Point<QueryScalar> &_point) const
 	{
-		if (!isPointInsideBounds (_point))
+		if (!isPointInsideBounds (Geometry::cast<Scalar> (_point)))
 		{
 			throw std::invalid_argument ("Point is outside bounds");
 		}

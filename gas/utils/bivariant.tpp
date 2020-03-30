@@ -18,7 +18,7 @@ namespace GAS
 	namespace Utils
 	{
 		template<class First, class Second>
-		BiVariant<First, Second>::Union::Union () : monostate {}
+		BiVariant<First, Second>::Union::Union () : ignore {}
 		{}
 
 		template<class First, class Second>
